@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
 import 'package:scaffassistant/core/const/string_const/image_path.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
+import 'package:scaffassistant/feature/auth/controllers/signup_controller.dart';
 
 import '../../../core/theme/text_theme.dart';
 import '../widgets/s_full_btn.dart';
@@ -15,6 +16,7 @@ class SignupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SignupController signupController = Get.put(SignupController());
 
     return Scaffold(
       backgroundColor: SColor.primary,
@@ -70,36 +72,43 @@ class SignupScreen extends StatelessWidget {
 
               // === Email Fields === //
               STextField(
+                labelText: 'Name',
+                hintText: 'Enter your full name',
+                keyboardType: TextInputType.name,
+                controller: signupController.nameController,
+              ),
+              SizedBox(height: DynamicSize.medium(context)),
+
+              STextField(
                 labelText: 'Email',
-                hintText: 'Enter your email',
+                hintText: 'Enter your email address',
                 keyboardType: TextInputType.emailAddress,
+                controller: signupController.emailController,
               ),
               SizedBox(height: DynamicSize.medium(context)),
 
               // === Password Fields === //
-              STextField(
-                labelText: 'Password',
-                hintText: 'Enter your password',
-                obscureText: true,
-                suffixIcon: Icon(Icons.visibility_off, color: SColor.borderColor),
-                changedSuffixIcon: Icon(Icons.visibility, color: SColor.textPrimary),
-              ),
-              SizedBox(height: DynamicSize.medium(context)),
               STextField(
                 labelText: 'Confirm Password',
                 hintText: 'Re-enter your password',
                 obscureText: true,
                 suffixIcon: Icon(Icons.visibility_off, color: SColor.borderColor),
                 changedSuffixIcon: Icon(Icons.visibility, color: SColor.textPrimary),
+                keyboardType: TextInputType.visiblePassword,
+                controller: signupController.passwordController,
               ),
               SizedBox(height: DynamicSize.large(context)),
 
               // === Login Button === //
-              SFullBtn(
-                text: 'Sign Up',
-                onPressed: () {
-
-                },
+              Obx(
+                  ()=> SFullBtn(
+                    text: signupController.isLoading.value ? 'Signing Up ...' : 'Sign Up',
+                    onPressed: () {
+                      if(!signupController.isLoading.value){
+                        signupController.signUp();
+                      }
+                    },
+                  )
               ),
 
               SizedBox(height: DynamicSize.small(context)),

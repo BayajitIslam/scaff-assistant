@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
 import 'package:scaffassistant/core/const/string_const/image_path.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
+import 'package:scaffassistant/feature/auth/controllers/otp_verification_controller.dart';
 import 'package:scaffassistant/feature/auth/widgets/s_otp_field.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 
@@ -17,6 +18,8 @@ class OtpVerificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final OtpVerificationController otpVerificationController = Get.put(OtpVerificationController());
 
     return Scaffold(
       backgroundColor: SColor.primary,
@@ -63,18 +66,25 @@ class OtpVerificationScreen extends StatelessWidget {
 
               // === OTP Field === //
               SOTPField(
-                length: 5,
-                controller: TextEditingController(),
+                length: 6,
+                controller: otpVerificationController.otpController,
               ),
 
               SizedBox(height: DynamicSize.large(context)),
 
               // === Login Button === //
-              SFullBtn(
-                text: 'Verify',
-                onPressed: () {
-                  Get.toNamed(RouteNames.passwordReset);
-                },
+              Obx(
+                  ()=> SFullBtn(
+                    text: otpVerificationController.isLoading.value ? 'Verifying...' : 'Verify OTP',
+                    onPressed: () {
+                      // In the OTP screen or its controller
+                      final args = Get.arguments as Map<String, dynamic>? ?? {};
+                      final name = args['name'] ?? '';
+                      final email = args['email'] ?? '';
+                      final password = args['password'] ?? '';
+                      otpVerificationController.otpVerify(name, email, password);
+                    },
+                  )
               ),
             ],
           ),

@@ -71,7 +71,7 @@ class MailVerificationScreen extends StatelessWidget {
 
               // === Login Button === //
               SFullBtn(
-                text: 'send otp',
+                text: 'Verify Your Mail',
                 onPressed: () {
                   Get.toNamed(RouteNames.otpVerification);
                 },

@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      initialRoute: RouteNames.home,
+      initialRoute: RouteNames.login,
       getPages: Routes.pages,
     );
   }

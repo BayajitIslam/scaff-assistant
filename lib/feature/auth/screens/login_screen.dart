@@ -91,6 +91,7 @@ class LoginScreen extends StatelessWidget {
                 obscureText: true,
                 suffixIcon: Icon(Icons.visibility_off, color: SColor.borderColor),
                 changedSuffixIcon: Icon(Icons.visibility, color: SColor.textPrimary),
+                keyboardType: TextInputType.visiblePassword,
               ),
               SizedBox(height: DynamicSize.large(context)),
 
