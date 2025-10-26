@@ -50,4 +50,34 @@ class OtpVerificationController extends GetxController{
 
   }
 
+  Future<void> resendOTP(String email , String purpose) async {
+    final response = await http.post(
+      Uri.parse(APIEndPoint.resendOtp),
+      body: {
+        'email': email,
+        'purpose': purpose,
+      },
+    );
+
+    print('Response status for account cration: ${response.statusCode}');
+
+    if(response.statusCode == 200 || response.statusCode == 201){
+      Get.showSnackbar(
+          GetSnackBar(
+            message: 'OTP has been resent to your email.',
+            duration: Duration(seconds: 3),
+          )
+      );
+    } else {
+      Get.showSnackbar(
+          GetSnackBar(
+            message: 'Failed to resend OTP. Please try again.',
+            duration: Duration(seconds: 3),
+          )
+      );
+      print('Resend OTP failed: ${response.body}');
+    }
+
+  }
+
 }

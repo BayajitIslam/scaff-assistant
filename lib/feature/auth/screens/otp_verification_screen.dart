@@ -86,6 +86,26 @@ class OtpVerificationScreen extends StatelessWidget {
                     },
                   )
               ),
+
+              SizedBox(height: DynamicSize.large(context)),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    final args = Get.arguments as Map<String, dynamic>? ?? {};
+                    final email = args['email'] ?? '';
+                    otpVerificationController.resendOTP(email, 'signup');
+                  },
+                  child: Text(
+                    'Resend OTP',
+                    style: GoogleFonts.poppins(
+                      color: SColor.textPrimary,
+                      fontSize: 16,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),

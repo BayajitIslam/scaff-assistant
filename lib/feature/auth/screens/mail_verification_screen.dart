@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
 import 'package:scaffassistant/core/const/string_const/image_path.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
+import 'package:scaffassistant/feature/auth/controllers/reset_password_controller.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 
 import '../../../core/theme/text_theme.dart';
@@ -16,6 +17,8 @@ class MailVerificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final ResetPasswordController resetPasswordController = Get.put(ResetPasswordController());
 
     return Scaffold(
       backgroundColor: SColor.primary,
@@ -65,17 +68,22 @@ class MailVerificationScreen extends StatelessWidget {
                 labelText: 'Email',
                 hintText: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
+                controller: resetPasswordController.emailController,
               ),
 
               SizedBox(height: DynamicSize.large(context)),
 
               // === Login Button === //
-              SFullBtn(
-                text: 'Verify Your Mail',
-                onPressed: () {
-                  Get.toNamed(RouteNames.otpVerification);
-                },
-              ),
+              Obx(
+                () => SFullBtn(
+                  text: resetPasswordController.isLoading.value ? 'Sending...' : 'Send OTP',
+                  onPressed: () {
+                    if(!resetPasswordController.isLoading.value){
+                      resetPasswordController.verifyEmail();
+                    }
+                  },
+                )
+              )
             ],
           ),
         ),
