@@ -1,7 +1,6 @@
 import 'package:get_storage/get_storage.dart';
 
 class UserStatus {
-  static const String userName = 'Samantha';
 
   static void setIsLoggedIn(bool status) {
     final box = GetStorage();

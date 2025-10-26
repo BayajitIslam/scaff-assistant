@@ -39,7 +39,8 @@ dependencies:
   ## === State Management === ##
   get: ^4.7.2
 
-    ## === HTTP Requests === ##
+  ## === HTTP Requests === ##
+  http: ^1.5.0
 
   ## === Storage === ##
   get_storage: ^2.1.1

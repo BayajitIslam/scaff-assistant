@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
 import 'package:scaffassistant/core/const/string_const/icon_path.dart';
 import 'package:scaffassistant/core/const/string_const/image_path.dart';
+import 'package:scaffassistant/core/local_storage/user_info.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
 import 'package:scaffassistant/core/theme/text_theme.dart';
@@ -56,14 +57,14 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Image(
           image: AssetImage(ImagePath.logoIcon),
         ),
-          leading: Builder(
-            builder: (context) => GestureDetector(
-              onTap: () {
-                Scaffold.of(context).openDrawer();
-              },
-              child: Image(image: AssetImage(IconPath.menuIcon)),
-            ),
+        leading: Builder(
+          builder: (context) => GestureDetector(
+            onTap: () {
+              Scaffold.of(context).openDrawer();
+            },
+            child: Image(image: AssetImage(IconPath.menuIcon)),
           ),
+        ),
         actions: [
           UserStatus.getIsLoggedIn()
               ? Padding(
@@ -75,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircleAvatar(
                 backgroundColor: SColor.textPrimary,
                 child: Text(
-                  UserStatus.userName[0],
+                  UserInfo.getUserName()[0],
                   style: STextTheme.headLine().copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -110,53 +111,53 @@ class _HomeScreenState extends State<HomeScreen> {
       // body: NewChat(chips: chips),
       body: UserStatus.getIsLoggedIn() ? Container(
         margin: EdgeInsets.only(bottom: DynamicSize.large(context) + 70),
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              final scrollController = ScrollController();
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            final scrollController = ScrollController();
 
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (scrollController.hasClients) {
-                  scrollController.jumpTo(scrollController.position.maxScrollExtent);
-                }
-              });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (scrollController.hasClients) {
+                scrollController.jumpTo(scrollController.position.maxScrollExtent);
+              }
+            });
 
-              return ListView.builder(
-                controller: scrollController,
-                padding: EdgeInsets.all(DynamicSize.large(context)),
-                itemCount: demoChat.length,
-                itemBuilder: (context, index) {
-                  final chat = demoChat[index];
-                  return Align(
-                    alignment: chat['isUser'] ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: DynamicSize.small(context)),
-                      padding: EdgeInsets.all(DynamicSize.medium(context)),
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: chat['isUser'] ? SColor.primary.withOpacity(0.4) : SColor.borderColor.withOpacity(0.2),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          topRight: Radius.circular(15),
-                          bottomLeft: Radius.circular(chat['isUser'] ? 15 : 0),
-                          bottomRight: Radius.circular(chat['isUser'] ? 0 : 15),
-                        ),
-                      ),
-                      child: Text(
-                        chat['message'],
-                        style: STextTheme.subHeadLine().copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: SColor.textPrimary,
-                        ),
+            return ListView.builder(
+              controller: scrollController,
+              padding: EdgeInsets.all(DynamicSize.large(context)),
+              itemCount: demoChat.length,
+              itemBuilder: (context, index) {
+                final chat = demoChat[index];
+                return Align(
+                  alignment: chat['isUser'] ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: DynamicSize.small(context)),
+                    padding: EdgeInsets.all(DynamicSize.medium(context)),
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: chat['isUser'] ? SColor.primary.withOpacity(0.4) : SColor.borderColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
+                        bottomLeft: Radius.circular(chat['isUser'] ? 15 : 0),
+                        bottomRight: Radius.circular(chat['isUser'] ? 0 : 15),
                       ),
                     ),
-                  );
-                },
-              );
-            },
-          ),
+                    child: Text(
+                      chat['message'],
+                      style: STextTheme.subHeadLine().copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: SColor.textPrimary,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ) : NewChat(chips: chips),
       bottomSheet: Container(
         width: double.infinity,
@@ -175,8 +176,8 @@ class _HomeScreenState extends State<HomeScreen> {
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(color: SColor.borderColor, width: 1)
+                borderRadius: BorderRadius.circular(30),
+                borderSide: BorderSide(color: SColor.borderColor, width: 1)
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
@@ -257,5 +258,4 @@ class NewChat extends StatelessWidget {
     );
   }
 }
-
 

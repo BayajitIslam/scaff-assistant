@@ -6,6 +6,7 @@ import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
 import 'package:scaffassistant/core/const/string_const/image_path.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
+import 'package:scaffassistant/feature/auth/controllers/login_controller.dart';
 
 import '../../../core/theme/text_theme.dart';
 import '../../../routing/route_name.dart';
@@ -18,6 +19,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final LoginController loginController = Get.put(LoginController());
 
     return Scaffold(
       backgroundColor: SColor.primary,
@@ -74,6 +76,7 @@ class LoginScreen extends StatelessWidget {
 
               // === Email Fields === //
               STextField(
+                controller: loginController.emailController,
                 labelText: 'Email',
                 hintText: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
@@ -82,6 +85,7 @@ class LoginScreen extends StatelessWidget {
 
               // === Password Fields === //
               STextField(
+                controller: loginController.passwordController,
                 labelText: 'Password',
                 hintText: 'Enter your password',
                 obscureText: true,
@@ -91,12 +95,15 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: DynamicSize.large(context)),
 
               // === Login Button === //
-              SFullBtn(
-                text: 'Login',
-                onPressed: () {
-                  Get.toNamed(RouteNames.home);
-                  UserStatus.setIsLoggedIn(true);
-                },
+              Obx(
+                  (){
+                    return SFullBtn(
+                      text: loginController.isLoading.value ? 'loading...' : 'login',
+                      onPressed: () {
+                        loginController.login();
+                      },
+                    );
+                  }
               ),
 
               SizedBox(height: DynamicSize.small(context)),
