@@ -16,7 +16,7 @@ class ChatController extends GetxController {
     isLoading.value = true;
 
     try {
-      final url = Uri.parse('${APIEndPoint.chatSessions}/$session/messages/');
+      final url = Uri.parse('${APIEndPoint.chatSession}/$session/messages/');
       final response = await http.get(
         url,
         headers: {
@@ -25,6 +25,7 @@ class ChatController extends GetxController {
       );
 
       print("Fetching messages for session $session, Status: ${response.statusCode}");
+      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);

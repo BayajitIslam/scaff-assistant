@@ -14,5 +14,6 @@ class APIEndPoint {
 
   // Chat
   static const String chatSessions = "$apiBaseUrl/chat/sessions/";
+  static const String chatSession = "$apiBaseUrl/chat/sessions";
 
 }
