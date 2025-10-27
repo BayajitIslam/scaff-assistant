@@ -23,113 +23,95 @@ class _HomeScreenState extends State<HomeScreen> {
   final ChatController chatController = Get.put(ChatController());
   final ChatSessionController chatSessionController = Get.put(ChatSessionController());
 
-  final List<String> chips = [
-    'Safety',
-    'Tools',
-    'Load',
-    'Inspection',
-    'Training',
-    'More',
-  ];
+  final ScrollController scrollController = ScrollController();
 
-  final scrollController = ScrollController();
+  final List<String> chips = ['Safety', 'Tools', 'Load', 'Inspection', 'Training', 'More'];
 
   @override
   void initState() {
     super.initState();
     chatSessionController.fetchChatSessions();
+
     if (UserStatus.getIsLoggedIn()) {
-      // Replace with your actual session id
       chatController.fetchChatMessages('f9823124-a613-466f-bb28-9224ce8e3399');
     }
   }
 
+  // MARKDOWN-LIKE DECORATOR
   List<TextSpan> decorateText(String message) {
-    final List<TextSpan> spans = [];
     final baseStyle = STextTheme.subHeadLine().copyWith(
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: SColor.textPrimary,
     );
 
-    // Helper to parse inline markdown-like tokens: **bold**, `code`, numbers
     List<TextSpan> parseInline(String text, TextStyle style) {
-      final List<TextSpan> parts = [];
+      final parts = <TextSpan>[];
       final regex = RegExp(r'\*\*(.+?)\*\*|`(.+?)`|\b\d+\b');
       int last = 0;
       for (final m in regex.allMatches(text)) {
-        if (m.start > last) {
-          parts.add(TextSpan(text: text.substring(last, m.start), style: style));
-        }
+        if (m.start > last) parts.add(TextSpan(text: text.substring(last, m.start), style: style));
+
         final bold = m.group(1);
         final code = m.group(2);
         final matchText = text.substring(m.start, m.end);
+
         if (bold != null) {
-          parts.add(TextSpan(
-              text: bold,
-              style: style.copyWith(fontWeight: FontWeight.bold)));
+          parts.add(TextSpan(text: bold, style: style.copyWith(fontWeight: FontWeight.bold)));
         } else if (code != null) {
           parts.add(TextSpan(
-              text: code,
-              style: style.copyWith(
-                fontFamily: 'monospace',
-                backgroundColor: Colors.grey.shade200,
-              )));
+            text: code,
+            style: style.copyWith(
+              fontFamily: 'monospace',
+              backgroundColor: Colors.grey.shade200,
+            ),
+          ));
         } else {
-          // number match
           parts.add(TextSpan(
-              text: matchText,
-              style: style.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.orange,
-              )));
+            text: matchText,
+            style: style.copyWith(fontWeight: FontWeight.bold, color: Colors.orange),
+          ));
         }
         last = m.end;
       }
-      if (last < text.length) {
-        parts.add(TextSpan(text: text.substring(last), style: style));
-      }
+      if (last < text.length) parts.add(TextSpan(text: text.substring(last), style: style));
       return parts;
     }
 
+    final spans = <TextSpan>[];
     final lines = message.split('\n');
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
       final isLastLine = i == lines.length - 1;
 
-      // Headings: #, ##, etc.
+      // Headings
       final headingMatch = RegExp(r'^\s*(#{1,6})\s*(.*)').firstMatch(line);
       if (headingMatch != null) {
         final level = headingMatch.group(1)!.length;
         final content = headingMatch.group(2) ?? '';
-        final headingStyle = baseStyle.copyWith(
+        spans.addAll(parseInline(content, baseStyle.copyWith(
           fontSize: 22 - (level * 2),
           fontWeight: FontWeight.w700,
-          color: SColor.textPrimary,
-        );
-        spans.addAll(parseInline(content, headingStyle));
+        )));
         if (!isLastLine) spans.add(TextSpan(text: '\n'));
         continue;
       }
 
       // Horizontal rule
       if (line.trim() == '---' || line.trim() == '***') {
-        spans.add(TextSpan(
-            text: '\u2014\u2014\u2014\n', style: baseStyle.copyWith(color: Colors.grey)));
+        spans.add(TextSpan(text: '\u2014\u2014\u2014\n', style: baseStyle.copyWith(color: Colors.grey)));
         continue;
       }
 
-      // Bullet list items
+      // Bullet list
       final listMatch = RegExp(r'^\s*([-*])\s+(.*)').firstMatch(line);
       if (listMatch != null) {
-        final content = listMatch.group(2) ?? '';
         spans.add(TextSpan(text: '• ', style: baseStyle));
-        spans.addAll(parseInline(content, baseStyle.copyWith(color: SColor.textSecondary)));
+        spans.addAll(parseInline(listMatch.group(2) ?? '', baseStyle.copyWith(color: SColor.textSecondary)));
         if (!isLastLine) spans.add(TextSpan(text: '\n'));
         continue;
       }
 
-      // Default line (supports inline bold, code, numbers)
       spans.addAll(parseInline(line, baseStyle));
       if (!isLastLine) spans.add(TextSpan(text: '\n'));
     }
@@ -137,58 +119,50 @@ class _HomeScreenState extends State<HomeScreen> {
     return spans;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: SColor.primary,
         title: Image(image: AssetImage(ImagePath.logoIcon)),
-        leading: Builder(
-          builder: (context) => GestureDetector(
-            onTap: () => Scaffold.of(context).openDrawer(),
-            child: Image(image: AssetImage(IconPath.menuIcon)),
-          ),
+        leading: GestureDetector(
+          onTap: () => Scaffold.of(context).openDrawer(),
+          child: Image(image: AssetImage(IconPath.menuIcon)),
         ),
         actions: [
-          UserStatus.getIsLoggedIn()
-              ? Padding(
-            padding: EdgeInsets.only(
-                right: DynamicSize.horizontalMedium(context)),
-            child: GestureDetector(
-              onTap: () => Get.toNamed(RouteNames.profile),
-              child: CircleAvatar(
-                backgroundColor: SColor.textPrimary,
-                child: Text(
-                  UserInfo.getUserName()[0],
-                  style: STextTheme.headLine().copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: SColor.primary,
+          if (UserStatus.getIsLoggedIn())
+            Padding(
+              padding: EdgeInsets.only(right: DynamicSize.horizontalMedium(context)),
+              child: GestureDetector(
+                onTap: () => Get.toNamed(RouteNames.profile),
+                child: CircleAvatar(
+                  backgroundColor: SColor.textPrimary,
+                  child: Text(
+                    UserInfo.getUserName()[0],
+                    style: STextTheme.headLine().copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: SColor.primary,
+                    ),
                   ),
                 ),
               ),
-            ),
-          )
-              : ElevatedButton(
-            onPressed: () => Get.toNamed(RouteNames.login),
-            style: ElevatedButton.styleFrom(
-              padding:
-              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              backgroundColor: SColor.textPrimary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+            )
+          else
+            ElevatedButton(
+              onPressed: () => Get.toNamed(RouteNames.login),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                backgroundColor: SColor.textPrimary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text(
+                'Sign up',
+                style: STextTheme.headLine().copyWith(fontSize: 12, fontWeight: FontWeight.w500),
               ),
             ),
-            child: Text(
-              'Sign up',
-              style: STextTheme.headLine().copyWith(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
           SizedBox(width: DynamicSize.horizontalMedium(context)),
         ],
       ),
@@ -203,93 +177,94 @@ class _HomeScreenState extends State<HomeScreen> {
           return NewChat(chips: chips);
         }
 
-        // Auto scroll to bottom
+        // Auto scroll
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (scrollController.hasClients) {
-            scrollController
-                .jumpTo(scrollController.position.maxScrollExtent);
+            scrollController.jumpTo(scrollController.position.maxScrollExtent);
           }
         });
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 90),
-          child: ListView.builder(
+        return Obx(
+              () => ListView.builder(
             controller: scrollController,
-            padding: EdgeInsets.all(DynamicSize.large(context)),
+            padding: EdgeInsets.all(DynamicSize.medium(context)),
             itemCount: chatController.chatHistory.length,
             itemBuilder: (context, index) {
-              final chat = chatController.chatHistory[index];
-              final isUser = chat.role == 'user';
+              final message = chatController.chatHistory[index];
+              final isUser = message.role == 'user';
 
-              return Align(
+              return Container(
+                margin: EdgeInsets.only(
+                  bottom: DynamicSize.medium(context),
+                  left: isUser ? DynamicSize.horizontalLarge(context) : 0,
+                  right: isUser ? 0 : DynamicSize.horizontalLarge(context),
+                ),
                 alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
-                  margin: EdgeInsets.symmetric(vertical: DynamicSize.small(context)),
                   padding: EdgeInsets.all(DynamicSize.medium(context)),
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.7,
-                  ),
                   decoration: BoxDecoration(
-                    color: isUser
-                        ? SColor.primary.withOpacity(0.4)
-                        : SColor.borderColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(15),
-                      topRight: const Radius.circular(15),
-                      bottomLeft: Radius.circular(isUser ? 15 : 0),
-                      bottomRight: Radius.circular(isUser ? 0 : 15),
-                    ),
+                    color: isUser ? Color(0xFFD1E7FF) : Color(0xFFF0F0F0),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: RichText(
                     text: TextSpan(
-                      style: STextTheme.subHeadLine().copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: SColor.textPrimary,
-                      ),
-                      children: decorateText(chat.content),
+                      children: decorateText(message.content),
                     ),
                   ),
                 ),
               );
             },
-          ),
+          )
         );
       })
           : NewChat(chips: chips),
-      bottomSheet: Container(
-        width: double.infinity,
-        color: SColor.primary,
-        padding: EdgeInsets.fromLTRB(
-          DynamicSize.medium(context),
-          DynamicSize.medium(context),
-          DynamicSize.medium(context),
-          DynamicSize.large(context) + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: TextField(
-          minLines: 1,
-          maxLines: 4,
-          decoration: InputDecoration(
-            hintText: 'Type a message',
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(color: SColor.borderColor, width: 1),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          width: double.infinity,
+          color: SColor.primary,
+          padding: EdgeInsets.fromLTRB(
+            DynamicSize.medium(context),
+            DynamicSize.medium(context),
+            DynamicSize.medium(context),
+            DynamicSize.large(context),
+          ),
+          child: TextField(
+            controller: chatController.messageController,
+            minLines: 1,
+            maxLines: 4,
+            decoration: InputDecoration(
+              hintText: 'Type a message',
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30),
+                borderSide: BorderSide(color: SColor.borderColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30),
+                borderSide: BorderSide(color: SColor.borderColor),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              suffixIcon: Obx(
+                    () => IconButton(
+                  icon: chatController.isSending.value
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.send),
+                  onPressed: chatController.isSending.value
+                      ? null
+                      : () {
+                    chatController.sendMessage();
+                  },
+                ),),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(color: SColor.borderColor),
-            ),
-            contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            suffixIcon: Icon(Icons.send, color: SColor.textPrimary),
           ),
         ),
       ),
     );
   }
 }
+
 
 class NewChat extends StatelessWidget {
   const NewChat({super.key, required this.chips});

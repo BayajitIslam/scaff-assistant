@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:scaffassistant/core/local_storage/user_info.dart';
@@ -7,8 +8,10 @@ import '../../../core/const/string_const/api_endpoint.dart';
 
 class ChatController extends GetxController {
   RxBool isLoading = false.obs;
+  RxBool isSending = false.obs;
   RxList<ChatHistoryModel> chatHistory = <ChatHistoryModel>[].obs;
   RxString sessionId = ''.obs;
+  TextEditingController messageController = TextEditingController();
 
   /// Fetch messages for a specific session
   Future<void> fetchChatMessages(String session) async {
@@ -47,23 +50,33 @@ class ChatController extends GetxController {
   }
 
   /// Send a new message
-  Future<void> sendMessage(String content) async {
-    isLoading.value = true;
+  Future<void> sendMessage() async {
+    final text = messageController.text.trim();
+    if (text.isEmpty) return;
 
-    Map <String, String> bodyForSession = {
-      'question': content,
-      'session_id': sessionId.value,
-    };
+    // Add user message immediately
+    final userMessage = ChatHistoryModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      sessionId: sessionId.value,
+      userId: 'current_user',
+      role: 'user',
+      content: text,
+      createdAt: DateTime.now(),
+    );
+    chatHistory.add(userMessage);
+    messageController.clear();
 
-    Map <String, String> bodyForNew = {
-      'question': content,
-      'session_id': sessionId.value,
-    };
-
-    Map<String, String> body = sessionId.value.isEmpty ? bodyForNew : bodyForSession;
+    isSending.value = true;
 
     try {
-      final url = Uri.parse('APIEndPoint.chatMessages');
+      isSending.value = true;
+
+      final body = {
+        'question': text,
+        'session_id': sessionId.value,
+      };
+
+      final url = Uri.parse(APIEndPoint.chatMessages);
       final response = await http.post(
         url,
         headers: {
@@ -73,24 +86,41 @@ class ChatController extends GetxController {
         body: jsonEncode(body),
       );
 
-      print("Sending message to session $sessionId, Status: ${response.statusCode}");
+      print("Sending message, Status: ${response.statusCode}");
       print("Response body: ${response.body}");
 
-      if (response.statusCode == 201) {
-        final decoded = jsonDecode(response.body);
-        final newMessage = ChatHistoryModel.fromJson(decoded);
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
 
-        chatHistory.add(newMessage);
-        print("Message sent and added to chat history");
+        // Update session ID
+        sessionId.value = data['session_id'];
+
+        // Add assistant message
+        final assistantMessage = ChatHistoryModel(
+          id: data['message_id'].toString(),
+          sessionId: data['session_id'],
+          userId: 'assistant',
+          role: 'assistant',
+          content: data['answer'] ?? '', // <-- must use 'answer'
+          createdAt: DateTime.now(),
+        );
+
+        chatHistory.add(assistantMessage); // triggers UI update
+        isSending.value = false;
       } else {
         print("Failed to send message: ${response.statusCode}");
+        isSending.value = false;
       }
     } catch (e) {
       print("Error sending message: $e");
+      isSending.value = false;
     } finally {
-      isLoading.value = false;
+      isSending.value = false;
     }
   }
+
+
+
 
   /// Clear messages
   void clearChat() {
