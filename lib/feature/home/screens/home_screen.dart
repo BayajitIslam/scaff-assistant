@@ -44,6 +44,100 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  List<TextSpan> decorateText(String message) {
+    final List<TextSpan> spans = [];
+    final baseStyle = STextTheme.subHeadLine().copyWith(
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: SColor.textPrimary,
+    );
+
+    // Helper to parse inline markdown-like tokens: **bold**, `code`, numbers
+    List<TextSpan> parseInline(String text, TextStyle style) {
+      final List<TextSpan> parts = [];
+      final regex = RegExp(r'\*\*(.+?)\*\*|`(.+?)`|\b\d+\b');
+      int last = 0;
+      for (final m in regex.allMatches(text)) {
+        if (m.start > last) {
+          parts.add(TextSpan(text: text.substring(last, m.start), style: style));
+        }
+        final bold = m.group(1);
+        final code = m.group(2);
+        final matchText = text.substring(m.start, m.end);
+        if (bold != null) {
+          parts.add(TextSpan(
+              text: bold,
+              style: style.copyWith(fontWeight: FontWeight.bold)));
+        } else if (code != null) {
+          parts.add(TextSpan(
+              text: code,
+              style: style.copyWith(
+                fontFamily: 'monospace',
+                backgroundColor: Colors.grey.shade200,
+              )));
+        } else {
+          // number match
+          parts.add(TextSpan(
+              text: matchText,
+              style: style.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.orange,
+              )));
+        }
+        last = m.end;
+      }
+      if (last < text.length) {
+        parts.add(TextSpan(text: text.substring(last), style: style));
+      }
+      return parts;
+    }
+
+    final lines = message.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      final line = lines[i];
+      final isLastLine = i == lines.length - 1;
+
+      // Headings: #, ##, etc.
+      final headingMatch = RegExp(r'^\s*(#{1,6})\s*(.*)').firstMatch(line);
+      if (headingMatch != null) {
+        final level = headingMatch.group(1)!.length;
+        final content = headingMatch.group(2) ?? '';
+        final headingStyle = baseStyle.copyWith(
+          fontSize: 22 - (level * 2),
+          fontWeight: FontWeight.w700,
+          color: SColor.textPrimary,
+        );
+        spans.addAll(parseInline(content, headingStyle));
+        if (!isLastLine) spans.add(TextSpan(text: '\n'));
+        continue;
+      }
+
+      // Horizontal rule
+      if (line.trim() == '---' || line.trim() == '***') {
+        spans.add(TextSpan(
+            text: '\u2014\u2014\u2014\n', style: baseStyle.copyWith(color: Colors.grey)));
+        continue;
+      }
+
+      // Bullet list items
+      final listMatch = RegExp(r'^\s*([-*])\s+(.*)').firstMatch(line);
+      if (listMatch != null) {
+        final content = listMatch.group(2) ?? '';
+        spans.add(TextSpan(text: '• ', style: baseStyle));
+        spans.addAll(parseInline(content, baseStyle.copyWith(color: SColor.textSecondary)));
+        if (!isLastLine) spans.add(TextSpan(text: '\n'));
+        continue;
+      }
+
+      // Default line (supports inline bold, code, numbers)
+      spans.addAll(parseInline(line, baseStyle));
+      if (!isLastLine) spans.add(TextSpan(text: '\n'));
+    }
+
+    return spans;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,48 +211,49 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         });
 
-        return ListView.builder(
-          controller: scrollController,
-          padding: EdgeInsets.all(DynamicSize.large(context)),
-          itemCount: chatController.chatHistory.length,
-          itemBuilder: (context, index) {
-            final chat = chatController.chatHistory[index];
-            final isUser = chat.role == 'user';
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 90),
+          child: ListView.builder(
+            controller: scrollController,
+            padding: EdgeInsets.all(DynamicSize.large(context)),
+            itemCount: chatController.chatHistory.length,
+            itemBuilder: (context, index) {
+              final chat = chatController.chatHistory[index];
+              final isUser = chat.role == 'user';
 
-            return Align(
-              alignment:
-              isUser ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                margin: EdgeInsets.symmetric(
-                    vertical: DynamicSize.small(context)),
-                padding: EdgeInsets.all(DynamicSize.medium(context)),
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.7,
-                ),
-                decoration: BoxDecoration(
-                  color: isUser
-                      ? SColor.primary.withOpacity(0.4)
-                      : SColor.borderColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(15),
-                    topRight: const Radius.circular(15),
-                    bottomLeft:
-                    Radius.circular(isUser ? 15 : 0),
-                    bottomRight:
-                    Radius.circular(isUser ? 0 : 15),
+              return Align(
+                alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: DynamicSize.small(context)),
+                  padding: EdgeInsets.all(DynamicSize.medium(context)),
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isUser
+                        ? SColor.primary.withOpacity(0.4)
+                        : SColor.borderColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(15),
+                      topRight: const Radius.circular(15),
+                      bottomLeft: Radius.circular(isUser ? 15 : 0),
+                      bottomRight: Radius.circular(isUser ? 0 : 15),
+                    ),
+                  ),
+                  child: RichText(
+                    text: TextSpan(
+                      style: STextTheme.subHeadLine().copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: SColor.textPrimary,
+                      ),
+                      children: decorateText(chat.content),
+                    ),
                   ),
                 ),
-                child: Text(
-                  chat.content,
-                  style: STextTheme.subHeadLine().copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: SColor.textPrimary,
-                  ),
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         );
       })
           : NewChat(chips: chips),

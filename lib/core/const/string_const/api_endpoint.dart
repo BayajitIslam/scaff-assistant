@@ -13,6 +13,7 @@ class APIEndPoint {
   static const String logout = "$apiBaseUrl/auth/logout/";
 
   // Chat
+  static const String chatMessages = "$apiBaseUrl/chat/ask/";
   static const String chatSessions = "$apiBaseUrl/chat/sessions/";
   static const String chatSession = "$apiBaseUrl/chat/sessions";
 

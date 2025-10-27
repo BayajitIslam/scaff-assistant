@@ -46,6 +46,52 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Send a new message
+  Future<void> sendMessage(String content) async {
+    isLoading.value = true;
+
+    Map <String, String> bodyForSession = {
+      'question': content,
+      'session_id': sessionId.value,
+    };
+
+    Map <String, String> bodyForNew = {
+      'question': content,
+      'session_id': sessionId.value,
+    };
+
+    Map<String, String> body = sessionId.value.isEmpty ? bodyForNew : bodyForSession;
+
+    try {
+      final url = Uri.parse('APIEndPoint.chatMessages');
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer ${UserInfo.getAccessToken()}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      print("Sending message to session $sessionId, Status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 201) {
+        final decoded = jsonDecode(response.body);
+        final newMessage = ChatHistoryModel.fromJson(decoded);
+
+        chatHistory.add(newMessage);
+        print("Message sent and added to chat history");
+      } else {
+        print("Failed to send message: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error sending message: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   /// Clear messages
   void clearChat() {
     chatHistory.clear();

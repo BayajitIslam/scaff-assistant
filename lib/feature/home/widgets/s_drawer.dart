@@ -48,7 +48,11 @@ class SDrawer extends StatelessWidget {
               ),
               SizedBox(height: DynamicSize.medium(context)),
               ElevatedButton(
-                onPressed: isLoggedIn ? () {} : null,
+                onPressed: isLoggedIn ? () {
+                  final chatController = Get.put(ChatController());
+                  chatController.clearChat();
+                  Scaffold.of(context).closeDrawer();
+                } : null,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
                   backgroundColor: SColor.textPrimary,
