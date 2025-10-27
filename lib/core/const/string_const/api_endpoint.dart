@@ -12,4 +12,7 @@ class APIEndPoint {
   static const String passwordReset = "$apiBaseUrl/auth/password-reset-confirm/";
   static const String logout = "$apiBaseUrl/auth/logout/";
 
+  // Chat
+  static const String chatSessions = "$apiBaseUrl/chat/sessions/";
+
 }

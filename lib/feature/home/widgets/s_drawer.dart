@@ -1,40 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
+import 'package:scaffassistant/feature/home/controllers/chat_session_controller.dart';
+import 'package:scaffassistant/feature/home/models/chat_session_model.dart';
+import 'package:get/get.dart';
 
 import '../../../core/const/size_const/dynamic_size.dart';
 import '../../../core/const/string_const/icon_path.dart';
 import '../../../core/const/string_const/image_path.dart';
 import '../../../core/theme/SColor.dart';
 import '../../../core/theme/text_theme.dart';
+import '../controllers/chat_controller.dart';
 import 'login_note.dart';
 
 class SDrawer extends StatelessWidget {
-  const SDrawer({super.key});
+  List<ChatSessionModel> chatHistory;
+  SDrawer({required this.chatHistory, super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<String> demoHistory = [
-      'How to erect a scaffold?',
-      'Scaffold safety tips',
-      'Best practices for scaffold inspection',
-      'Scaffold load capacity guidelines',
-      'Training requirements for scaffold workers',
-      'Daily inspection checklist',
-      'Fall protection measures',
-      'Platform width requirements',
-      'Material handling on scaffold',
-      'Scaffold tagging system',
-      'How to erect a scaffold?',
-      'Scaffold safety tips',
-      'Best practices for scaffold inspection',
-      'Scaffold load capacity guidelines',
-      'Training requirements for scaffold workers',
-      'Daily inspection checklist',
-      'Fall protection measures',
-      'Platform width requirements',
-      'Material handling on scaffold',
-      'Scaffold tagging system',
-    ];
 
     final bool isLoggedIn = UserStatus.getIsLoggedIn();
 
@@ -118,23 +101,31 @@ class SDrawer extends StatelessWidget {
                     SizedBox(height: DynamicSize.small(context)),
 
                     Expanded(
-                      child: ListView.separated(
-                        itemCount: demoHistory.length,
+                      child: Obx(() => ListView.separated(
+                        itemCount: chatHistory.length,
                         itemBuilder: (context, index) {
-                          return Text(
-                            demoHistory[index],
-                            style: STextTheme.subHeadLine().copyWith(
-                              color: SColor.textSecondary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
+                          return GestureDetector(
+                            onTap: () {
+                              final chatController = Get.put(ChatController());
+                              chatController.sessionId.value = chatHistory[index].id;
+                              chatController.fetchChatMessages(chatHistory[index].id);
+                              Scaffold.of(context).closeDrawer();
+                              print('Selected chat session ID: ${chatHistory[index].id}');
+                            },
+                            child: Text(
+                              chatHistory[index].title,
+                              style: STextTheme.subHeadLine().copyWith(
+                                color: SColor.textSecondary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           );
                         },
-                        separatorBuilder: (context, index) =>
-                        const SizedBox(height: 12),
-                      ),
+                        separatorBuilder: (context, index) => const SizedBox(height: 12),
+                      )),
                     ),
                   ],
                 )

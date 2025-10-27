@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:scaffassistant/core/local_storage/user_info.dart';
+import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 import 'package:scaffassistant/routing/routes.dart';
 
@@ -17,6 +19,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final bool isLoggedIn = UserStatus.getIsLoggedIn == true;
+    final bool hasToken = UserInfo.getAccessToken().isNotEmpty;
+    final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.login;
+
     return GetMaterialApp(
       title: 'Scaff Assistant',
       debugShowCheckedModeBanner: false,
@@ -26,7 +32,7 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      initialRoute: RouteNames.login,
+      initialRoute: initialRoute,
       getPages: Routes.pages,
     );
   }

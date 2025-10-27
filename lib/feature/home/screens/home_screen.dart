@@ -7,6 +7,7 @@ import 'package:scaffassistant/core/local_storage/user_info.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
 import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/feature/home/controllers/chat_session_controller.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 
 import '../widgets/s_drawer.dart';
@@ -19,6 +20,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  final ChatSessionController chatSessionController = Get.put(ChatSessionController());
+
+  @override
+  void initState() {
+    chatSessionController.fetchChatSessions();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -188,7 +198,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      drawer: SDrawer(),
+      drawer: SDrawer(
+        chatHistory: chatSessionController.chatSessions,
+      ),
     );
   }
 }
