@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:scaffassistant/core/local_storage/user_info.dart';
+import 'package:scaffassistant/feature/home/controllers/chat_session_controller.dart';
 import 'package:scaffassistant/feature/home/models/chat_history_model.dart';
 import '../../../core/const/string_const/api_endpoint.dart';
 
@@ -71,10 +72,15 @@ class ChatController extends GetxController {
     try {
       isSending.value = true;
 
-      final body = {
+      final bodyWithSession = {
         'question': text,
         'session_id': sessionId.value,
       };
+      final bodyWithoutSession = {
+        'question': text,
+      };
+
+      final body = sessionId.value.isNotEmpty ? bodyWithSession : bodyWithoutSession;
 
       final url = Uri.parse(APIEndPoint.chatMessages);
       final response = await http.post(
@@ -91,6 +97,11 @@ class ChatController extends GetxController {
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body);
+
+        if(sessionId.value.isEmpty){
+          final ChatSessionController chatSessionController = Get.put(ChatSessionController());
+          await chatSessionController.fetchChatSessions();
+        }
 
         // Update session ID
         sessionId.value = data['session_id'];

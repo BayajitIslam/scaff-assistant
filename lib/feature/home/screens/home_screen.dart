@@ -32,9 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     chatSessionController.fetchChatSessions();
 
-    if (UserStatus.getIsLoggedIn()) {
-      chatController.fetchChatMessages('f9823124-a613-466f-bb28-9224ce8e3399');
-    }
+    // if (UserStatus.getIsLoggedIn()) {
+    //   chatController.fetchChatMessages('f9823124-a613-466f-bb28-9224ce8e3399');
+    // }
   }
 
   // MARKDOWN-LIKE DECORATOR
@@ -127,9 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: SColor.primary,
         title: Image(image: AssetImage(ImagePath.logoIcon)),
-        leading: GestureDetector(
-          onTap: () => Scaffold.of(context).openDrawer(),
-          child: Image(image: AssetImage(IconPath.menuIcon)),
+        leading: Builder(
+          builder: (context) => GestureDetector(
+            onTap: () => Scaffold.of(context).openDrawer(),
+            child: Image(image: AssetImage(IconPath.menuIcon)),
+          ),
         ),
         actions: [
           if (UserStatus.getIsLoggedIn())
