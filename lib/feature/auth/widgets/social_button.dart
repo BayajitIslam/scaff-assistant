@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../core/const/size_const/dynamic_size.dart';
 import '../../../core/theme/text_theme.dart';
 
 class SocialButton extends StatelessWidget {
   String text;
   String image;
+  VoidCallback? onTap;
   SocialButton({
     required this.text,
     required this.image,
+    this.onTap,
     super.key,
   });
 
@@ -15,7 +18,7 @@ class SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(

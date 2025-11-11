@@ -155,14 +155,17 @@ class LoginScreen extends StatelessWidget {
                   SocialButton(
                     text: 'sign in with Google',
                     image: ImagePath.google,
+                    onTap: (){
+                      loginController.googleSignIn();
+                    },
                   ),
-                  SizedBox(width: DynamicSize.horizontalMedium(context)),
-
-                  // === Apple Button === //
-                  SocialButton(
-                    text: 'sign in with Apple',
-                    image: ImagePath.apple,
-                  ),
+                  // SizedBox(width: DynamicSize.horizontalMedium(context)),
+                  //
+                  // // === Apple Button === //
+                  // SocialButton(
+                  //   text: 'sign in with Apple',
+                  //   image: ImagePath.apple,
+                  // ),
                 ],
               ),
               SizedBox(height: DynamicSize.medium(context)),

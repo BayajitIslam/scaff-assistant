@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
+import 'package:scaffassistant/feature/auth/controllers/logout_controller.dart';
 import 'package:scaffassistant/feature/home/controllers/chat_session_controller.dart';
 import 'package:scaffassistant/feature/home/models/chat_session_model.dart';
 import 'package:get/get.dart';
@@ -141,7 +142,8 @@ class SDrawer extends StatelessWidget {
                 SizedBox(height: DynamicSize.small(context)),
                 ElevatedButton(
                   onPressed: () {
-                    UserStatus.setIsLoggedIn(false);
+                    LogoutController logoutController = Get.put(LogoutController());
+                    logoutController.login();
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),

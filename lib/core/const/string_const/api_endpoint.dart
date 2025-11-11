@@ -1,7 +1,7 @@
 class APIEndPoint {
-  static const String baseUrl = "http://103.186.20.253";
+  static const String baseUrl = "https://scaffapi.dsrt321.online";
   static const String port = "8001";
-  static const String apiBaseUrl = "$baseUrl:$port";
+  static const String apiBaseUrl = baseUrl;
 
   // Authentication Endpoints
   static const String login = "$apiBaseUrl/auth/login/";
@@ -11,6 +11,7 @@ class APIEndPoint {
   static const String resendOtp = "$apiBaseUrl/auth/resend-otp/";
   static const String passwordReset = "$apiBaseUrl/auth/password-reset-confirm/";
   static const String logout = "$apiBaseUrl/auth/logout/";
+  static const String googleLogin = "$apiBaseUrl/auth/google-login/";
 
   // Chat
   static const String chatMessages = "$apiBaseUrl/chat/ask/";
