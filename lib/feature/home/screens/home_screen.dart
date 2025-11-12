@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final baseStyle = STextTheme.subHeadLine().copyWith(
       fontSize: 14,
       fontWeight: FontWeight.w400,
-      color: SColor.textPrimary,
+      color: Colors.black
     );
 
     List<TextSpan> parseInline(String text, TextStyle style) {
@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
             text: code,
             style: style.copyWith(
               fontFamily: 'monospace',
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: Colors.grey,
             ),
           ));
         } else {
