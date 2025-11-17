@@ -50,6 +50,7 @@ class LoginController extends GetxController{
     try {
       isLoading.value = true;
 
+      // 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
       // Initialize Google Sign-In
       await GoogleSignIn.instance.initialize(
         serverClientId: '594391332991-ddau3boono9g5c2acl9p80pt065c1uq0.apps.googleusercontent.com',
