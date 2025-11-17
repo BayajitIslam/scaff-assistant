@@ -63,11 +63,7 @@ class LoginController extends GetxController{
       }
 
       // Authenticate the user
-      final GoogleSignInAccount? account = await GoogleSignIn.instance.authenticate();
-      if (account == null) {
-        Get.snackbar('Cancelled', 'Google sign-in cancelled');
-        return;
-      }
+      final GoogleSignInAccount account = await GoogleSignIn.instance.authenticate();
 
       print('🔐 User signed in: ${account.email}');
 

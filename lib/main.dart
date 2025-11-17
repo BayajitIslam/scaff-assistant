@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:scaffassistant/core/local_storage/user_info.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/routing/route_name.dart';
@@ -10,7 +9,6 @@ import 'package:scaffassistant/routing/routes.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  GoogleSignIn.instance.initialize();
   await GetStorage.init();
   runApp(const MyApp());
 }
