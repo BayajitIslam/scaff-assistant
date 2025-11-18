@@ -30,15 +30,9 @@ class SocialButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image(
-              width: 20,
-              image: AssetImage(image),
-            ),
+            Image(width: 20, image: AssetImage(image)),
             SizedBox(width: DynamicSize.horizontalMedium(context)),
-            Text(
-              text,
-              style: STextTheme.subHeadLine(),
-            ),
+            Text(text, style: STextTheme.subHeadLine()),
           ],
         ),
       ),

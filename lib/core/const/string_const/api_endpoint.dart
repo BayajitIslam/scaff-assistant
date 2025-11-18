@@ -1,6 +1,6 @@
 class APIEndPoint {
-  // static const String baseUrl = "https://scaffapi.dsrt321.online";
-  static const String baseUrl = "https://scaffapi.dsrt321.online/";
+  static const String baseUrl = "https://scaffapi.dsrt321.online";
+  // static const String baseUrl = "http://165.101.214.252:8001";
   static const String port = "8001";
   static const String apiBaseUrl = baseUrl;
 
