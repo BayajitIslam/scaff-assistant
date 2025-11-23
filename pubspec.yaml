@@ -31,9 +31,13 @@ dependencies:
 
   ## === Storage === ##
   get_storage: ^2.1.1
+  shared_preferences: ^2.2.0
 
   ## === JSON Serialization === ##
   google_sign_in: ^7.2.0
+
+  ## === In App Purchase === ##
+  in_app_purchase: ^3.2.3
 
 dev_dependencies:
   flutter_test:
