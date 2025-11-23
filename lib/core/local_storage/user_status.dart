@@ -11,4 +11,14 @@ class UserStatus {
     final box = GetStorage();
     return box.read('isLoggedIn') ?? false;
   }
+
+  // is first time user
+  static void setIsFirstTimeUser(bool status) {
+    final box = GetStorage();
+    box.write('isFirstTimeUser', status);
+  }
+  static bool getIsFirstTimeUser() {
+    final box = GetStorage();
+    return box.read('isFirstTimeUser') ?? true;
+  }
 }

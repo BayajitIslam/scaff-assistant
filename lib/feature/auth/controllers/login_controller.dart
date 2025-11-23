@@ -37,7 +37,12 @@ class LoginController extends GetxController{
       UserInfo.setUserName(responseData['full_name'] ?? responseData['username'] ?? '');
       UserInfo.setUserEmail(responseData['email'] ?? emailController.text);
       UserInfo.setAccessToken(responseData['access_token']?['access'] ?? '');
-      Get.offAllNamed(RouteNames.home);
+      if(UserStatus.getIsFirstTimeUser()){
+        UserStatus.setIsFirstTimeUser(false);
+        Get.offAllNamed(RouteNames.subscription);
+      }else{
+        Get.offAllNamed(RouteNames.home);
+      }
     } else {
       isLoading.value = false;
       print('Login failed: ${response.body}');
