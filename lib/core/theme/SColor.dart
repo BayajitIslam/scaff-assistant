@@ -5,6 +5,7 @@ class SColor{
 
   // === Text Colors === //
   static const Color textPrimary= Color(0xFF2B2B2B);
+    static const Color textBlackPrimary= Color(0xFF000000);
   static const Color textSecondary= Color(0xFF6F6F6F);
 
   // === Border and Shadow Colors === //

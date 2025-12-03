@@ -7,7 +7,7 @@ import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 import 'package:scaffassistant/routing/routes.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   runApp(const MyApp());
@@ -21,20 +21,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isLoggedIn = UserStatus.getIsLoggedIn == true;
     final bool hasToken = UserInfo.getAccessToken().isNotEmpty;
-    final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.login;
+    final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.home;
 
     return GetMaterialApp(
       title: 'Scaff Assistant',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
-        ),
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       ),
       initialRoute: initialRoute,
       getPages: Routes.pages,
     );
   }
 }
-
