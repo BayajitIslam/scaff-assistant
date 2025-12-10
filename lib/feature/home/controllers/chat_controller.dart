@@ -52,6 +52,7 @@ class ChatController extends GetxController {
 
   /// Send a new message
   Future<void> sendMessage() async {
+    print("Sending message...");
     final text = messageController.text.trim();
     if (text.isEmpty) return;
 

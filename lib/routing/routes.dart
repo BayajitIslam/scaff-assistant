@@ -14,6 +14,7 @@ import '../feature/auth/screens/otp_verification_screen.dart';
 import '../feature/auth/screens/signup_screen.dart';
 import '../feature/home/screens/home_screen.dart';
 import '../feature/legal/screens/terms_privacy_screen.dart';
+import '../feature/subscription/pages/subscription_page.dart';
 
 class Routes {
   static final List<GetPage> pages = [
@@ -35,6 +36,14 @@ class Routes {
       name: RouteNames.tramsAndPrivacy,
       page: () => TermsAndPrivacyPolicyScreen(),
     ),
+    GetPage(name: RouteNames.tramsAndPrivacy, page: () => TermsAndPrivacyPolicyScreen()),
+
+    GetPage(
+      name: RouteNames.subscription,
+      page: () => SubscriptionPage(),
+    ),
+
+  ];
 
     GetPage(
       name: RouteNames.weightCalculatorScreen,

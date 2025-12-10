@@ -1,7 +1,50 @@
+// import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+// import 'package:get_storage/get_storage.dart';
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:scaffassistant/core/local_storage/user_info.dart';
+// import 'package:scaffassistant/core/local_storage/user_status.dart';
+// import 'package:scaffassistant/routing/route_name.dart';
+// import 'package:scaffassistant/routing/routes.dart';
+//
+// void main() async{
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await GetStorage.init();
+//   runApp(const MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//
+//   // This widget is the root of your application.
+//   @override
+//   Widget build(BuildContext context) {
+//     final bool isLoggedIn = UserStatus.getIsLoggedIn == true;
+//     final bool hasToken = UserInfo.getAccessToken().isNotEmpty;
+//     final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.login;
+//
+//     return GetMaterialApp(
+//       title: 'Scaff Assistant',
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//         textTheme: GoogleFonts.poppinsTextTheme(
+//           Theme.of(context).textTheme,
+//         ),
+//       ),
+//       initialRoute: initialRoute,
+//       getPages: Routes.pages,
+//     );
+//   }
+// }
+//
+
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scaffassistant/core/local_storage/user_info.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/routing/route_name.dart';
@@ -10,18 +53,27 @@ import 'package:scaffassistant/routing/routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-  runApp(const MyApp());
+
+  // Load subscription status
+  final prefs = await SharedPreferences.getInstance();
+  final bool isPremium = prefs.getBool('premium') ?? false;
+
+  runApp(MyApp(isPremium: isPremium));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isPremium;
+  const MyApp({super.key, required this.isPremium});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final bool isLoggedIn = UserStatus.getIsLoggedIn == true;
     final bool hasToken = UserInfo.getAccessToken().isNotEmpty;
-    final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.home;
+
+//     final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.home;
+
+    final String initialRoute =
+    (!hasToken) ? RouteNames.login :
+    (isPremium ? RouteNames.home : RouteNames.subscription);
 
     return GetMaterialApp(
       title: 'Scaff Assistant',
