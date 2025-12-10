@@ -12,4 +12,8 @@ class RouteNames {
 
   // === Settings Routes === //
   static const String tramsAndPrivacy = '/tramsAndPrivacy';
+
+  // === Subscription Routes === //
+  static const subscription = '/subscription';
+
 }

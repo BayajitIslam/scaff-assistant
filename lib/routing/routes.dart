@@ -9,6 +9,7 @@ import '../feature/auth/screens/otp_verification_screen.dart';
 import '../feature/auth/screens/signup_screen.dart';
 import '../feature/home/screens/home_screen.dart';
 import '../feature/legal/screens/terms_privacy_screen.dart';
+import '../feature/subscription/pages/subscription_page.dart';
 
 class Routes{
   static final List<GetPage> pages = [
@@ -22,6 +23,12 @@ class Routes{
     GetPage(name: RouteNames.home, page: () => HomeScreen()),
     GetPage(name: RouteNames.profile, page: () => SettingsScreen()),
     GetPage(name: RouteNames.tramsAndPrivacy, page: () => TermsAndPrivacyPolicyScreen()),
+
+    GetPage(
+      name: RouteNames.subscription,
+      page: () => SubscriptionPage(),
+    ),
+
   ];
 
 }
