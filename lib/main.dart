@@ -69,6 +69,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool hasToken = UserInfo.getAccessToken().isNotEmpty;
 
+//     final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.home;
+
     final String initialRoute =
     (!hasToken) ? RouteNames.login :
     (isPremium ? RouteNames.home : RouteNames.subscription);
@@ -78,9 +80,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
-        ),
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       ),
       initialRoute: initialRoute,
       getPages: Routes.pages,

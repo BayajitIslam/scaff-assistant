@@ -13,6 +13,12 @@ class RouteNames {
   // === Settings Routes === //
   static const String tramsAndPrivacy = '/tramsAndPrivacy';
 
+  static const String weightCalculatorScreen = '/weightCalculatorScreen';
+  static const String quantityCalculatorScreen = '/quantityCalculatorScreen';
+  static const String weatherAlertsScreen = '/weatherAlertsScreen';
+  static const String notificationScreen = '/notificationScreen';
+  static const String digitalPassportScreen = '/digitalPassportScreen';
+
   // === Subscription Routes === //
   static const subscription = '/subscription';
 
