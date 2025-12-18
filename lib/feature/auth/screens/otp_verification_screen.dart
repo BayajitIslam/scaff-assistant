@@ -6,12 +6,9 @@ import 'package:scaffassistant/core/const/string_const/image_path.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
 import 'package:scaffassistant/feature/auth/controllers/otp_verification_controller.dart';
 import 'package:scaffassistant/feature/auth/widgets/s_otp_field.dart';
-import 'package:scaffassistant/routing/route_name.dart';
 
 import '../../../core/theme/text_theme.dart';
 import '../widgets/s_full_btn.dart';
-import '../widgets/s_text_field.dart';
-import '../widgets/social_button.dart';
 
 class OtpVerificationScreen extends StatelessWidget {
   const OtpVerificationScreen({super.key});

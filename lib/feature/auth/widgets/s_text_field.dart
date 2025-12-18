@@ -1,34 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:scaffassistant/core/theme/text_theme.dart';
 
 import '../../../core/const/size_const/dynamic_size.dart';
 import '../../../core/theme/SColor.dart';
 
 class STextField extends StatefulWidget {
-          String? hintText;
-          String? labelText;
-          TextEditingController? controller;
-          bool? obscureText;
-          TextInputType? keyboardType;
-          Widget? prefixIcon;
-          Widget? suffixIcon;
-          Widget? changedSuffixIcon;
-          STextField({
-            super.key,
-            this.hintText,
-            this.labelText,
-            this.controller,
-            this.obscureText = false,
-            this.keyboardType,
-            this.prefixIcon,
-            this.suffixIcon,
-            this.changedSuffixIcon,
-          });
+  String? hintText;
+  String? labelText;
+  TextEditingController? controller;
+  bool? obscureText;
+  TextInputType? keyboardType;
+  Widget? prefixIcon;
+  Widget? suffixIcon;
+  Widget? changedSuffixIcon;
+  STextField({
+    super.key,
+    this.hintText,
+    this.labelText,
+    this.controller,
+    this.obscureText = false,
+    this.keyboardType,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.changedSuffixIcon,
+  });
 
-          @override
-          State<STextField> createState() => _STextFieldState();
-        }
+  @override
+  State<STextField> createState() => _STextFieldState();
+}
 
 class _STextFieldState extends State<STextField> {
   late bool _obscureText;
@@ -59,11 +58,11 @@ class _STextFieldState extends State<STextField> {
         prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon != null
             ? GestureDetector(
-          onTap: _toggleObscureText,
-          child: _obscureText
-              ? widget.suffixIcon
-              : widget.changedSuffixIcon ?? widget.suffixIcon,
-        )
+                onTap: _toggleObscureText,
+                child: _obscureText
+                    ? widget.suffixIcon
+                    : widget.changedSuffixIcon ?? widget.suffixIcon,
+              )
             : null,
         labelStyle: STextTheme.subHeadLine(),
         hintStyle: STextTheme.subHeadLine(),

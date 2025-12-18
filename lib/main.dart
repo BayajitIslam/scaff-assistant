@@ -39,14 +39,12 @@
 // }
 //
 
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scaffassistant/core/local_storage/user_info.dart';
-import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 import 'package:scaffassistant/routing/routes.dart';
 
@@ -56,7 +54,7 @@ void main() async {
 
   // Load subscription status
   final prefs = await SharedPreferences.getInstance();
-  final bool isPremium = prefs.getBool('premium') ?? false;
+  final bool isPremium = prefs.getBool('premium') ?? true;
 
   runApp(MyApp(isPremium: isPremium));
 }
@@ -69,11 +67,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool hasToken = UserInfo.getAccessToken().isNotEmpty;
 
-//     final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.home;
+    //     final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.home;
 
-    final String initialRoute =
-    (!hasToken) ? RouteNames.login :
-    (isPremium ? RouteNames.home : RouteNames.subscription);
+    final String initialRoute = (!hasToken)
+        ? RouteNames.home
+        : (isPremium ? RouteNames.home : RouteNames.subscription);
 
     return GetMaterialApp(
       title: 'Scaff Assistant',

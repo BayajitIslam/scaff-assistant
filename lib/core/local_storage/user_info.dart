@@ -1,7 +1,6 @@
 import 'package:get_storage/get_storage.dart';
 
 class UserInfo {
-
   static void setUserName(String name) {
     final box = GetStorage();
     box.write('userName', name);
@@ -26,6 +25,7 @@ class UserInfo {
     final box = GetStorage();
     box.write('accessToken', token);
   }
+
   static String getAccessToken() {
     final box = GetStorage();
     return box.read('accessToken') ?? '';
@@ -36,7 +36,6 @@ class UserInfo {
     box.remove('userName');
     box.remove('userEmail');
     box.remove('accessToken');
+    box.remove('isLoggedIn');
   }
-
-
 }

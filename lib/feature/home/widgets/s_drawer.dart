@@ -4,8 +4,6 @@ import 'package:scaffassistant/feature/auth/controllers/logout_controller.dart';
 import 'package:scaffassistant/feature/home/models/chat_session_model.dart';
 import 'package:get/get.dart';
 import 'package:scaffassistant/routing/route_name.dart';
-import 'package:scaffassistant/routing/routes.dart';
-
 import '../../../core/const/size_const/dynamic_size.dart';
 import '../../../core/const/string_const/icon_path.dart';
 import '../../../core/const/string_const/image_path.dart';
@@ -239,7 +237,7 @@ class SDrawer extends StatelessWidget {
 
               // Menu Items
               Expanded(
-                child: !isLoggedIn
+                child: isLoggedIn
                     ? SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

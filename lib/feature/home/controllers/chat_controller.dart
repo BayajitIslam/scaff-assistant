@@ -23,12 +23,12 @@ class ChatController extends GetxController {
       final url = Uri.parse('${APIEndPoint.chatSession}/$session/messages/');
       final response = await http.get(
         url,
-        headers: {
-          'Authorization': 'Bearer ${UserInfo.getAccessToken()}',
-        },
+        headers: {'Authorization': 'Bearer ${UserInfo.getAccessToken()}'},
       );
 
-      print("Fetching messages for session $session, Status: ${response.statusCode}");
+      print(
+        "Fetching messages for session $session, Status: ${response.statusCode}",
+      );
       print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
@@ -73,15 +73,12 @@ class ChatController extends GetxController {
     try {
       isSending.value = true;
 
-      final bodyWithSession = {
-        'question': text,
-        'session_id': sessionId.value,
-      };
-      final bodyWithoutSession = {
-        'question': text,
-      };
+      final bodyWithSession = {'question': text, 'session_id': sessionId.value};
+      final bodyWithoutSession = {'question': text};
 
-      final body = sessionId.value.isNotEmpty ? bodyWithSession : bodyWithoutSession;
+      final body = sessionId.value.isNotEmpty
+          ? bodyWithSession
+          : bodyWithoutSession;
 
       final url = Uri.parse(APIEndPoint.chatMessages);
       final response = await http.post(
@@ -99,8 +96,10 @@ class ChatController extends GetxController {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        if(sessionId.value.isEmpty){
-          final ChatSessionController chatSessionController = Get.put(ChatSessionController());
+        if (sessionId.value.isEmpty) {
+          final ChatSessionController chatSessionController = Get.put(
+            ChatSessionController(),
+          );
           await chatSessionController.fetchChatSessions();
         }
 
@@ -130,9 +129,6 @@ class ChatController extends GetxController {
       isSending.value = false;
     }
   }
-
-
-
 
   /// Clear messages
   void clearChat() {

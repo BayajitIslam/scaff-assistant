@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../../core/theme/SColor.dart';
 import '../../../core/theme/text_theme.dart';
 

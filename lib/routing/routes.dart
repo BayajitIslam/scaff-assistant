@@ -43,8 +43,6 @@ class Routes {
       page: () => SubscriptionPage(),
     ),
 
-  ];
-
     GetPage(
       name: RouteNames.weightCalculatorScreen,
       page: () => WeightCalculatorScreen(),

@@ -4,8 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:scaffassistant/core/const/string_const/api_endpoint.dart';
-import 'package:scaffassistant/core/local_storage/user_info.dart';
-import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/feature/auth/controllers/otp_verification_controller.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 

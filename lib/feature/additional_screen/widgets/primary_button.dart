@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
 import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
@@ -36,11 +37,10 @@ class PrimaryButton extends StatelessWidget {
             ? SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    SColor.textBlackPrimary,
-                  ),
+                child: LoadingAnimationWidget.threeArchedCircle(
+                  color: SColor.primary,
+
+                  size: 30,
                 ),
               )
             : Text(

@@ -39,6 +39,9 @@ dependencies:
   ## === In App Purchase === ##
   in_app_purchase: ^3.2.3
 
+  ## === loading Indicator === ##
+  loading_animation_widget: ^1.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

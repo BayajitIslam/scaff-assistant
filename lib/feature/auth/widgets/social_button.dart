@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../../../core/const/size_const/dynamic_size.dart';
 import '../../../core/theme/text_theme.dart';
 

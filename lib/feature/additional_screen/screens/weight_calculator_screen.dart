@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
+import 'package:scaffassistant/core/theme/SColor.dart';
 import 'package:scaffassistant/feature/additional_screen/controllers/weight_calculator_controller.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
 import '../widgets/weight_calculator_widget/description_card.dart';
@@ -103,25 +105,34 @@ class WeightCalculatorScreen extends StatelessWidget {
 
                   // Output Panel
                   Obx(
-                    () => OutputPanel(
-                      title: 'OUTPUT PANEL',
-                      items: [
-                        OutputPanelItem(
-                          label: 'Tubes Total Weight :',
-                          value: controller.tubesTotalWeight.value,
-                        ),
-                        OutputPanelItem(
-                          label: 'Boards Total Weight :',
-                          value: controller.boardsTotalWeight.value,
-                        ),
-                        OutputPanelItem(
-                          label: 'Fittings Total Weight :',
-                          value: controller.fittingsTotalWeight.value,
-                        ),
-                      ],
-                      totalLabel: 'TOTAL WEIGHT :',
-                      totalValue: controller.totalWeight.value,
-                    ),
+                    () => controller.showOutput.value
+                        ? OutputPanel(
+                            title: 'OUTPUT PANEL',
+                            items: [
+                              OutputPanelItem(
+                                label: 'Tubes Total Weight :',
+                                value: controller.tubesTotalWeight.value,
+                              ),
+                              OutputPanelItem(
+                                label: 'Boards Total Weight :',
+                                value: controller.boardsTotalWeight.value,
+                              ),
+                              OutputPanelItem(
+                                label: 'Fittings Total Weight :',
+                                value: controller.fittingsTotalWeight.value,
+                              ),
+                            ],
+                            totalLabel: 'TOTAL WEIGHT :',
+                            totalValue: controller.totalWeight.value,
+                          )
+                        : controller.isLoading.value
+                        ? Center(
+                            child: LoadingAnimationWidget.fourRotatingDots(
+                              color: SColor.primary,
+                              size: 40,
+                            ),
+                          )
+                        : SizedBox.shrink(),
                   ),
                 ],
               ),

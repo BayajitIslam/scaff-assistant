@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
 import 'package:scaffassistant/core/const/string_const/image_path.dart';
-import 'package:scaffassistant/core/local_storage/user_status.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
 import 'package:scaffassistant/feature/auth/controllers/login_controller.dart';
 
