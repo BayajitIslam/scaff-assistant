@@ -23,4 +23,8 @@ class APIEndPoint {
   //Weight calculator
   static const String weightCalculator =
       "$apiBaseUrl/calculator/calculate-weight/";
+
+  //digitatl passport
+  static const String digitalPassportUpload = "$apiBaseUrl/doc/cards/upload/";
+  static const String digitalPassportFetchAll = "$apiBaseUrl/doc/cards/";
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
 import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/utils/log.dart';
 
 class DocumentItem extends StatelessWidget {
   final String? imagePath;
@@ -21,6 +22,9 @@ class DocumentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug log
+    Console.cyan('DocumentItem imagePath: $imagePath');
+
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
       child: Row(
@@ -33,7 +37,6 @@ class DocumentItem extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(6),
-
               boxShadow: [
                 BoxShadow(
                   color: const Color(0x2E000000),
@@ -42,14 +45,52 @@ class DocumentItem extends StatelessWidget {
                 ),
               ],
             ),
-            child: imagePath != null
+            child: imagePath != null && imagePath!.isNotEmpty
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     child: Image.network(
                       imagePath!,
                       fit: BoxFit.cover,
+                      headers: {'Accept': '*/*'},
                       errorBuilder: (context, error, stackTrace) {
-                        return _buildPlaceholder();
+                        Console.red('Image load error: $error');
+                        Console.red('Stack: $stackTrace');
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.broken_image,
+                                color: Colors.grey,
+                                size: 24,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Failed',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          ),
+                        );
                       },
                     ),
                   )
@@ -62,7 +103,6 @@ class DocumentItem extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 SizedBox(height: 8),
                 Text(
@@ -73,7 +113,6 @@ class DocumentItem extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
-                // SizedBox(height: 4),
                 Text(
                   subtitle,
                   style: STextTheme.subHeadLine().copyWith(
