@@ -31,14 +31,14 @@ class PrimaryButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          disabledBackgroundColor: SColor.primary.withOpacity(0.6),
+          disabledBackgroundColor: SColor.primary,
         ),
         child: isLoading
             ? SizedBox(
                 height: 20,
                 width: 20,
                 child: LoadingAnimationWidget.threeArchedCircle(
-                  color: SColor.primary,
+                  color: SColor.textBlackPrimary,
 
                   size: 30,
                 ),

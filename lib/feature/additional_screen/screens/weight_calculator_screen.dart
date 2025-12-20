@@ -5,8 +5,8 @@ import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
 import 'package:scaffassistant/core/theme/SColor.dart';
 import 'package:scaffassistant/feature/additional_screen/controllers/weight_calculator_controller.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
+import 'package:scaffassistant/feature/additional_screen/widgets/weight_calculator_widget/weight_input_widget.dart';
 import '../widgets/weight_calculator_widget/description_card.dart';
-import '../widgets/shared_dropdown.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/weight_calculator_widget/input_panel_card.dart';
 import '../widgets/output_panel.dart';
@@ -47,41 +47,63 @@ class WeightCalculatorScreen extends StatelessWidget {
                   InputPanelCard(
                     title: 'INPUT PANEL',
                     children: [
-                      // Tubes Dropdown
+                      // Tubes Input
                       Obx(
-                        () => SharedDropdown(
-                          label: 'Tubes',
+                        () => WeightInputWidget(
+                          title: 'Tubes',
+                          type: InputRowType.tubes,
                           selectedValue: controller.selectedTube.value,
                           items: controller.tubeOptions,
                           hint: '1ft',
                           onChanged: (value) {
                             controller.selectedTube.value = value;
                           },
+                          selectedWallThickness:
+                              controller.selectedWallThickness.value,
+                          wallThicknessItems: controller.wallThicknessOptions,
+                          wallThicknessHint: '3.2mm',
+                          onWallThicknessChanged: (value) {
+                            controller.selectedWallThickness.value = value;
+                          },
+                          quantity: controller.tubeQuantity.value,
+                          onQuantityChanged: (value) {
+                            controller.tubeQuantity.value = value;
+                          },
                         ),
                       ),
 
-                      // Boards Dropdown
+                      // Boards Input
                       Obx(
-                        () => SharedDropdown(
-                          label: 'Boards',
+                        () => WeightInputWidget(
+                          title: 'Boards',
+                          type: InputRowType.boards,
                           selectedValue: controller.selectedBoard.value,
                           items: controller.boardOptions,
                           hint: '3ft',
                           onChanged: (value) {
                             controller.selectedBoard.value = value;
                           },
+                          quantity: controller.boardQuantity.value,
+                          onQuantityChanged: (value) {
+                            controller.boardQuantity.value = value;
+                          },
                         ),
                       ),
 
-                      // Fittings Dropdown
+                      // Fittings Input
                       Obx(
-                        () => SharedDropdown(
-                          label: 'Fittings',
+                        () => WeightInputWidget(
+                          title: 'Fittings',
+                          type: InputRowType.fittings,
                           selectedValue: controller.selectedFitting.value,
                           items: controller.fittingOptions,
-                          hint: 'Doubles',
+                          hint: 'Double',
                           onChanged: (value) {
                             controller.selectedFitting.value = value;
+                          },
+                          quantity: controller.fittingQuantity.value,
+                          onQuantityChanged: (value) {
+                            controller.fittingQuantity.value = value;
                           },
                         ),
                       ),

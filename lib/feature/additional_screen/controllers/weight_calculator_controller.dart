@@ -11,18 +11,54 @@ class WeightCalculatorController extends GetxController {
   var selectedTube = Rxn<String>();
   var selectedBoard = Rxn<String>();
   var selectedFitting = Rxn<String>();
+  var selectedWallThickness = Rxn<String>();
 
   // Default values (same as hints)
   final String defaultTube = '1';
   final String defaultBoard = '3';
   final String defaultFitting = 'Double';
+  final String defaultWallThickness = '3.2mm';
+
+  // Editable quantities
+  var tubeQuantity = 0.obs;
+  var boardQuantity = 0.obs;
+  var fittingQuantity = 0.obs;
 
   // Dropdown options
-  final List<String> tubeOptions = ['1ft', '8ft', '13ft'];
+  final List<String> tubeOptions = [
+    '1ft',
+    '2ft',
+    '3ft',
+    '4ft',
+    '5ft',
+    '6ft',
+    '7ft',
+    '8ft',
+    '10ft',
+    '13ft',
+    '16ft',
+    '21ft',
+  ];
 
-  final List<String> boardOptions = ['3ft', '10ft'];
+  final List<String> boardOptions = [
+    '3ft',
+    '4ft',
+    '5ft',
+    '6ft',
+    '7ft',
+    '8ft',
+    '10ft',
+    '13ft',
+  ];
 
-  final List<String> fittingOptions = ['Double', 'Single'];
+  final List<String> fittingOptions = [
+    'Double',
+    'Single',
+    // 'Swivels',
+    // 'Sleeves',
+  ];
+
+  final List<String> wallThicknessOptions = ['3.2mm', '4.0mm'];
 
   // Output values (will come from backend later)
   var tubesTotalWeight = '0kg'.obs;
@@ -38,28 +74,27 @@ class WeightCalculatorController extends GetxController {
     (selectedBoard.value ?? defaultTube).replaceAll(RegExp(r'[^0-9]'), ''),
   );
   String get fittingValue => selectedFitting.value ?? defaultFitting;
+  String get wallThiknessValue =>
+      selectedWallThickness.value ?? defaultWallThickness;
+  int get tubeQuantityValue => tubeQuantity.value;
+  int get boardQuantityValue => boardQuantity.value;
+  int get fittingQuantityyValue => fittingQuantity.value;
 
   // Build request body
   Map<String, dynamic> buildRequestBody() {
     return {
       "tubes": [
         {
-          "length_ft": tubeValue, // ← Changes (1, 8, or 13)
-          "wall_thickness": "3.2mm", // ← Permanent
-          "quantity": 28, // ← Permanent
+          "length_ft": tubeValue,
+          "wall_thickness": wallThiknessValue,
+          "quantity": tubeQuantityValue,
         },
       ],
       "boards": [
-        {
-          "length_ft": boardValue, // ← Changes (3 or 10)
-          "quantity": 15, // ← Permanent
-        },
+        {"length_ft": boardValue, "quantity": boardQuantityValue},
       ],
       "fittings": [
-        {
-          "fitting_type": fittingValue, // ← Changes (Double or Single)
-          "quantity": 100, // ← Permanent
-        },
+        {"fitting_type": fittingValue, "quantity": fittingQuantityyValue},
       ],
     };
   }
