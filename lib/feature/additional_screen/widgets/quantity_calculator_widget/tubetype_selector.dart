@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class TubeTypeSelector extends StatelessWidget {
   final String label;
@@ -31,8 +31,8 @@ class TubeTypeSelector extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textBlackPrimary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textBlackPrimary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -87,8 +87,8 @@ class TubeTypeSelector extends StatelessWidget {
           // Value text
           Text(
             value,
-            style: STextTheme.subHeadLine().copyWith(
-              color: SColor.textPrimary,
+            style: AppTextStyles.subHeadLine().copyWith(
+              color: AppColors.textPrimary,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
@@ -109,7 +109,7 @@ class TubeTypeSelector extends StatelessWidget {
         width: 31,
         height: 16,
         decoration: BoxDecoration(
-          color: isOn ? SColor.textPrimary : Colors.grey.shade300,
+          color: isOn ? AppColors.textPrimary : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(12),
         ),
         child: AnimatedAlign(
@@ -121,7 +121,7 @@ class TubeTypeSelector extends StatelessWidget {
             height: 11,
             margin: EdgeInsets.symmetric(horizontal: 2),
             decoration: BoxDecoration(
-              color: isOn ? SColor.primary : Colors.white,
+              color: isOn ? AppColors.primary : Colors.white,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(

@@ -6,8 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-
+import 'package:scaffassistant/core/constants/app_colors.dart';
 class DocumentCaptureScreen extends StatefulWidget {
   final String initialSide; // 'front' or 'back'
   final Function(File imageFile, String side) onImageCaptured;
@@ -333,7 +332,7 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
               ),
             )
           else
-            Center(child: CircularProgressIndicator(color: SColor.primary)),
+            Center(child: CircularProgressIndicator(color: AppColors.primary)),
 
           // Document Frame Overlay
           Positioned.fill(
@@ -429,7 +428,7 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: _isFlashOn
-                      ? SColor.primary.withOpacity(0.8)
+                      ? AppColors.primary.withOpacity(0.8)
                       : Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
@@ -465,7 +464,7 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
               decoration: BoxDecoration(
                 color: _currentSide == 'front'
-                    ? SColor.primary
+                    ? AppColors.primary
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(25),
               ),
@@ -488,7 +487,7 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
               decoration: BoxDecoration(
                 color: _currentSide == 'back'
-                    ? SColor.primary
+                    ? AppColors.primary
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(25),
               ),
@@ -570,7 +569,7 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
         painter: CornerPainter(
           isTop: isTop,
           isLeft: isLeft,
-          color: SColor.primary,
+          color: AppColors.primary,
         ),
       ),
     );
@@ -630,7 +629,7 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
                   margin: EdgeInsets.all(4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _isCapturing ? Colors.grey : SColor.primary,
+                    color: _isCapturing ? Colors.grey : AppColors.primary,
                   ),
                   child: _isCapturing
                       ? Center(
@@ -645,7 +644,7 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
                         )
                       : Icon(
                           Icons.camera_alt,
-                          color: SColor.textBlackPrimary,
+                          color: AppColors.textBlackPrimary,
                           size: 32,
                         ),
                 ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 enum InputRowType {
   tubes, // Length + Wall thickness + Quantity
@@ -86,14 +86,14 @@ class _WeightInputWidgetState extends State<WeightInputWidget> {
           // Title with underline
           Text(
             widget.title,
-            style: STextTheme.subHeadLine().copyWith(
-              color: SColor.textBlackPrimary,
+            style: AppTextStyles.subHeadLine().copyWith(
+              color: AppColors.textBlackPrimary,
               fontWeight: FontWeight.w600,
             ),
           ),
           Container(
             height: 1,
-            color: SColor.textBlackPrimary.withOpacity(0.3),
+            color: AppColors.textBlackPrimary.withOpacity(0.3),
             margin: EdgeInsets.only(top: 4, bottom: 12),
           ),
 
@@ -196,8 +196,8 @@ class _WeightInputWidgetState extends State<WeightInputWidget> {
   Widget _labelText(String text) {
     return Text(
       text,
-      style: STextTheme.subHeadLine().copyWith(
-        color: SColor.textBlackPrimary.withOpacity(0.6),
+      style: AppTextStyles.subHeadLine().copyWith(
+        color: AppColors.textBlackPrimary.withOpacity(0.6),
         fontSize: 12,
       ),
     );
@@ -228,19 +228,19 @@ class _WeightInputWidgetState extends State<WeightInputWidget> {
           value: value,
           hint: Text(
             hint,
-            style: STextTheme.subHeadLine().copyWith(
-              color: SColor.textBlackPrimary,
+            style: AppTextStyles.subHeadLine().copyWith(
+              color: AppColors.textBlackPrimary,
               fontSize: 14,
             ),
           ),
           icon: Icon(
             Icons.keyboard_arrow_down_rounded,
-            color: SColor.textBlackPrimary.withOpacity(0.6),
+            color: AppColors.textBlackPrimary.withOpacity(0.6),
             size: 20,
           ),
           isExpanded: true,
-          style: STextTheme.subHeadLine().copyWith(
-            color: SColor.textBlackPrimary,
+          style: AppTextStyles.subHeadLine().copyWith(
+            color: AppColors.textBlackPrimary,
             fontSize: 14,
           ),
           dropdownColor: Colors.white,
@@ -250,8 +250,8 @@ class _WeightInputWidgetState extends State<WeightInputWidget> {
               value: item,
               child: Text(
                 item,
-                style: STextTheme.subHeadLine().copyWith(
-                  color: SColor.textBlackPrimary,
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
                   fontSize: 14,
                 ),
               ),
@@ -286,14 +286,14 @@ class _WeightInputWidgetState extends State<WeightInputWidget> {
               textAlign: TextAlign.left,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textBlackPrimary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textBlackPrimary,
                 fontSize: 14,
               ),
               decoration: InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                isDense: true,
+                // isDense: true
               ),
               onChanged: (value) {
                 final intValue = int.tryParse(value) ?? 0;
@@ -318,7 +318,7 @@ class _WeightInputWidgetState extends State<WeightInputWidget> {
                   child: Icon(
                     Icons.keyboard_arrow_up_rounded,
                     size: 18,
-                    color: SColor.textBlackPrimary.withOpacity(0.5),
+                    color: AppColors.textBlackPrimary.withOpacity(0.5),
                   ),
                 ),
                 // Down arrow (decrement)
@@ -333,7 +333,7 @@ class _WeightInputWidgetState extends State<WeightInputWidget> {
                   child: Icon(
                     Icons.keyboard_arrow_down_rounded,
                     size: 18,
-                    color: SColor.textBlackPrimary.withOpacity(0.5),
+                    color: AppColors.textBlackPrimary.withOpacity(0.5),
                   ),
                 ),
               ],

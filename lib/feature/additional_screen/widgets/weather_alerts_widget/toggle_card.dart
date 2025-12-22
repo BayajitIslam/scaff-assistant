@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class ToggleCard extends StatelessWidget {
   final String title;
@@ -44,8 +44,8 @@ class ToggleCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: STextTheme.headLine().copyWith(
-                  color: SColor.textBlackPrimary,
+                style: AppTextStyles.headLine().copyWith(
+                  color: AppColors.textBlackPrimary,
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
                   height: 0.22,
@@ -59,8 +59,8 @@ class ToggleCard extends StatelessWidget {
             SizedBox(height: DynamicSize.small(context)),
             Text(
               subtitle!,
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textBlackPrimary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textBlackPrimary,
               ),
             ),
           ],
@@ -69,8 +69,8 @@ class ToggleCard extends StatelessWidget {
             SizedBox(height: DynamicSize.small(context) * 0.5),
             Text(
               description!,
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textSecondary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
           ],
@@ -86,7 +86,7 @@ class ToggleCard extends StatelessWidget {
         width: 30,
         height: 16,
         decoration: BoxDecoration(
-          color: isEnabled ? SColor.textPrimary : Colors.grey.shade400,
+          color: isEnabled ? AppColors.textPrimary : Colors.grey.shade400,
           borderRadius: BorderRadius.circular(12),
         ),
         child: AnimatedAlign(

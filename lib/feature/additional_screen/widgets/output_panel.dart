@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/inner_shadow_container.dart';
 
 class OutputPanelItem {
@@ -35,8 +35,8 @@ class OutputPanel extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Text(
             title,
-            style: STextTheme.headLine().copyWith(
-              color: SColor.textPrimary,
+            style: AppTextStyles.headLine().copyWith(
+              color: AppColors.textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -64,7 +64,7 @@ class OutputPanel extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: SColor.textPrimary,
+                          color: AppColors.textPrimary,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -74,8 +74,8 @@ class OutputPanel extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.label,
-                          style: STextTheme.subHeadLine().copyWith(
-                            color: SColor.textPrimary,
+                          style: AppTextStyles.subHeadLine().copyWith(
+                            color: AppColors.textPrimary,
                             height: 0.22,
                           ),
                         ),
@@ -84,8 +84,8 @@ class OutputPanel extends StatelessWidget {
                       // Value
                       Text(
                         item.value,
-                        style: STextTheme.subHeadLine().copyWith(
-                          color: SColor.textPrimary,
+                        style: AppTextStyles.subHeadLine().copyWith(
+                          color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -97,23 +97,23 @@ class OutputPanel extends StatelessWidget {
               // Divider and Total inside container
               if (totalLabel != null && totalValue != null) ...[
                 SizedBox(height: DynamicSize.small(context)),
-                Divider(color: SColor.borderColor, thickness: 1),
+                Divider(color: AppColors.border, thickness: 1),
                 SizedBox(height: DynamicSize.small(context)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       totalLabel!,
-                      style: STextTheme.headLine().copyWith(
-                        color: SColor.textPrimary,
+                      style: AppTextStyles.headLine().copyWith(
+                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
                     ),
                     Text(
                       totalValue!,
-                      style: STextTheme.subHeadLine().copyWith(
-                        color: SColor.textPrimary,
+                      style: AppTextStyles.subHeadLine().copyWith(
+                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
                       ),

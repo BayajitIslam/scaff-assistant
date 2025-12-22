@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class ActionButton extends StatelessWidget {
   final IconData icon;
@@ -28,7 +28,7 @@ class ActionButton extends StatelessWidget {
           vertical: DynamicSize.small(context),
         ),
         decoration: BoxDecoration(
-          color: isPrimary ? SColor.textBlackPrimary : Colors.white,
+          color: isPrimary ? AppColors.textBlackPrimary : Colors.white,
           borderRadius: BorderRadius.circular(8),
 
           boxShadow: [
@@ -50,13 +50,13 @@ class ActionButton extends StatelessWidget {
             Icon(
               icon,
               size: 24,
-              color: isPrimary ? SColor.primary : SColor.textSecondary,
+              color: isPrimary ? AppColors.primary : AppColors.textSecondary,
             ),
             SizedBox(width: DynamicSize.horizontalSmall(context)),
             Text(
               label,
-              style: STextTheme.headLine().copyWith(
-                color: isPrimary ? SColor.primary : SColor.textSecondary,
+              style: AppTextStyles.headLine().copyWith(
+                color: isPrimary ? AppColors.primary : AppColors.textSecondary,
                 fontWeight: FontWeight.w400,
                 fontSize: 14,
               ),

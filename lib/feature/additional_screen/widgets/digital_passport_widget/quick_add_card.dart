@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'action_button.dart';
 
 class QuickAddCard extends StatelessWidget {
@@ -33,7 +33,7 @@ class QuickAddCard extends StatelessWidget {
           // Title
           Text(
             'QUICK ADD',
-            style: STextTheme.headLine().copyWith(color: SColor.textPrimary),
+            style: AppTextStyles.headLine().copyWith(color: AppColors.textPrimary),
           ),
 
           SizedBox(height: DynamicSize.medium(context)),
@@ -66,8 +66,8 @@ class QuickAddCard extends StatelessWidget {
           // Description
           Text(
             'Capture supports card front / back and full A4 pages . Upload supports PDF, JPG, PNG',
-            style: STextTheme.subHeadLine().copyWith(
-              color: SColor.textSecondary,
+            style: AppTextStyles.subHeadLine().copyWith(
+              color: AppColors.textSecondary,
               height: 1.4,
             ),
           ),

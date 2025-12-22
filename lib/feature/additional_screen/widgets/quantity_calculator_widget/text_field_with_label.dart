@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class TextFieldWithLabel extends StatelessWidget {
   final String label;
@@ -40,16 +40,16 @@ class TextFieldWithLabel extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: STextTheme.subHeadLine().copyWith(
-                    color: SColor.textBlackPrimary,
+                  style: AppTextStyles.subHeadLine().copyWith(
+                    color: AppColors.textBlackPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 if (secondaryLabel != null)
                   Text(
                     secondaryLabel!,
-                    style: STextTheme.subHeadLine().copyWith(
-                      color: SColor.textPrimary,
+                    style: AppTextStyles.subHeadLine().copyWith(
+                      color: AppColors.textPrimary,
                       fontSize: 12,
                     ),
                   ),
@@ -85,8 +85,8 @@ class TextFieldWithLabel extends StatelessWidget {
                       keyboardType: keyboardType,
                       onChanged: onChanged,
                       inputFormatters: inputFormatters,
-                      style: STextTheme.subHeadLine().copyWith(
-                        color: SColor.textBlackPrimary,
+                      style: AppTextStyles.subHeadLine().copyWith(
+                        color: AppColors.textBlackPrimary,
                       ),
                       decoration: InputDecoration(
                         // hintText: hint,
@@ -95,8 +95,8 @@ class TextFieldWithLabel extends StatelessWidget {
                         // ),
                         suffix: Text(
                           suffix!,
-                          style: STextTheme.subHeadLine().copyWith(
-                            color: SColor.textBlackPrimary,
+                          style: AppTextStyles.subHeadLine().copyWith(
+                            color: AppColors.textBlackPrimary,
                             height: 0.22,
                           ),
                         ),

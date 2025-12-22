@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
-
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback? onBackPressed;
@@ -17,7 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: SColor.primary,
+      color: AppColors.primary,
       padding: EdgeInsets.only(left: 15, right: 15, bottom: 15, top: 20),
       child: SafeArea(
         bottom: false,
@@ -28,7 +27,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               onTap: onBackPressed ?? () => Navigator.pop(context),
               child: Icon(
                 Icons.chevron_left,
-                color: SColor.textPrimary,
+                color: AppColors.textPrimary,
                 size: 28,
               ),
             ),
@@ -38,8 +37,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Center(
                 child: Text(
                   title,
-                  style: STextTheme.headLine().copyWith(
-                    color: SColor.textPrimary,
+                  style: AppTextStyles.headLine().copyWith(
+                    color: AppColors.textPrimary,
                     fontSize: 18,
                     letterSpacing: 1.2,
                   ),

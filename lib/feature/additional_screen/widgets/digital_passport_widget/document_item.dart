@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
-import 'package:scaffassistant/core/utils/log.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/console.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class DocumentItem extends StatelessWidget {
   final String? imagePath;
@@ -107,16 +107,16 @@ class DocumentItem extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(
                   title,
-                  style: STextTheme.subHeadLine().copyWith(
-                    color: SColor.textBlackPrimary,
+                  style: AppTextStyles.subHeadLine().copyWith(
+                    color: AppColors.textBlackPrimary,
                     fontWeight: FontWeight.w500,
                     fontSize: 14,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: STextTheme.subHeadLine().copyWith(
-                    color: SColor.textSecondary,
+                  style: AppTextStyles.subHeadLine().copyWith(
+                    color: AppColors.textSecondary,
                     fontSize: 14,
                   ),
                 ),
@@ -132,7 +132,7 @@ class DocumentItem extends StatelessWidget {
     return Center(
       child: Icon(
         Icons.image_outlined,
-        color: SColor.textSecondary.withOpacity(0.5),
+        color: AppColors.textSecondary.withOpacity(0.5),
         size: 24,
       ),
     );

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/const/string_const/icon_path.dart';
-import 'package:scaffassistant/core/const/string_const/image_path.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/constants/icon_paths.dart';
+import 'package:scaffassistant/core/constants/image_paths.dart';
 import 'package:scaffassistant/core/local_storage/user_info.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/home/controllers/chat_controller.dart';
 import 'package:scaffassistant/feature/home/controllers/chat_session_controller.dart';
 import 'package:scaffassistant/routing/route_name.dart';
@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // MARKDOWN-LIKE DECORATOR
   List<TextSpan> decorateText(String message) {
-    final baseStyle = STextTheme.subHeadLine().copyWith(
+    final baseStyle = AppTextStyles.subHeadLine().copyWith(
       fontSize: 14,
       fontWeight: FontWeight.w400,
       color: Colors.black,
@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
         spans.addAll(
           parseInline(
             listMatch.group(2) ?? '',
-            baseStyle.copyWith(color: SColor.textSecondary),
+            baseStyle.copyWith(color: AppColors.textSecondary),
           ),
         );
         if (!isLastLine) spans.add(TextSpan(text: '\n'));
@@ -165,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: SColor.primary,
+        backgroundColor: AppColors.primary,
         title: Image(image: AssetImage(ImagePath.logoIcon)),
         leading: Builder(
           builder: (context) => GestureDetector(
@@ -182,13 +182,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GestureDetector(
                 onTap: () => Get.toNamed(RouteNames.profile),
                 child: CircleAvatar(
-                  backgroundColor: SColor.textPrimary,
+                  backgroundColor: AppColors.textPrimary,
                   child: Text(
                     UserInfo.getUserName()[0],
-                    style: STextTheme.headLine().copyWith(
+                    style: AppTextStyles.subHeadLine().copyWith(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: SColor.primary,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -199,14 +199,14 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () => Get.toNamed(RouteNames.login),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                backgroundColor: SColor.textPrimary,
+                backgroundColor: AppColors.textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: Text(
                 'Sign up',
-                style: STextTheme.headLine().copyWith(
+                style: AppTextStyles.headLine().copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -279,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Container(
           width: double.infinity,
-          color: SColor.primary,
+          color: AppColors.primary,
           padding: EdgeInsets.fromLTRB(
             DynamicSize.medium(context),
             DynamicSize.medium(context),
@@ -296,11 +296,11 @@ class _HomeScreenState extends State<HomeScreen> {
               fillColor: Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(color: SColor.borderColor),
+                borderSide: BorderSide(color: AppColors.borderColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(color: SColor.borderColor),
+                borderSide: BorderSide(color: AppColors.borderColor),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 20,
@@ -340,10 +340,10 @@ class NewChat extends StatelessWidget {
         children: [
           Text(
             'What can I help with?',
-            style: STextTheme.subHeadLine().copyWith(
+            style: AppTextStyles.subHeadLine().copyWith(
               fontSize: 24,
               fontWeight: FontWeight.w400,
-              color: SColor.textPrimary,
+              color: AppColors.textPrimary,
             ),
           ),
           SizedBox(height: DynamicSize.large(context)),
@@ -361,7 +361,7 @@ class NewChat extends StatelessWidget {
             children: List.generate(chips.length, (index) {
               return Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: SColor.borderColor, width: 1.5),
+                  border: Border.all(color: AppColors.borderColor, width: 1.5),
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: const [
                     BoxShadow(
@@ -375,10 +375,10 @@ class NewChat extends StatelessWidget {
                 child: Center(
                   child: Text(
                     chips[index],
-                    style: STextTheme.subHeadLine().copyWith(
+                    style: AppTextStyles.subHeadLine().copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: SColor.textSecondary,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ),

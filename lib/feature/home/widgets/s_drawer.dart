@@ -1,199 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/constants/icon_paths.dart';
+import 'package:scaffassistant/core/constants/image_paths.dart';
 import 'package:scaffassistant/core/local_storage/user_status.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/auth/controllers/logout_controller.dart';
 import 'package:scaffassistant/feature/home/models/chat_session_model.dart';
 import 'package:get/get.dart';
 import 'package:scaffassistant/routing/route_name.dart';
-import '../../../core/const/size_const/dynamic_size.dart';
-import '../../../core/const/string_const/icon_path.dart';
-import '../../../core/const/string_const/image_path.dart';
-import '../../../core/theme/SColor.dart';
-import '../../../core/theme/text_theme.dart';
 import '../controllers/chat_controller.dart';
 import 'login_note.dart';
 
-// // ignore: must_be_immutable
-// class SDrawer extends StatelessWidget {
-//   List<ChatSessionModel> chatHistory;
-//   SDrawer({required this.chatHistory, super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final bool isLoggedIn = UserStatus.getIsLoggedIn();
-
-//     return Drawer(
-//       backgroundColor: SColor.primary,
-//       child: SafeArea(
-//         child: Padding(
-//           padding: EdgeInsets.all(DynamicSize.medium(context)),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 children: [
-//                   GestureDetector(
-//                     onTap: () => Scaffold.of(context).closeDrawer(),
-//                     child: Image.asset(
-//                       IconPath.menuIcon,
-//                       height: 24,
-//                       width: 24,
-//                     ),
-//                   ),
-//                   SizedBox(width: DynamicSize.horizontalMedium(context)),
-//                   Image.asset(ImagePath.logoIcon, height: 28),
-//                 ],
-//               ),
-//               SizedBox(height: DynamicSize.medium(context)),
-//               ElevatedButton(
-//                 onPressed: isLoggedIn
-//                     ? () {
-//                         final chatController = Get.put(ChatController());
-//                         chatController.clearChat();
-//                         Scaffold.of(context).closeDrawer();
-//                       }
-//                     : null,
-//                 style: ElevatedButton.styleFrom(
-//                   padding: const EdgeInsets.symmetric(
-//                     horizontal: 20,
-//                     vertical: 0,
-//                   ),
-//                   backgroundColor: SColor.textPrimary,
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(10),
-//                   ),
-//                 ),
-//                 child: Row(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     Image.asset(
-//                       IconPath.noteIcon,
-//                       height: 16,
-//                       width: 16,
-//                       color: SColor.primary,
-//                     ),
-//                     const SizedBox(width: 15),
-//                     Text(
-//                       'New chat',
-//                       style: STextTheme.headLine().copyWith(
-//                         fontSize: 12,
-//                         fontWeight: FontWeight.w500,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-
-//               SizedBox(height: DynamicSize.small(context)),
-//               Divider(color: SColor.textSecondary, thickness: 1),
-
-//               Expanded(
-//                 child: isLoggedIn
-//                     ? Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           ListTile(
-//                             contentPadding: EdgeInsets.zero,
-//                             leading: Icon(
-//                               Icons.history,
-//                               color: SColor.textPrimary,
-//                             ),
-//                             title: Text(
-//                               'History',
-//                               style: STextTheme.subHeadLine().copyWith(
-//                                 color: SColor.textPrimary,
-//                                 fontSize: 16,
-//                                 fontWeight: FontWeight.w500,
-//                               ),
-//                             ),
-//                           ),
-//                           Divider(color: SColor.textSecondary, thickness: 1),
-//                           SizedBox(height: DynamicSize.small(context)),
-
-//                           Expanded(
-//                             child: Obx(
-//                               () => ListView.separated(
-//                                 itemCount: chatHistory.length,
-//                                 itemBuilder: (context, index) {
-//                                   return GestureDetector(
-//                                     onTap: () {
-//                                       final chatController = Get.put(
-//                                         ChatController(),
-//                                       );
-//                                       chatController.sessionId.value =
-//                                           chatHistory[index].id;
-//                                       chatController.fetchChatMessages(
-//                                         chatHistory[index].id,
-//                                       );
-//                                       Scaffold.of(context).closeDrawer();
-//                                       print(
-//                                         'Selected chat session ID: ${chatHistory[index].id}',
-//                                       );
-//                                     },
-//                                     child: Text(
-//                                       chatHistory[index].title,
-//                                       style: STextTheme.subHeadLine().copyWith(
-//                                         color: SColor.textSecondary,
-//                                         fontSize: 14,
-//                                         fontWeight: FontWeight.w400,
-//                                       ),
-//                                       maxLines: 2,
-//                                       overflow: TextOverflow.ellipsis,
-//                                     ),
-//                                   );
-//                                 },
-//                                 separatorBuilder: (context, index) =>
-//                                     const SizedBox(height: 12),
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       )
-//                     : const LoginNote(),
-//               ),
-
-//               if (isLoggedIn) ...[
-//                 Divider(color: SColor.textSecondary, thickness: 1),
-//                 SizedBox(height: DynamicSize.small(context)),
-//                 ElevatedButton(
-//                   onPressed: () {
-//                     LogoutController logoutController = Get.put(
-//                       LogoutController(),
-//                     );
-//                     logoutController.login();
-//                   },
-//                   style: ElevatedButton.styleFrom(
-//                     padding: const EdgeInsets.symmetric(
-//                       horizontal: 20,
-//                       vertical: 0,
-//                     ),
-//                     backgroundColor: SColor.textPrimary,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(10),
-//                     ),
-//                   ),
-//                   child: Text(
-//                     'Sign out',
-//                     style: STextTheme.headLine().copyWith(
-//                       fontSize: 12,
-//                       fontWeight: FontWeight.w500,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// Import your screen routes
-// import '../screens/weather_alerts_screen.dart';
-// import '../screens/quantity_calculator_screen.dart';
-// import '../screens/weight_calculator_screen.dart';
-// import '../screens/digital_passport_screen.dart';
-// import '../screens/notifications_screen.dart';
 class SDrawer extends StatelessWidget {
   final List<ChatSessionModel> chatHistory;
   SDrawer({required this.chatHistory, super.key});
@@ -205,7 +23,7 @@ class SDrawer extends StatelessWidget {
     final bool isLoggedIn = UserStatus.getIsLoggedIn();
 
     return Drawer(
-      backgroundColor: SColor.primary,
+      backgroundColor: AppColors.primary,
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(DynamicSize.medium(context)),
@@ -323,17 +141,17 @@ class SDrawer extends StatelessWidget {
           : null,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        backgroundColor: SColor.textPrimary,
+        backgroundColor: AppColors.textPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.edit_note_rounded, size: 18, color: SColor.primary),
+          Icon(Icons.edit_note_rounded, size: 18, color: AppColors.primary),
           const SizedBox(width: 10),
           Text(
             'NEW CHAT',
-            style: STextTheme.headLine().copyWith(
+            style: AppTextStyles.headLine().copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
@@ -363,8 +181,8 @@ class SDrawer extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: STextTheme.subHeadLine().copyWith(
-                      color: SColor.textPrimary,
+                    style: AppTextStyles.subHeadLine().copyWith(
+                      color: AppColors.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
@@ -375,7 +193,7 @@ class SDrawer extends StatelessWidget {
           ),
         ),
         Divider(
-          color: SColor.textSecondary.withOpacity(0.3),
+          color: AppColors.textSecondary.withOpacity(0.3),
           thickness: 1,
           height: 1,
         ),
@@ -402,8 +220,8 @@ class SDrawer extends StatelessWidget {
               children: [
                 Text(
                   'History',
-                  style: STextTheme.subHeadLine().copyWith(
-                    color: SColor.textPrimary,
+                  style: AppTextStyles.subHeadLine().copyWith(
+                    color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
                   ),
@@ -413,7 +231,7 @@ class SDrawer extends StatelessWidget {
                     isHistoryExpanded.value
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
-                    color: SColor.textPrimary,
+                    color: AppColors.textPrimary,
                     size: 24,
                   ),
                 ),
@@ -447,8 +265,8 @@ class SDrawer extends StatelessWidget {
                     },
                     child: Text(
                       chat.title,
-                      style: STextTheme.subHeadLine().copyWith(
-                        color: SColor.textSecondary,
+                      style: AppTextStyles.subHeadLine().copyWith(
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
@@ -470,16 +288,16 @@ class SDrawer extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         LogoutController logoutController = Get.put(LogoutController());
-        logoutController.login();
+        logoutController.logout();
       },
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        backgroundColor: SColor.textPrimary,
+        backgroundColor: AppColors.textPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       child: Text(
         'SIGN OUT',
-        style: STextTheme.headLine().copyWith(
+        style: AppTextStyles.headLine().copyWith(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,

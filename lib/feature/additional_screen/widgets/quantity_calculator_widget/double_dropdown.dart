@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class DoubleDropdown extends StatelessWidget {
   final String label;
@@ -39,8 +39,8 @@ class DoubleDropdown extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textBlackPrimary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textBlackPrimary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -114,14 +114,14 @@ class DoubleDropdown extends StatelessWidget {
           value: selectedValue,
           hint: Text(
             hint,
-            style: STextTheme.subHeadLine().copyWith(color: SColor.textPrimary),
+            style: AppTextStyles.subHeadLine().copyWith(color: AppColors.textPrimary),
           ),
           icon: Icon(
             Icons.keyboard_arrow_down_rounded,
-            color: SColor.textBlackPrimary,
+            color: AppColors.textBlackPrimary,
           ),
           isExpanded: true,
-          style: STextTheme.subHeadLine().copyWith(color: SColor.textPrimary),
+          style: AppTextStyles.subHeadLine().copyWith(color: AppColors.textPrimary),
           dropdownColor: Colors.white,
           borderRadius: BorderRadius.circular(8),
           items: items.map((String item) {
@@ -129,8 +129,8 @@ class DoubleDropdown extends StatelessWidget {
               value: item,
               child: Text(
                 item,
-                style: STextTheme.subHeadLine().copyWith(
-                  color: SColor.textBlackPrimary,
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
                 ),
               ),
             );

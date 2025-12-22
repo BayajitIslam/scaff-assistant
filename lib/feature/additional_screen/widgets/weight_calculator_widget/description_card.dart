@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class DescriptionCard extends StatelessWidget {
   final String text;
@@ -19,8 +19,8 @@ class DescriptionCard extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: STextTheme.subHeadLine().copyWith(
-          color: SColor.textBlackPrimary,
+        style: AppTextStyles.subHeadLine().copyWith(
+          color: AppColors.textBlackPrimary,
           fontWeight: FontWeight.w500,
           height: 1.5,
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/weather_alerts_widget/alert_item.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/weather_alerts_widget/toggle_card.dart';

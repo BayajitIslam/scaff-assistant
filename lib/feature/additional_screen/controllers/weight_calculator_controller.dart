@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:scaffassistant/core/const/string_const/api_endpoint.dart';
 import 'package:http/http.dart' as http;
+import 'package:scaffassistant/core/constants/api_endpoints.dart';
 import 'package:scaffassistant/core/local_storage/user_info.dart';
 
 class WeightCalculatorController extends GetxController {

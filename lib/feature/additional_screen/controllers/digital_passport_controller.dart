@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:scaffassistant/core/const/string_const/api_endpoint.dart';
+import 'package:scaffassistant/core/constants/api_endpoints.dart';
 import 'package:scaffassistant/core/local_storage/user_info.dart';
-import 'package:scaffassistant/core/utils/log.dart';
+import 'package:scaffassistant/core/utils/console.dart';
 import 'package:scaffassistant/feature/additional_screen/screens/document_capture_screen.dart';
 
 class DocumentModel {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class DocumentCard extends StatelessWidget {
   final String title;
@@ -42,8 +42,8 @@ class DocumentCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: STextTheme.headLine().copyWith(
-                  color: SColor.textPrimary,
+                style: AppTextStyles.headLine().copyWith(
+                  color: AppColors.textPrimary,
                 ),
               ),
               Row(
@@ -54,7 +54,7 @@ class DocumentCard extends StatelessWidget {
                       child: Icon(
                         Icons.edit_outlined,
                         size: 20,
-                        color: SColor.textBlackPrimary,
+                        color: AppColors.textBlackPrimary,
                       ),
                     ),
                   if (onDelete != null) ...[

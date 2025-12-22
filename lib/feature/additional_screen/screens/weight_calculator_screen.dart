@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/additional_screen/controllers/weight_calculator_controller.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/weight_calculator_widget/weight_input_widget.dart';
@@ -150,7 +150,7 @@ class WeightCalculatorScreen extends StatelessWidget {
                         : controller.isLoading.value
                         ? Center(
                             child: LoadingAnimationWidget.fourRotatingDots(
-                              color: SColor.primary,
+                              color: AppColors.primary,
                               size: 40,
                             ),
                           )

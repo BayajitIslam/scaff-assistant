@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class InputPanelCard extends StatelessWidget {
   final String? title;
@@ -35,8 +35,8 @@ class InputPanelCard extends StatelessWidget {
           if (title != null) ...[
             Text(
               title!,
-              style: STextTheme.headLine().copyWith(
-                color: SColor.textBlackPrimary,
+              style: AppTextStyles.headLine().copyWith(
+                color: AppColors.textBlackPrimary,
                 fontWeight: FontWeight.w400,
               ),
             ),

@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/digital_passport_widget/document_card.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/digital_passport_widget/document_item.dart';
@@ -68,7 +68,7 @@ class DigitalPassportScreen extends StatelessWidget {
                   Obx(() {
                     if (controller.isLoading.value) {
                       return Center(
-                        child: CircularProgressIndicator(color: SColor.primary),
+                        child: CircularProgressIndicator(color: AppColors.primary),
                       );
                     }
 
@@ -171,10 +171,10 @@ class _UploadDocumentDialog extends StatelessWidget {
                 children: [
                   Text(
                     'Add Document',
-                    style: STextTheme.headLine().copyWith(
+                    style: AppTextStyles.headLine().copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: SColor.textBlackPrimary,
+                      color: AppColors.textBlackPrimary,
                     ),
                   ),
                   IconButton(
@@ -225,8 +225,8 @@ class _UploadDocumentDialog extends StatelessWidget {
               // Document Name Input
               Text(
                 'Document Name',
-                style: STextTheme.subHeadLine().copyWith(
-                  color: SColor.textBlackPrimary,
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -250,7 +250,7 @@ class _UploadDocumentDialog extends StatelessWidget {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: SColor.primary),
+                    borderSide: BorderSide(color: AppColors.primary),
                   ),
                 ),
               ),
@@ -260,8 +260,8 @@ class _UploadDocumentDialog extends StatelessWidget {
               // Document Type Dropdown
               Text(
                 'Document Type',
-                style: STextTheme.subHeadLine().copyWith(
-                  color: SColor.textBlackPrimary,
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -343,7 +343,7 @@ class _UploadDocumentDialog extends StatelessWidget {
                               },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: SColor.primary,
+                          backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -576,10 +576,10 @@ class _EditDocumentDialog extends StatelessWidget {
                 children: [
                   Text(
                     'Edit Document',
-                    style: STextTheme.headLine().copyWith(
+                    style: AppTextStyles.headLine().copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: SColor.textBlackPrimary,
+                      color: AppColors.textBlackPrimary,
                     ),
                   ),
                   IconButton(
@@ -636,8 +636,8 @@ class _EditDocumentDialog extends StatelessWidget {
               // Document Name Input
               Text(
                 'Document Name',
-                style: STextTheme.subHeadLine().copyWith(
-                  color: SColor.textBlackPrimary,
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -662,8 +662,8 @@ class _EditDocumentDialog extends StatelessWidget {
               // Document Type Dropdown
               Text(
                 'Document Type',
-                style: STextTheme.subHeadLine().copyWith(
-                  color: SColor.textBlackPrimary,
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -730,7 +730,7 @@ class _EditDocumentDialog extends StatelessWidget {
                               },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: SColor.primary,
+                          backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),

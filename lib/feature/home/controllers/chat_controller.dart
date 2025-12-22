@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:scaffassistant/core/constants/api_endpoints.dart';
 import 'package:scaffassistant/core/local_storage/user_info.dart';
 import 'package:scaffassistant/feature/home/controllers/chat_session_controller.dart';
 import 'package:scaffassistant/feature/home/models/chat_history_model.dart';
-import '../../../core/const/string_const/api_endpoint.dart';
 
 class ChatController extends GetxController {
   RxBool isLoading = false.obs;

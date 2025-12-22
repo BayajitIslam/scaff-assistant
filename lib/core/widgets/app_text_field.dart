@@ -1,19 +1,20 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
 
-import '../../../core/const/size_const/dynamic_size.dart';
-import '../../../core/theme/SColor.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
-class STextField extends StatefulWidget {
-  String? hintText;
-  String? labelText;
-  TextEditingController? controller;
-  bool? obscureText;
-  TextInputType? keyboardType;
-  Widget? prefixIcon;
-  Widget? suffixIcon;
-  Widget? changedSuffixIcon;
-  STextField({
+class AppTextField extends StatefulWidget {
+  final String? hintText;
+  final String? labelText;
+  final TextEditingController? controller;
+  final bool? obscureText;
+  final TextInputType? keyboardType;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final Widget? changedSuffixIcon;
+  const AppTextField({
     super.key,
     this.hintText,
     this.labelText,
@@ -26,10 +27,10 @@ class STextField extends StatefulWidget {
   });
 
   @override
-  State<STextField> createState() => _STextFieldState();
+  State<AppTextField> createState() => _AppTextFieldState();
 }
 
-class _STextFieldState extends State<STextField> {
+class _AppTextFieldState extends State<AppTextField> {
   late bool _obscureText;
 
   @override
@@ -64,15 +65,15 @@ class _STextFieldState extends State<STextField> {
                     : widget.changedSuffixIcon ?? widget.suffixIcon,
               )
             : null,
-        labelStyle: STextTheme.subHeadLine(),
-        hintStyle: STextTheme.subHeadLine(),
+        labelStyle: AppTextStyles.subHeadLine(),
+        hintStyle: AppTextStyles.subHeadLine(),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: SColor.borderColor),
+          borderSide: BorderSide(color: AppColors.alertWind),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: SColor.borderColor),
+          borderSide: BorderSide(color: AppColors.borderColor),
         ),
         contentPadding: EdgeInsets.symmetric(
           horizontal: DynamicSize.horizontalMedium(context),

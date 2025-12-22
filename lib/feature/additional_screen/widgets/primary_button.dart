@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
@@ -24,29 +24,29 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: SColor.textBlackPrimary,
-          foregroundColor: SColor.textSecondary,
+          backgroundColor: AppColors.textBlackPrimary,
+          foregroundColor: AppColors.textSecondary,
           elevation: 0,
           padding: EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          disabledBackgroundColor: SColor.primary,
+          disabledBackgroundColor: AppColors.primary,
         ),
         child: isLoading
             ? SizedBox(
                 height: 20,
                 width: 20,
                 child: LoadingAnimationWidget.threeArchedCircle(
-                  color: SColor.textBlackPrimary,
+                  color: AppColors.textBlackPrimary,
 
                   size: 30,
                 ),
               )
             : Text(
                 text,
-                style: STextTheme.headLine().copyWith(
-                  color: SColor.primary,
+                style: AppTextStyles.headLine().copyWith(
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w500,
                 ),
               ),

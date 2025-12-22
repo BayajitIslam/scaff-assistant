@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class NotificationItem extends StatelessWidget {
   final IconData icon;
@@ -64,8 +64,8 @@ class NotificationItem extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: STextTheme.subHeadLine().copyWith(
-                      color: SColor.textPrimary,
+                    style: AppTextStyles.subHeadLine().copyWith(
+                      color: AppColors.textPrimary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -74,8 +74,8 @@ class NotificationItem extends StatelessWidget {
                 // Date and Time
                 Text(
                   '$date . $time',
-                  style: STextTheme.subHeadLine().copyWith(
-                    color: SColor.textBlackPrimary,
+                  style: AppTextStyles.subHeadLine().copyWith(
+                    color: AppColors.textBlackPrimary,
                     fontSize: 12,
                   ),
                 ),
@@ -91,8 +91,8 @@ class NotificationItem extends StatelessWidget {
               ),
               child: Text(
                 message,
-                style: STextTheme.subHeadLine().copyWith(
-                  color: SColor.textBlackPrimary,
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
                   fontWeight: FontWeight.w300,
                 ),
               ),

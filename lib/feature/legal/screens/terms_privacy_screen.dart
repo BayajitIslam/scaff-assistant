@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/const/text_const/terms_privacy_text.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
+import 'package:scaffassistant/feature/legal/screens/terms_privacy_text.dart';
 
 class TermsAndPrivacyPolicyScreen extends StatelessWidget {
   const TermsAndPrivacyPolicyScreen({super.key});
@@ -13,8 +13,8 @@ class TermsAndPrivacyPolicyScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: STextTheme.subHeadLine().copyWith(
-            color: SColor.textPrimary,
+          style: AppTextStyles.subHeadLine().copyWith(
+            color: AppColors.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -29,18 +29,15 @@ class TermsAndPrivacyPolicyScreen extends StatelessWidget {
       children: [
         Text(
           text,
-          style: STextTheme.subHeadLine().copyWith(
-            color: SColor.textSecondary,
+          style: AppTextStyles.subHeadLine().copyWith(
+            color: AppColors.textSecondary,
             fontSize: 14,
             fontWeight: FontWeight.w400,
             height: 1.5,
           ),
         ),
         SizedBox(height: DynamicSize.large(context)),
-        Divider(
-          color: SColor.borderColor,
-          thickness: 1.2,
-        ),
+        Divider(color: AppColors.borderColor, thickness: 1.2),
         SizedBox(height: DynamicSize.large(context)),
       ],
     );
@@ -51,11 +48,11 @@ class TermsAndPrivacyPolicyScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: SColor.primary,
+        backgroundColor: AppColors.primary,
         title: Text(
           'Terms and Privacy Policy',
-          style: STextTheme.headLine().copyWith(
-            color: SColor.textPrimary,
+          style: AppTextStyles.headLine().copyWith(
+            color: AppColors.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
@@ -69,8 +66,8 @@ class TermsAndPrivacyPolicyScreen extends StatelessWidget {
           children: [
             Text(
               TermsPrivacyText.title,
-              style: STextTheme.headLine().copyWith(
-                color: SColor.textPrimary,
+              style: AppTextStyles.headLine().copyWith(
+                color: AppColors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -78,14 +75,14 @@ class TermsAndPrivacyPolicyScreen extends StatelessWidget {
             SizedBox(height: DynamicSize.small(context)),
             Text(
               TermsPrivacyText.lastUpdated,
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textSecondary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),
             ),
             SizedBox(height: DynamicSize.large(context)),
-            Divider(color: SColor.borderColor, thickness: 2),
+            Divider(color: AppColors.borderColor, thickness: 2),
             SizedBox(height: DynamicSize.large(context)),
 
             // Sections

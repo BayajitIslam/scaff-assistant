@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart' show DynamicSize;
 
 class EditDocumentDialog extends StatelessWidget {
   final String? frontImagePath;
@@ -70,7 +70,7 @@ class EditDocumentDialog extends StatelessWidget {
                   child: Icon(
                     Icons.close,
                     size: 24,
-                    color: SColor.textSecondary,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -120,8 +120,8 @@ class EditDocumentDialog extends StatelessWidget {
                 children: [
                   Text(
                     'NAME /LABEL',
-                    style: STextTheme.headLine().copyWith(
-                      color: SColor.textBlackPrimary,
+                    style: AppTextStyles.headLine().copyWith(
+                      color: AppColors.textBlackPrimary,
 
                       fontSize: 14,
                     ),
@@ -129,13 +129,13 @@ class EditDocumentDialog extends StatelessWidget {
                   SizedBox(height: DynamicSize.small(context)),
                   TextField(
                     controller: nameController,
-                    style: STextTheme.subHeadLine().copyWith(
-                      color: SColor.textSecondary,
+                    style: AppTextStyles.subHeadLine().copyWith(
+                      color: AppColors.textSecondary,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Enter name or label',
-                      hintStyle: STextTheme.subHeadLine().copyWith(
-                        color: SColor.textBlackPrimary,
+                      hintStyle: AppTextStyles.subHeadLine().copyWith(
+                        color: AppColors.textBlackPrimary,
                       ),
                       border: InputBorder.none,
                       isDense: true,
@@ -171,8 +171,8 @@ class EditDocumentDialog extends StatelessWidget {
                       child: Center(
                         child: Text(
                           'CANCEL',
-                          style: STextTheme.headLine().copyWith(
-                            color: SColor.textSecondary,
+                          style: AppTextStyles.headLine().copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ),
@@ -190,7 +190,7 @@ class EditDocumentDialog extends StatelessWidget {
                       height: 39,
 
                       decoration: BoxDecoration(
-                        color: SColor.textPrimary,
+                        color: AppColors.textPrimary,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
@@ -203,8 +203,8 @@ class EditDocumentDialog extends StatelessWidget {
                       child: Center(
                         child: Text(
                           'SAVE',
-                          style: STextTheme.headLine().copyWith(
-                            color: SColor.primary,
+                          style: AppTextStyles.headLine().copyWith(
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
@@ -230,7 +230,7 @@ class EditDocumentDialog extends StatelessWidget {
         // Dashed border container
         CustomPaint(
           painter: DashedBorderPainter(
-            color: SColor.textSecondary,
+            color: AppColors.textSecondary,
             strokeWidth: 1,
             gap: 6,
             radius: 8,
@@ -271,8 +271,8 @@ class EditDocumentDialog extends StatelessWidget {
                     // Label
                     Text(
                       label,
-                      style: STextTheme.subHeadLine().copyWith(
-                        color: SColor.textSecondary,
+                      style: AppTextStyles.subHeadLine().copyWith(
+                        color: AppColors.textSecondary,
                       ),
                     ),
               ),

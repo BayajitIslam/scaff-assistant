@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
 import 'package:scaffassistant/feature/additional_screen/widgets/notification_widget/notification_item.dart';
 import '../controllers/notifications_controller.dart';
@@ -22,14 +22,14 @@ class NotificationsScreen extends StatelessWidget {
           CustomAppBar(title: 'NOTIFICATIONS', onBackPressed: () => Get.back()),
 
           // Divider line below app bar
-          Container(height: 1, color: SColor.borderColor),
+          Container(height: 1, color: AppColors.borderColor),
 
           // Content
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
                 return Center(
-                  child: CircularProgressIndicator(color: SColor.primary),
+                  child: CircularProgressIndicator(color: AppColors.primary),
                 );
               }
 
@@ -41,13 +41,13 @@ class NotificationsScreen extends StatelessWidget {
                       Icon(
                         Icons.notifications_off_outlined,
                         size: 64,
-                        color: SColor.textSecondary.withOpacity(0.5),
+                        color: AppColors.textSecondary.withOpacity(0.5),
                       ),
                       SizedBox(height: DynamicSize.medium(context)),
                       Text(
                         'No notifications yet',
-                        style: STextTheme.subHeadLine().copyWith(
-                          color: SColor.textSecondary,
+                        style: AppTextStyles.subHeadLine().copyWith(
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],

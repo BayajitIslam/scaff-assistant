@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class AlertItem extends StatelessWidget {
   final IconData icon;
@@ -42,8 +42,8 @@ class AlertItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: STextTheme.subHeadLine().copyWith(
-                    color: SColor.textBlackPrimary,
+                  style: AppTextStyles.subHeadLine().copyWith(
+                    color: AppColors.textBlackPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -62,8 +62,8 @@ class AlertItem extends StatelessWidget {
             ),
             child: Text(
               trigger,
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textSecondary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
           ),
@@ -76,8 +76,8 @@ class AlertItem extends StatelessWidget {
             ),
             child: Text(
               message,
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textBlackPrimary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textBlackPrimary,
                 fontWeight: FontWeight.w300,
               ),
             ),
@@ -94,7 +94,7 @@ class AlertItem extends StatelessWidget {
         width: 30,
         height: 16,
         decoration: BoxDecoration(
-          color: isEnabled ? SColor.textPrimary : Colors.grey.shade300,
+          color: isEnabled ? AppColors.textPrimary : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(13),
         ),
         child: AnimatedAlign(

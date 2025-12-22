@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 
 class SharedDropdown extends StatelessWidget {
   final String label;
@@ -30,8 +30,8 @@ class SharedDropdown extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: STextTheme.subHeadLine().copyWith(
-                color: SColor.textBlackPrimary,
+              style: AppTextStyles.subHeadLine().copyWith(
+                color: AppColors.textBlackPrimary,
                 height: 0.22,
               ),
             ),
@@ -62,18 +62,18 @@ class SharedDropdown extends StatelessWidget {
                   value: selectedValue,
                   hint: Text(
                     hint,
-                    style: STextTheme.subHeadLine().copyWith(
-                      color: SColor.textBlackPrimary,
+                    style: AppTextStyles.subHeadLine().copyWith(
+                      color: AppColors.textBlackPrimary,
                       // height: 0.22,
                     ),
                   ),
                   icon: Icon(
                     Icons.keyboard_arrow_down_rounded,
-                    color: SColor.textBlackPrimary,
+                    color: AppColors.textBlackPrimary,
                   ),
                   isExpanded: true,
-                  style: STextTheme.subHeadLine().copyWith(
-                    color: SColor.textBlackPrimary,
+                  style: AppTextStyles.subHeadLine().copyWith(
+                    color: AppColors.textBlackPrimary,
                   ),
                   dropdownColor: Colors.white,
                   borderRadius: BorderRadius.circular(5),
@@ -86,15 +86,15 @@ class SharedDropdown extends StatelessWidget {
                             width: 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: SColor.textBlackPrimary,
+                              color: AppColors.textBlackPrimary,
                               shape: BoxShape.circle,
                             ),
                           ),
                           SizedBox(width: 15),
                           Text(
                             item,
-                            style: STextTheme.subHeadLine().copyWith(
-                              color: SColor.textBlackPrimary,
+                            style: AppTextStyles.subHeadLine().copyWith(
+                              color: AppColors.textBlackPrimary,
                             ),
                           ),
                         ],
@@ -107,8 +107,8 @@ class SharedDropdown extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           item,
-                          style: STextTheme.subHeadLine().copyWith(
-                            color: SColor.textBlackPrimary,
+                          style: AppTextStyles.subHeadLine().copyWith(
+                            color: AppColors.textBlackPrimary,
                           ),
                         ),
                       );

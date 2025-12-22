@@ -1,87 +1,80 @@
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-// import 'package:get_storage/get_storage.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:scaffassistant/core/local_storage/user_info.dart';
-// import 'package:scaffassistant/core/local_storage/user_status.dart';
-// import 'package:scaffassistant/routing/route_name.dart';
-// import 'package:scaffassistant/routing/routes.dart';
-//
-// void main() async{
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await GetStorage.init();
-//   runApp(const MyApp());
-// }
-//
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-//
-//   // This widget is the root of your application.
-//   @override
-//   Widget build(BuildContext context) {
-//     final bool isLoggedIn = UserStatus.getIsLoggedIn == true;
-//     final bool hasToken = UserInfo.getAccessToken().isNotEmpty;
-//     final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.login;
-//
-//     return GetMaterialApp(
-//       title: 'Scaff Assistant',
-//       debugShowCheckedModeBanner: false,
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//         textTheme: GoogleFonts.poppinsTextTheme(
-//           Theme.of(context).textTheme,
-//         ),
-//       ),
-//       initialRoute: initialRoute,
-//       getPages: Routes.pages,
-//     );
-//   }
-// }
-//
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:scaffassistant/core/local_storage/user_info.dart';
+import 'package:scaffassistant/core/config/app_initializer.dart';
+import 'package:scaffassistant/core/theme/app_theme.dart';
+import 'package:scaffassistant/core/services/storage_service.dart';
+import 'package:scaffassistant/core/widgets/network_wrapper.dart';
+import 'package:scaffassistant/feature/subscription/controller/subscription_controller.dart'
+    show SubscriptionController;
 import 'package:scaffassistant/routing/route_name.dart';
 import 'package:scaffassistant/routing/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
 
-  // Load subscription status
-  final prefs = await SharedPreferences.getInstance();
-  final bool isPremium = prefs.getBool('premium') ?? true;
+  // Initialize all app dependencies
+  await AppInitializer.init();
 
-  runApp(MyApp(isPremium: isPremium));
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Check initial route
+  final initialRoute = await _getInitialRoute();
+
+  runApp(ScaffAssistantApp(initialRoute: initialRoute));
 }
 
-class MyApp extends StatelessWidget {
-  final bool isPremium;
-  const MyApp({super.key, required this.isPremium});
+/// Determine initial route based on login and subscription status
+Future<String> _getInitialRoute() async {
+  final hasToken = StorageService.getAccessToken().isNotEmpty;
+
+  // Not logged in → Login
+  if (!hasToken) {
+    return RouteNames.login;
+  }
+
+  // Logged in → Check subscription from Play Store
+  final hasSubscription =
+      await SubscriptionController.checkSubscriptionOnStart();
+
+  if (hasSubscription) {
+    return RouteNames.home;
+  } else {
+    return RouteNames.subscription;
+  }
+}
+
+class ScaffAssistantApp extends StatelessWidget {
+  final String initialRoute;
+
+  const ScaffAssistantApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
-    final bool hasToken = UserInfo.getAccessToken().isNotEmpty;
-
-    //     final String initialRoute = (hasToken) ? RouteNames.home : RouteNames.home;
-
-    final String initialRoute = (!hasToken)
-        ? RouteNames.home
-        : (isPremium ? RouteNames.home : RouteNames.subscription);
-
     return GetMaterialApp(
       title: 'Scaff Assistant',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
-      ),
+
+      // Theme - Light only
+      theme: AppTheme.lightTheme,
+      themeMode: ThemeMode.light,
+
+      // Routes
       initialRoute: initialRoute,
       getPages: Routes.pages,
+
+      // Default transition
+      defaultTransition: Transition.cupertino,
+      transitionDuration: const Duration(milliseconds: 300),
+
+      // Network wrapper for no internet screen
+      builder: (context, child) {
+        return NetworkWrapper(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }

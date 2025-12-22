@@ -1,174 +1,163 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
-import 'package:scaffassistant/core/const/string_const/api_endpoint.dart';
-import 'package:scaffassistant/core/local_storage/user_info.dart';
-import 'package:scaffassistant/core/local_storage/user_status.dart';
+import 'package:scaffassistant/core/constants/api_endpoints.dart';
+import 'package:scaffassistant/core/services/api_service.dart';
+import 'package:scaffassistant/core/services/storage_service.dart';
+import 'package:scaffassistant/core/services/snackbar_service.dart';
+import 'package:scaffassistant/core/services/google_signin_service.dart';
+import 'package:scaffassistant/core/utils/console.dart';
+import 'package:scaffassistant/feature/subscription/controller/subscription_controller.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 
+/// ═══════════════════════════════════════════════════════════════════════════
+/// LOGIN CONTROLLER
+/// Handles user authentication login flow
+/// ═══════════════════════════════════════════════════════════════════════════
 class LoginController extends GetxController {
+  // ─────────────────────────────────────────────────────────────────────────
+  // Text Controllers
+  // ─────────────────────────────────────────────────────────────────────────
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  RxBool isLoading = false.obs;
+  // ─────────────────────────────────────────────────────────────────────────
+  // Observable States
+  // ─────────────────────────────────────────────────────────────────────────
+  final isLoading = false.obs;
+  final isPasswordVisible = false.obs;
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  // ─────────────────────────────────────────────────────────────────────────
+  // Lifecycle
+  // ─────────────────────────────────────────────────────────────────────────
+  @override
+  void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.onClose();
+  }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Toggle Password Visibility
+  // ─────────────────────────────────────────────────────────────────────────
+  void togglePasswordVisibility() {
+    isPasswordVisible.value = !isPasswordVisible.value;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Validate Inputs
+  // ─────────────────────────────────────────────────────────────────────────
+  bool _validateInputs() {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      SnackbarService.error('Please fill in all fields');
+      return false;
+    }
+
+    if (!GetUtils.isEmail(email)) {
+      SnackbarService.error('Please enter a valid email');
+      return false;
+    }
+
+    if (password.length < 6) {
+      SnackbarService.error('Password must be at least 6 characters');
+      return false;
+    }
+
+    return true;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Login API Call
+  // ─────────────────────────────────────────────────────────────────────────
   Future<void> login() async {
+    if (!_validateInputs()) return;
+
+    Console.divider(label: 'LOGIN');
+    Console.auth('Attempting login...');
+
     isLoading.value = true;
-    print('Attempting login with email: ${APIEndPoint.login}');
-    final response = await http.post(
-      Uri.parse(APIEndPoint.login),
-      body: {
-        'email': emailController.text,
-        'password': passwordController.text,
-      },
-    );
 
-    print('Response status for login: ${response.statusCode}');
+    try {
+      final response = await ApiService.postForm(
+        ApiEndpoints.login,
+        body: {
+          'email': emailController.text.trim(),
+          'password': passwordController.text.trim(),
+        },
+      );
 
-    if (response.statusCode == 200) {
-      isLoading.value = false;
-      // Handle successful login
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-      UserStatus.setIsLoggedIn(true);
-      UserInfo.setUserName(
-          responseData['full_name'] ?? responseData['username'] ?? '');
-      UserInfo.setUserEmail(responseData['email'] ?? emailController.text);
-      UserInfo.setAccessToken(responseData['access_token']?['access'] ?? '');
-      if (UserStatus.getIsFirstTimeUser()) {
-        UserStatus.setIsFirstTimeUser(false);
-        Get.offAllNamed(RouteNames.subscription);
+      Console.auth('Response status: ${response.statusCode}');
+
+      if (response.success) {
+        final data = response.data as Map<String, dynamic>;
+        Console.success('Login successful!');
+
+        // Save user session
+        StorageService.saveUserSession(
+          userName: data['full_name'] ?? data['username'] ?? '',
+          email: data['email'] ?? emailController.text.trim(),
+          accessToken: data['access_token']?['access'] ?? data['access'] ?? '',
+          refreshToken: data['access_token']?['refresh'] ?? data['refresh'],
+          userId: data['id']?.toString(),
+        );
+
+        SnackbarService.success('Welcome back!');
+
+        // Check subscription and navigate
+        await SubscriptionController.checkAndNavigateAfterLogin();
       } else {
-        Get.offAllNamed(RouteNames.home);
+        Console.error('Login failed: ${response.message}');
+        SnackbarService.error(
+          response.message ?? 'Login failed. Please try again.',
+        );
       }
-    } else {
+    } catch (e) {
+      Console.error('Login exception: $e');
+      SnackbarService.error('Something went wrong. Please try again.');
+    } finally {
       isLoading.value = false;
-      print('Login failed: ${response.body}');
+      Console.divider();
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Google Sign In
+  // ─────────────────────────────────────────────────────────────────────────
   Future<void> googleSignIn() async {
-    print('Starting Google Sign-In process...');
+    if (isLoading.value) return;
+
+    isLoading.value = true;
+
     try {
-      isLoading.value = true;
-
-      // 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
-      // Initialize Google Sign-In
-      await GoogleSignIn.instance.initialize(
-        serverClientId: '594391332991-ddau3boono9g5c2acl9p80pt065c1uq0.apps.googleusercontent.com',
-      );
-
-      // Check if authentication is supported
-      if (!GoogleSignIn.instance.supportsAuthenticate()) {
-        Get.snackbar('Error', 'Google Sign-In not supported on this platform');
-        return;
-      }
-
-      // Authenticate the user
-      final GoogleSignInAccount account = await GoogleSignIn.instance.authenticate();
-
-      print('🔐 User signed in: ${account.email}');
-
-      // Define required scopes
-      const List<String> scopes = [
-        'email',
-        'profile',
-        'openid', // Required for ID token
-      ];
-
-      try {
-        // Authorize the scopes to get tokens
-        final token = account.authentication;
-        final GoogleSignInClientAuthorization authorization =
-        await account.authorizationClient.authorizeScopes(scopes);
-
-        // ✅ FIXED: Get ID token instead of server auth code
-        final String? accessToken = authorization.accessToken;
-        final String? idToken = authorization.accessToken;
-        print('🎫 ID Token: ${idToken ?? 'null'}');
-        print('🔑 Access Token: ${accessToken ?? 'null'}');
-        final Map<String, dynamic> googleProfile = {
-          'id': account.id,
-          'email': account.email,
-          'displayName': account.displayName,
-          'photoUrl': account.photoUrl,
-          'idToken': idToken,
-          'accessToken': accessToken,
-        };
-        print('📦 Google profile: $googleProfile');
-        if (idToken == null || idToken.isEmpty) {
-          Get.snackbar('Error', 'Failed to get Google ID token');
-          return;
-        }
-        print('🎫 ID Token received: ${idToken.substring(0, 20)}...');
-
-        // ✅ FIXED: Send id_token to backend (matching your backend expectation)
-        final loginResponse = await http.post(
-          Uri.parse(APIEndPoint.googleLogin),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'access_token': idToken,  // ✅ Send id_token
-          }),
-        ).timeout(const Duration(seconds: 10));
-
-        if (loginResponse.statusCode == 200) {
-          final responseData = jsonDecode(loginResponse.body);
-          print('🔐 Login Success Response: $responseData');
-
-          // Store tokens
-          UserStatus.setIsLoggedIn(true);
-          UserInfo.setUserName(responseData['full_name'] ?? responseData['username'] ?? '');
-          UserInfo.setUserEmail(responseData['email'] ?? emailController.text);
-          UserInfo.setAccessToken(responseData['access_token']?['access'] ?? '');
-
-//74:67:76:02:E8:7B:02:C9:64:EE:84:FF:D3:F7:65:5F:08:8F:15:39
-
-          if (UserStatus.getIsFirstTimeUser()) {
-            UserStatus.setIsFirstTimeUser(false);
-            Get.offAllNamed(RouteNames.subscription);
-          } else {
-            Get.offAllNamed(RouteNames.home);
-          }
-        } else {
-          print('❌ Login failed: ${loginResponse.body}');
-          final errorData = jsonDecode(loginResponse.body);
-          Get.snackbar(
-            'Error',
-            errorData['error'] ?? 'Google login failed',
-          );
-        }
-
-      } catch (authError) {
-        print('❌ Authorization error: $authError');
-        SnackBar(
-          content: Text('Google authorization failed: $authError'),
-        );
-        return;
-      }
-
-    } on GoogleSignInException catch (e) {
-      String errorMessage;
-      switch (e.code) {
-        case GoogleSignInExceptionCode.canceled:
-          errorMessage = 'Google sign-in was cancelled';
-          break;
-        case GoogleSignInExceptionCode.clientConfigurationError:
-          errorMessage = 'Google sign-in configuration error';
-          break;
-        default:
-          errorMessage = 'Google sign-in error: ${e.description} (Code: ${e.code})';
-      }
-      print('❌ GoogleSignInException: $errorMessage');
-      Get.snackbar('Error', errorMessage);
-    } catch (e) {
-      print('❌ Unexpected error: $e');
-      Get.snackbar('Error', 'An unexpected error occurred');
+      await GoogleSignInService.signIn();
     } finally {
       isLoading.value = false;
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Apple Sign In
+  // ─────────────────────────────────────────────────────────────────────────
+  Future<void> appleSignIn() async {
+    Console.auth('Apple Sign In initiated...');
+    SnackbarService.info('Apple Sign In coming soon!');
+  }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Navigate to Signup
+  // ─────────────────────────────────────────────────────────────────────────
+  void goToSignup() {
+    Console.nav('Navigating to Signup');
+    Get.toNamed(RouteNames.signup);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Navigate to Forgot Password
+  // ─────────────────────────────────────────────────────────────────────────
+  void goToForgotPassword() {
+    Console.nav('Navigating to Forgot Password');
+    Get.toNamed(RouteNames.mailVerification);
+  }
 }

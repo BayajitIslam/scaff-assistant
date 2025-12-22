@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/const/string_const/image_path.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/constants/image_paths.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
+import 'package:scaffassistant/core/widgets/app_button.dart';
+import 'package:scaffassistant/core/widgets/app_text_field.dart';
 import 'package:scaffassistant/feature/auth/controllers/reset_password_controller.dart';
-
-import '../../../core/theme/text_theme.dart';
-import '../widgets/s_full_btn.dart';
-import '../widgets/s_text_field.dart';
 
 class MailVerificationScreen extends StatelessWidget {
   const MailVerificationScreen({super.key});
@@ -19,10 +18,10 @@ class MailVerificationScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: SColor.primary,
+      backgroundColor: AppColors.primary,
 
       // === App Bar === //
-      appBar: AppBar(backgroundColor: SColor.primary),
+      appBar: AppBar(backgroundColor: AppColors.primary),
 
       // === Body === //
       body: SingleChildScrollView(
@@ -44,21 +43,21 @@ class MailVerificationScreen extends StatelessWidget {
               // === Login Form === //
               Text(
                 'Reset your password',
-                style: STextTheme.headLine().copyWith(
+                style: AppTextStyles.headLine().copyWith(
                   fontWeight: FontWeight.w500,
-                  color: SColor.textPrimary,
+                  color: AppColors.textPrimary,
                   fontSize: 24,
                 ),
               ),
               SizedBox(height: DynamicSize.small(context)),
               Text(
                 'We’ll send you an OTP to reset your password',
-                style: STextTheme.subHeadLine(),
+                style: AppTextStyles.subHeadLine(),
               ),
               SizedBox(height: DynamicSize.large(context)),
 
               // === Email Fields === //
-              STextField(
+              AppTextField(
                 labelText: 'Email',
                 hintText: 'Enter your email',
                 keyboardType: TextInputType.emailAddress,
@@ -69,7 +68,7 @@ class MailVerificationScreen extends StatelessWidget {
 
               // === Login Button === //
               Obx(
-                () => SFullBtn(
+                () => AppButton(
                   text: resetPasswordController.isLoading.value
                       ? 'Sending...'
                       : 'Send OTP',
