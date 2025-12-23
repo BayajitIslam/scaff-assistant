@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/constants/icon_paths.dart';
-import 'package:scaffassistant/core/services/storage_service.dart';
+import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
 import 'package:scaffassistant/feature/auth/controllers/logout_controller.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 

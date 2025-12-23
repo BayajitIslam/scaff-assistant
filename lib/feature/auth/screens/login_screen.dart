@@ -23,6 +23,22 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primary,
+
+      // ─────────────────────────────────────────────────────────────────────
+      // App Bar
+      // ─────────────────────────────────────────────────────────────────────
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          onPressed: () => Get.back(),
+        ),
+      ),
+
+      // ─────────────────────────────────────────────────────────────────────
+      // Body
+      // ─────────────────────────────────────────────────────────────────────
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),

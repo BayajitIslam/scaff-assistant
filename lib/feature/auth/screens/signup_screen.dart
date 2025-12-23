@@ -45,6 +45,7 @@ class SignupScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 40),
               // Logo
               _buildLogo(),
 
@@ -90,7 +91,7 @@ class SignupScreen extends StatelessWidget {
   // Logo Widget
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildLogo() {
-    return Center(child: Image.asset(ImagePaths.logo, width: 80, height: 80));
+    return Center(child: Image.asset(ImagePaths.logo, width: 103, height: 103));
   }
 
   // ─────────────────────────────────────────────────────────────────────────

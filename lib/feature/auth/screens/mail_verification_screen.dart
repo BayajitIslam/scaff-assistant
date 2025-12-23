@@ -36,7 +36,7 @@ class MailVerificationScreen extends StatelessWidget {
             children: [
               // === Logo === //
               Center(
-                child: Image(width: 100, image: AssetImage(ImagePath.logo)),
+                child: Image(width: 103, image: AssetImage(ImagePath.logo)),
               ),
               SizedBox(height: DynamicSize.large(context)),
 

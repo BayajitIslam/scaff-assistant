@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:scaffassistant/core/constants/api_endpoints.dart';
-import 'package:scaffassistant/core/services/storage_service.dart';
+import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
 import 'package:scaffassistant/core/services/snackbar_service.dart';
 import 'package:scaffassistant/core/utils/console.dart';
 import 'package:scaffassistant/feature/subscription/controller/subscription_controller.dart';

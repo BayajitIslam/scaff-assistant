@@ -72,7 +72,7 @@ class OtpVerificationScreen extends StatelessWidget {
               // Verify Button
               _buildVerifyButton(name, email, password, purpose),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Resend OTP
               _buildResendOtp(email, purpose),
@@ -89,7 +89,7 @@ class OtpVerificationScreen extends StatelessWidget {
   // Logo Widget
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildLogo() {
-    return Center(child: Image.asset(ImagePaths.logo, width: 80, height: 80));
+    return Center(child: Image.asset(ImagePaths.logo, width: 103, height: 103));
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -103,6 +103,7 @@ class OtpVerificationScreen extends StatelessWidget {
           'Verify OTP',
           style: AppTextStyles.headLine().copyWith(
             color: AppColors.textPrimary,
+            fontSize: 24,
           ),
         ),
         const SizedBox(height: 8),
@@ -133,7 +134,7 @@ class OtpVerificationScreen extends StatelessWidget {
       controller: controller.otpController,
       onCompleted: (otp) {
         // Auto-submit when all digits entered (optional)
-        // controller.verifyOtp(...);
+        // controller.verifyOtp(name, email, password);
       },
     );
   }

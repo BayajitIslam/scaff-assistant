@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:scaffassistant/core/constants/api_endpoints.dart';
-import 'package:scaffassistant/core/local_storage/user_info.dart';
+import 'package:scaffassistant/core/services/local_storage/user_info.dart';
 
 class WeightCalculatorController extends GetxController {
   // Dropdown selections

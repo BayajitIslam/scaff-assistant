@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:scaffassistant/core/services/storage_service.dart';
+import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
 import 'package:scaffassistant/core/services/snackbar_service.dart';
 import 'package:scaffassistant/core/utils/console.dart';
 

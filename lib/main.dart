@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scaffassistant/core/config/app_initializer.dart';
 import 'package:scaffassistant/core/theme/app_theme.dart';
-import 'package:scaffassistant/core/services/storage_service.dart';
+import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
 import 'package:scaffassistant/core/widgets/network_wrapper.dart';
 import 'package:scaffassistant/feature/subscription/controller/subscription_controller.dart'
     show SubscriptionController;
@@ -34,7 +34,7 @@ Future<String> _getInitialRoute() async {
 
   // Not logged in → Login
   if (!hasToken) {
-    return RouteNames.login;
+    return RouteNames.passwordReset;
   }
 
   // Logged in → Check subscription from Play Store

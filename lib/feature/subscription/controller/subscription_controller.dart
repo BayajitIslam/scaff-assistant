@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
-import 'package:scaffassistant/core/services/storage_service.dart';
+import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
 import 'package:scaffassistant/core/services/snackbar_service.dart';
 import 'package:scaffassistant/core/utils/console.dart';
 import 'package:scaffassistant/routing/route_name.dart';

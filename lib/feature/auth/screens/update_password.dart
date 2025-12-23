@@ -32,13 +32,13 @@ class UpdatePassword extends StatelessWidget {
             children: [
               // === Logo === //
               Center(
-                child: Image(width: 100, image: AssetImage(ImagePath.logo)),
+                child: Image(width: 103, image: AssetImage(ImagePath.logo)),
               ),
               SizedBox(height: DynamicSize.large(context)),
 
               // === Login Form === //
               Text(
-                'UPDATE PASSWORD',
+                'Reset your password',
                 style: AppTextStyles.headLine().copyWith(
                   fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary,
