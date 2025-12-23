@@ -84,7 +84,7 @@ class LoginController extends GetxController {
       final response = await ApiService.postForm(
         ApiEndpoints.login,
         body: {
-          'email': emailController.text.trim(),
+          'email': emailController.text.toLowerCase().trim(),
           'password': passwordController.text.trim(),
         },
       );

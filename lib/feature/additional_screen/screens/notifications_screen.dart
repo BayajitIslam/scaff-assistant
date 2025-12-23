@@ -27,12 +27,42 @@ class NotificationsScreen extends StatelessWidget {
           // Content
           Expanded(
             child: Obx(() {
+              // Loading State
               if (controller.isLoading.value) {
                 return Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 );
               }
 
+              // Error State
+              if (controller.errorMessage.isNotEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red.withOpacity(0.5),
+                      ),
+                      SizedBox(height: DynamicSize.medium(context)),
+                      Text(
+                        controller.errorMessage.value,
+                        style: AppTextStyles.subHeadLine().copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: DynamicSize.medium(context)),
+                      ElevatedButton(
+                        onPressed: () => controller.fetchNotifications(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              // Empty State
               if (controller.notifications.isEmpty) {
                 return Center(
                   child: Column(
@@ -55,23 +85,42 @@ class NotificationsScreen extends StatelessWidget {
                 );
               }
 
-              return ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: controller.notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = controller.notifications[index];
-                  return NotificationItem(
-                    icon: Icons.circle,
-                    iconColor: notification.iconColor,
-                    title: notification.title,
-                    date: notification.date,
-                    time: notification.time,
-                    message: notification.message,
-                    onTap: () {
-                      // TODO: Handle notification tap
-                    },
-                  );
-                },
+              // Notifications List
+              return RefreshIndicator(
+                onRefresh: () => controller.refreshNotifications(),
+                color: AppColors.primary,
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount:
+                      controller.notifications.length +
+                      (controller.hasMore.value ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    // Load more indicator
+                    if (index == controller.notifications.length) {
+                      controller.loadMore();
+                      return const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    final notification = controller.notifications[index];
+                    return NotificationItem(
+                      icon: notification.icon,
+                      iconColor: notification.iconColor,
+                      title: notification.title,
+                      date: notification.date,
+                      time: notification.time,
+                      message: notification.message,
+                      // isRead: notification.isRead,
+                      onTap: () {
+                        if (!notification.isRead) {
+                          controller.markAsRead(notification.id);
+                        }
+                      },
+                    );
+                  },
+                ),
               );
             }),
           ),

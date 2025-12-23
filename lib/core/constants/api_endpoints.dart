@@ -55,15 +55,16 @@ class ApiEndpoints {
   // Weather Endpoints (Future)
   // ─────────────────────────────────────────────────────────────────────────
 
-  static const String weatherCurrent = '$baseUrl/weather/current/';
-  static const String weatherForecast = '$baseUrl/weather/forecast/';
+  static const String weatherPreferences = '$baseUrl/weather/preferences/';
+  static const String weatherUpdateLocation = '$baseUrl/weather/location/';
+  static const String weatherUpdatePreference = '$baseUrl/weather/preferences/';
   static const String weatherAlerts = '$baseUrl/weather/alerts/';
 
   // ─────────────────────────────────────────────────────────────────────────
   // Notification Endpoints (Future)
   // ─────────────────────────────────────────────────────────────────────────
 
-  static const String notifications = '$baseUrl/notifications/';
+  static const String notifications = '$baseUrl/weather/notifications';
   static const String notificationRead = '$baseUrl/notifications/read/';
   static const String notificationSettings = '$baseUrl/notifications/settings/';
 

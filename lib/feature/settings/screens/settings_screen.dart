@@ -85,7 +85,8 @@ class SettingsScreen extends StatelessWidget {
             backgroundColor: AppColors.textPrimary,
             child: Text(
               userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
-              style: AppTextStyles.subHeadLine().copyWith(
+              style: AppTextStyles.headLine().copyWith(
+                fontSize: 26,
                 color: AppColors.primary,
               ),
             ),

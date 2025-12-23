@@ -130,7 +130,7 @@ class SignupController extends GetxController {
           RouteNames.otpVerification,
           arguments: {
             'name': nameController.text.trim(),
-            'email': emailController.text.trim(),
+            'email': emailController.text.toLowerCase().trim(),
             'password': passwordController.text.trim(),
           },
         );

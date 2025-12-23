@@ -28,116 +28,126 @@ class WeatherAlertsScreen extends StatelessWidget {
 
           // Content
           Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(DynamicSize.medium(context)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Description Card
-                  DescriptionCard(
-                    text:
-                        'Automatic, location-based safety alerts . Checks every 60 min . On-screen notifications only',
-                  ),
+            child: Obx(() {
+              // Loading State
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                  SizedBox(height: DynamicSize.medium(context)),
-
-                  // Location Card
-                  Obx(
-                    () => ToggleCard(
-                      title: 'LOCATION',
-                      subtitle: 'User current location',
-                      description: 'For site - specific weather checks',
-                      isEnabled: controller.isLocationEnabled.value,
-                      onToggleChanged: (value) {
-                        controller.isLocationEnabled.value = value;
-                      },
+              return SingleChildScrollView(
+                padding: EdgeInsets.all(DynamicSize.medium(context)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Description Card
+                    DescriptionCard(
+                      text:
+                          'Automatic, location-based safety alerts . Checks every 60 min . On-screen notifications only',
                     ),
-                  ),
 
-                  SizedBox(height: DynamicSize.medium(context)),
+                    SizedBox(height: DynamicSize.medium(context)),
 
-                  // Alert Types Card
-                  AlertTypesCard(
-                    title: 'ALERT TYPES',
-                    children: [
-                      Divider(color: Colors.grey.shade300, thickness: 1),
-
-                      // High Heat
-                      Obx(
-                        () => AlertItem(
-                          icon: Icons.wb_sunny_rounded,
-                          iconColor: Colors.orange,
-                          title: controller.alertData['highHeat']!['title']!,
-                          trigger:
-                              controller.alertData['highHeat']!['trigger']!,
-                          message:
-                              controller.alertData['highHeat']!['message']!,
-                          isEnabled: controller.isHighHeatEnabled.value,
-                          onToggleChanged: (value) {
-                            controller.isHighHeatEnabled.value = value;
-                          },
-                        ),
+                    // Location Card
+                    Obx(
+                      () => ToggleCard(
+                        title: 'LOCATION',
+                        subtitle: 'User current location',
+                        description: 'For site - specific weather checks',
+                        isEnabled: controller.isLocationEnabled.value,
+                        onToggleChanged: controller.isUpdating.value
+                            ? null
+                            : (value) => controller.toggleLocation(value),
                       ),
+                    ),
 
-                      Divider(color: Colors.grey.shade300, thickness: 1),
+                    SizedBox(height: DynamicSize.medium(context)),
 
-                      // Cold / Ice
-                      Obx(
-                        () => AlertItem(
-                          icon: Icons.ac_unit_rounded,
-                          iconColor: Colors.lightBlue,
-                          title: controller.alertData['coldIce']!['title']!,
-                          trigger: controller.alertData['coldIce']!['trigger']!,
-                          message: controller.alertData['coldIce']!['message']!,
-                          isEnabled: controller.isColdIceEnabled.value,
-                          onToggleChanged: (value) {
-                            controller.isColdIceEnabled.value = value;
-                          },
-                        ),
+                    // Alert Types Card
+                    Obx(
+                      () => AlertTypesCard(
+                        title: 'ALERT TYPES',
+                        children: [
+                          Divider(color: Colors.grey.shade300, thickness: 1),
+
+                          // High Heat
+                          AlertItem(
+                            icon: Icons.wb_sunny_rounded,
+                            iconColor: Colors.orange,
+                            title: controller.alertData['highHeat']!['title']!,
+                            trigger:
+                                controller.alertData['highHeat']!['trigger']!,
+                            message:
+                                controller.alertData['highHeat']!['message']!,
+                            isEnabled: controller.isHighHeatEnabled.value,
+                            onToggleChanged: controller.isUpdating.value
+                                ? null
+                                : (value) =>
+                                      controller.toggleAlert('highHeat', value),
+                          ),
+
+                          Divider(color: Colors.grey.shade300, thickness: 1),
+
+                          // Cold / Ice
+                          AlertItem(
+                            icon: Icons.ac_unit_rounded,
+                            iconColor: Colors.lightBlue,
+                            title: controller.alertData['coldIce']!['title']!,
+                            trigger:
+                                controller.alertData['coldIce']!['trigger']!,
+                            message:
+                                controller.alertData['coldIce']!['message']!,
+                            isEnabled: controller.isColdIceEnabled.value,
+                            onToggleChanged: controller.isUpdating.value
+                                ? null
+                                : (value) =>
+                                      controller.toggleAlert('coldIce', value),
+                          ),
+
+                          Divider(color: Colors.grey.shade300, thickness: 1),
+
+                          // High Wind
+                          AlertItem(
+                            icon: Icons.air_rounded,
+                            iconColor: Colors.blueGrey,
+                            title: controller.alertData['highWind']!['title']!,
+                            trigger:
+                                controller.alertData['highWind']!['trigger']!,
+                            message:
+                                controller.alertData['highWind']!['message']!,
+                            isEnabled: controller.isHighWindEnabled.value,
+                            onToggleChanged: controller.isUpdating.value
+                                ? null
+                                : (value) =>
+                                      controller.toggleAlert('highWind', value),
+                          ),
+
+                          Divider(color: Colors.grey.shade300, thickness: 1),
+
+                          // Rain Warning
+                          AlertItem(
+                            icon: Icons.water_drop_rounded,
+                            iconColor: Colors.blue,
+                            title:
+                                controller.alertData['rainWarning']!['title']!,
+                            trigger: controller
+                                .alertData['rainWarning']!['trigger']!,
+                            message: controller
+                                .alertData['rainWarning']!['message']!,
+                            isEnabled: controller.isRainWarningEnabled.value,
+                            onToggleChanged: controller.isUpdating.value
+                                ? null
+                                : (value) => controller.toggleAlert(
+                                    'rainWarning',
+                                    value,
+                                  ),
+                          ),
+                        ],
                       ),
-
-                      Divider(color: Colors.grey.shade300, thickness: 1),
-
-                      // High Wind
-                      Obx(
-                        () => AlertItem(
-                          icon: Icons.air_rounded,
-                          iconColor: Colors.blueGrey,
-                          title: controller.alertData['highWind']!['title']!,
-                          trigger:
-                              controller.alertData['highWind']!['trigger']!,
-                          message:
-                              controller.alertData['highWind']!['message']!,
-                          isEnabled: controller.isHighWindEnabled.value,
-                          onToggleChanged: (value) {
-                            controller.isHighWindEnabled.value = value;
-                          },
-                        ),
-                      ),
-
-                      Divider(color: Colors.grey.shade300, thickness: 1),
-
-                      // Rain Warning
-                      Obx(
-                        () => AlertItem(
-                          icon: Icons.water_drop_rounded,
-                          iconColor: Colors.blue,
-                          title: controller.alertData['rainWarning']!['title']!,
-                          trigger:
-                              controller.alertData['rainWarning']!['trigger']!,
-                          message:
-                              controller.alertData['rainWarning']!['message']!,
-                          isEnabled: controller.isRainWarningEnabled.value,
-                          onToggleChanged: (value) {
-                            controller.isRainWarningEnabled.value = value;
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ),
           SizedBox(height: 17),
         ],
