@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "921168008628",
+    "project_id": "scaff-assistant",
+    "storage_bucket": "scaff-assistant.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:921168008628:android:55f284a6457aa114d0cee1",
+        "android_client_info": {
+          "package_name": "com.ssaprktech.scaffassistant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0OGhEqxd2N1R3UvbXjA35WR4rgqVONoQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

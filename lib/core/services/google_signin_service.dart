@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:scaffassistant/core/constants/api_endpoints.dart';
+import 'package:scaffassistant/core/services/fcm_service.dart';
 import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
 import 'package:scaffassistant/core/services/snackbar_service.dart';
 import 'package:scaffassistant/core/utils/console.dart';
@@ -54,6 +56,8 @@ class GoogleSignInService {
 
       // Step 5: Send to backend
       final success = await _authenticateWithBackend(tokens, account);
+      // Register device for push notifications
+      FcmService.registerDevice();
 
       Console.divider();
       return success;

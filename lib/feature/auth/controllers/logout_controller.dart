@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:scaffassistant/core/constants/api_endpoints.dart';
 import 'package:scaffassistant/core/services/api_service.dart';
+import 'package:scaffassistant/core/services/fcm_service.dart';
 import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
 import 'package:scaffassistant/core/services/snackbar_service.dart';
 import 'package:scaffassistant/core/utils/console.dart';
@@ -36,6 +37,8 @@ class LogoutController extends GetxController {
 
       if (response.success) {
         Console.success('Logout successful');
+        // Unregister device from push notifications
+        await FcmService.unregisterDevice();
         _clearAndNavigate();
       } else {
         // Even if API fails, clear local data and logout

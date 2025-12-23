@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scaffassistant/core/constants/api_endpoints.dart';
 import 'package:scaffassistant/core/services/api_service.dart';
+import 'package:scaffassistant/core/services/fcm_service.dart';
 import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
 import 'package:scaffassistant/core/services/snackbar_service.dart';
 import 'package:scaffassistant/core/services/google_signin_service.dart';
@@ -104,6 +105,9 @@ class LoginController extends GetxController {
         );
 
         SnackbarService.success('Welcome back!');
+
+        // Register device for push notifications
+        FcmService.registerDevice();
 
         // Check subscription and navigate
         await SubscriptionController.checkAndNavigateAfterLogin();

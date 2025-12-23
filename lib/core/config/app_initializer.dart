@@ -1,5 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:scaffassistant/core/services/fcm_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:scaffassistant/core/services/connectivity_service.dart';
 import 'package:scaffassistant/core/utils/console.dart';
@@ -33,6 +35,17 @@ class AppInitializer {
       await connectivityService.init();
 
       // ─────────────────────────────────────────────────────────────────────
+
+      // ─────────────────────────────────────────────────────────────────────
+      // Firebase Initialization
+      // ─────────────────────────────────────────────────────────────────────
+      await Firebase.initializeApp();
+      Console.success('Firebase initialized');
+
+      // ─────────────────────────────────────────────────────────────────────
+      // FCM Service (Push Notifications)
+      // ─────────────────────────────────────────────────────────────────────
+      await FcmService.init();
 
       Console.success('App initialization complete ✅');
       Console.divider();

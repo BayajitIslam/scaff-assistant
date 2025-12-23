@@ -20,6 +20,7 @@ class StorageService {
   static const String _keyIsLoggedIn = 'isLoggedIn';
   static const String _keyIsFirstTimeUser = 'isFirstTimeUser';
   static const String _keyIsPremium = 'premium';
+  static const String _keyFcmToken = 'fcmToken';
 
   // ─────────────────────────────────────────────────────────────────────────
   // User Information
@@ -140,6 +141,20 @@ class StorageService {
     setIsLoggedIn(true);
     setIsFirstTimeUser(false);
     Console.success('User session saved');
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // FCM Token
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// Set FCM token
+  static void setFcmToken(String token) {
+    _box.write(_keyFcmToken, token);
+  }
+
+  /// Get FCM token
+  static String getFcmToken() {
+    return _box.read(_keyFcmToken) ?? '';
   }
 
   /// Clear user session on logout
