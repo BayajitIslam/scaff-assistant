@@ -104,6 +104,7 @@ class LoginController extends GetxController {
           userId: data['id']?.toString(),
         );
 
+        Console.info("Access token: ${data['access_token']}");
         SnackbarService.success('Welcome back!');
 
         // Register device for push notifications

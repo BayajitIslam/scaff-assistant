@@ -94,7 +94,7 @@ class OtpVerificationController extends GetxController {
 
         // Show success and navigate
         SnackbarService.success('Account verified successfully!');
-        Get.offAllNamed(RouteNames.home);
+        Get.offAllNamed(RouteNames.login);
       } else {
         Console.error('OTP verification failed: ${response.message}');
         SnackbarService.error(

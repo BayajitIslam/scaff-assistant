@@ -59,14 +59,13 @@ class ApiEndpoints {
   static const String weatherUpdateLocation = '$baseUrl/weather/location/';
   static const String weatherUpdatePreference = '$baseUrl/weather/preferences/';
   static const String weatherAlerts = '$baseUrl/weather/alerts/';
+  static const String fcmToken = '$baseUrl/weather/fcm-token/';
 
   // ─────────────────────────────────────────────────────────────────────────
   // Notification Endpoints (Future)
   // ─────────────────────────────────────────────────────────────────────────
 
   static const String notifications = '$baseUrl/weather/notifications';
-  static const String notificationRead = '$baseUrl/notifications/read/';
-  static const String notificationSettings = '$baseUrl/notifications/settings/';
 
   // ─────────────────────────────────────────────────────────────────────────
   // User Profile Endpoints (Future)

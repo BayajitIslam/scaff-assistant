@@ -126,7 +126,7 @@ class SignupController extends GetxController {
         );
 
         // Navigate to OTP verification with user data
-        Get.offAllNamed(
+        Get.toNamed(
           RouteNames.otpVerification,
           arguments: {
             'name': nameController.text.trim(),

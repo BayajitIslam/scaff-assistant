@@ -212,7 +212,7 @@ class GoogleSignInService {
       refreshToken: responseData['access_token']?['refresh'],
       userId: responseData['id']?.toString(),
     );
-
+    Console.info('Access token: ${responseData['access_token']?['access']}');
     Console.success('User session saved');
   }
 

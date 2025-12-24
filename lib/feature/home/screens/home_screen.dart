@@ -185,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   GestureDetector(
                     onTap: () => Get.toNamed(RouteNames.notificationScreen),
+
                     child: Image.asset(IconPath.notificationIcon, height: 34),
                   ),
                   SizedBox(width: 8),
