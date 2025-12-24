@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:scaffassistant/core/constants/api_endpoints.dart';
 import 'package:scaffassistant/core/services/local_storage/user_info.dart';
+import 'package:scaffassistant/core/utils/console.dart';
 
 class WeightCalculatorController extends GetxController {
   // Dropdown selections
@@ -102,12 +103,14 @@ class WeightCalculatorController extends GetxController {
   // Loading state for button
   var isLoading = false.obs;
 
+  var errorMessage = ''.obs;
+
   //initially Output  false
   var showOutput = false.obs;
 
   void calculateWeight() async {
     final body = buildRequestBody();
-    debugPrint('Request Body: $body');
+    Console.info('Request Body: $body');
     // TODO: Call backend API
     try {
       //loading
@@ -116,6 +119,7 @@ class WeightCalculatorController extends GetxController {
 
       //Api Url
       final String url = APIEndPoint.weightCalculator;
+      Console.api('Post URL: $url');
       //Response Post
       final response = await http.post(
         Uri.parse(url),
@@ -127,8 +131,8 @@ class WeightCalculatorController extends GetxController {
       );
 
       //Check Debug Print
-      debugPrint('StatusCode : ${response.statusCode}');
-      debugPrint('StatusCode : ${response.body}');
+      Console.api('Response status: : ${response.statusCode}');
+      Console.success('Response Body : ${response.body}');
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body);
         tubesTotalWeight.value = '${data['total_tubes_weight']}kg';
@@ -136,9 +140,14 @@ class WeightCalculatorController extends GetxController {
         fittingsTotalWeight.value = '${data['total_fittings_weight']}kg';
         totalWeight.value = '${data['grand_total_weight']}KG';
         showOutput(true);
+      } else {
+        isLoading(false);
+        Console.error('Fetch failed: ${response.request}');
+        errorMessage.value = 'Something went wrong';
       }
     } catch (e) {
       debugPrint('Error Calculation : $e');
+      errorMessage.value = 'Something went wrong';
       isLoading(false);
     } finally {
       isLoading(false);

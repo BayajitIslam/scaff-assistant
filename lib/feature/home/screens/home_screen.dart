@@ -192,9 +192,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => Get.toNamed(RouteNames.profile),
                     child: CircleAvatar(
                       radius: 18,
-                      backgroundColor: AppColors.textPrimary,
+                      backgroundColor: AppColors.borderFocused,
                       child: Text(
-                        UserInfo.getUserName()[0],
+                        UserInfo.getUserName()[0].toUpperCase(),
                         style: AppTextStyles.subHeadLine().copyWith(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,

@@ -13,6 +13,8 @@ class WeatherAlertsController extends GetxController {
   final isLoading = true.obs;
   final isUpdating = false.obs;
 
+  var errorMessage = ''.obs;
+
   // ─────────────────────────────────────────────────────────────────────────
   // Location toggle
   // ─────────────────────────────────────────────────────────────────────────
@@ -143,9 +145,11 @@ class WeatherAlertsController extends GetxController {
         Console.success('Weather preferences loaded');
       } else {
         Console.error('Fetch failed: ${response.message}');
+        errorMessage.value = response.message ?? 'Failed to load Wether Alert';
       }
     } catch (e) {
       Console.error('Weather exception: $e');
+      errorMessage.value = 'Failed to load preferences';
       SnackbarService.error('Failed to load preferences');
     } finally {
       isLoading.value = false;

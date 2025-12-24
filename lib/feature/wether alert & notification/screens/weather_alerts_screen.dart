@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/calculator/widgets/weight_calculator_widget/description_card.dart';
 import 'package:scaffassistant/feature/wether%20alert%20&%20notification/widgets/weather_alerts_widget/alert_item.dart';
@@ -32,6 +34,34 @@ class WeatherAlertsScreen extends StatelessWidget {
               // Loading State
               if (controller.isLoading.value) {
                 return const Center(child: CircularProgressIndicator());
+              }
+
+              // Error State
+              if (controller.errorMessage.isNotEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red.withOpacity(0.5),
+                      ),
+                      SizedBox(height: DynamicSize.medium(context)),
+                      Text(
+                        controller.errorMessage.value,
+                        style: AppTextStyles.subHeadLine().copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      SizedBox(height: DynamicSize.medium(context)),
+                      ElevatedButton(
+                        onPressed: () => controller.fetchPreferences(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                );
               }
 
               return SingleChildScrollView(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/calculator/controllers/weight_calculator_controller.dart';
 import 'package:scaffassistant/feature/calculator/widgets/weight_calculator_widget/weight_input_widget.dart';
@@ -152,6 +153,31 @@ class WeightCalculatorScreen extends StatelessWidget {
                             child: LoadingAnimationWidget.fourRotatingDots(
                               color: AppColors.primary,
                               size: 40,
+                            ),
+                          )
+                        : controller.errorMessage.isNotEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 64,
+                                  color: Colors.red.withOpacity(0.5),
+                                ),
+                                SizedBox(height: DynamicSize.medium(context)),
+                                Text(
+                                  controller.errorMessage.value,
+                                  style: AppTextStyles.subHeadLine().copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                SizedBox(height: DynamicSize.medium(context)),
+                                ElevatedButton(
+                                  onPressed: () => controller.calculateWeight(),
+                                  child: const Text('Retry'),
+                                ),
+                              ],
                             ),
                           )
                         : SizedBox.shrink(),
