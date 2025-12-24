@@ -223,7 +223,7 @@ class FcmService {
     }
 
     try {
-      final response = await ApiService.postAuth(
+      final response = await ApiService.deleteAuth(
         ApiEndpoints.fcmToken,
         body: {'token': token},
       );

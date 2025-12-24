@@ -493,13 +493,27 @@ class WeatherAlertsController extends GetxController {
           'Please enable it to use location-based weather alerts.',
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              Geolocator.openLocationSettings();
-            },
-            child: const Text('Open Settings'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                flex: 1,
+                child: TextButton(
+                  onPressed: () => Get.back(),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              Flexible(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                    Geolocator.openLocationSettings();
+                  },
+                  child: const Text('Open Settings'),
+                ),
+              ),
+            ],
           ),
         ],
       ),

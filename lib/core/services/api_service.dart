@@ -246,13 +246,31 @@ class ApiService {
   // ─────────────────────────────────────────────────────────────────────────
 
   /// DELETE request with authentication
-  static Future<ApiResponse<dynamic>> deleteAuth(String url) async {
+  static Future<ApiResponse<dynamic>> deleteAuth(
+    String url, {
+    Map<String, dynamic>? body,
+  }) async {
     try {
       Console.api('DELETE (Auth): $url');
 
-      final response = await http
-          .delete(Uri.parse(url), headers: _authHeaders)
-          .timeout(_timeout);
+      final http.Response response;
+
+      if (body != null) {
+        // With body
+        response = await http
+            .delete(
+              Uri.parse(url),
+              headers: _authHeaders,
+              body: jsonEncode(body),
+            )
+            .timeout(_timeout);
+      } else {
+        // Without body
+        response = await http
+            .delete(Uri.parse(url), headers: _authHeaders)
+            .timeout(_timeout);
+      }
+
       return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
