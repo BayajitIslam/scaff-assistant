@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/notification_widget/notification_item.dart';
+import 'package:scaffassistant/feature/wether%20alert%20&%20notification/widgets/notification_widget/notification_item.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/custom_appbar.dart';
 import '../controllers/notifications_controller.dart';
 
 class NotificationsScreen extends StatelessWidget {

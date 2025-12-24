@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/inner_shadow_container.dart';
+import 'package:scaffassistant/feature/calculator/widgets/inner_shadow_container.dart';
 
 class OutputPanelItem {
   final String label;

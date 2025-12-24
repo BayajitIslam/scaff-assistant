@@ -30,7 +30,7 @@ class IconPaths {
   static const String calculator = 'assets/icons/calculator.png';
   static const String weather = 'assets/icons/weather.png';
   static const String chat = 'assets/icons/chat.png';
-  static const String notification = 'assets/icons/notification.png';
+  static const String notification = 'assets/icons/notfiy.png';
   static const String passport = 'assets/icons/passport.png';
   static const String camera = 'assets/icons/camera.png';
 
@@ -55,4 +55,5 @@ class IconPath {
   static const String shildIcon = IconPaths.shield;
   static const String exitIcon = IconPaths.exit;
   static const String noteIcon = IconPaths.note;
+  static const String notificationIcon = IconPaths.notification;
 }

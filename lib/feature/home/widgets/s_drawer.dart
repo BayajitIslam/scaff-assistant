@@ -4,6 +4,7 @@ import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/constants/icon_paths.dart';
 import 'package:scaffassistant/core/constants/image_paths.dart';
 import 'package:scaffassistant/core/services/local_storage/user_status.dart';
+import 'package:scaffassistant/core/utils/console.dart';
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/auth/controllers/logout_controller.dart';
 import 'package:scaffassistant/feature/home/models/chat_session_model.dart';
@@ -261,7 +262,7 @@ class SDrawer extends StatelessWidget {
                       chatController.sessionId.value = chat.id;
                       chatController.fetchChatMessages(chat.id);
                       Scaffold.of(context).closeDrawer();
-                      print('Selected chat session ID: ${chat.id}');
+                      Console.ui('Selected chat session ID: ${chat.id}');
                     },
                     child: Text(
                       chat.title,
@@ -275,7 +276,7 @@ class SDrawer extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           );
         }),

@@ -3,14 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/primary_button.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/quantity_calculator_widget/double_dropdown.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/quantity_calculator_widget/text_field_with_label.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/quantity_calculator_widget/tubetype_selector.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/shared_dropdown.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/weight_calculator_widget/input_panel_card.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/output_panel.dart';
+import 'package:scaffassistant/feature/calculator/widgets/output_panel.dart';
+import 'package:scaffassistant/feature/calculator/widgets/quantity_calculator_widget/double_dropdown.dart';
+import 'package:scaffassistant/feature/calculator/widgets/quantity_calculator_widget/text_field_with_label.dart';
+import 'package:scaffassistant/feature/calculator/widgets/quantity_calculator_widget/tubetype_selector.dart'
+    show TubeTypeSelector;
+import 'package:scaffassistant/feature/calculator/widgets/shared_dropdown.dart';
+import 'package:scaffassistant/feature/calculator/widgets/weight_calculator_widget/input_panel_card.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/custom_appbar.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/primary_button.dart';
 import '../controllers/quantity_calculator_controller.dart';
 
 class QuantityCalculatorScreen extends StatelessWidget {

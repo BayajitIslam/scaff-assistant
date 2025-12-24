@@ -1,14 +1,13 @@
 import 'package:get/get.dart';
+import 'package:scaffassistant/feature/calculator/screens/quantity_calculator_screen.dart';
+import 'package:scaffassistant/feature/calculator/screens/weight_calculator_screen.dart';
+import 'package:scaffassistant/feature/wether%20alert%20&%20notification/screens/notifications_screen.dart';
+import 'package:scaffassistant/feature/wether%20alert%20&%20notification/screens/weather_alerts_screen.dart';
 import 'package:scaffassistant/feature/auth/screens/mail_verification_screen.dart';
 import 'package:scaffassistant/feature/auth/screens/update_password.dart';
-import 'package:scaffassistant/feature/additional_screen/screens/digital_passport_screen.dart';
-import 'package:scaffassistant/feature/additional_screen/screens/notifications_screen.dart';
-import 'package:scaffassistant/feature/additional_screen/screens/quantity_calculator_screen.dart';
-import 'package:scaffassistant/feature/additional_screen/screens/weather_alerts_screen.dart';
-import 'package:scaffassistant/feature/additional_screen/screens/weight_calculator_screen.dart';
+import 'package:scaffassistant/feature/digital%20passport/screens/digital_passport_screen.dart';
 import 'package:scaffassistant/feature/settings/screens/settings_screen.dart';
 import 'package:scaffassistant/routing/route_name.dart';
-
 import '../feature/auth/screens/login_screen.dart';
 import '../feature/auth/screens/otp_verification_screen.dart';
 import '../feature/auth/screens/signup_screen.dart';

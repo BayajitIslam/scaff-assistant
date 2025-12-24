@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
-import 'package:scaffassistant/feature/additional_screen/controllers/weight_calculator_controller.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/weight_calculator_widget/weight_input_widget.dart';
+import 'package:scaffassistant/feature/calculator/controllers/weight_calculator_controller.dart';
+import 'package:scaffassistant/feature/calculator/widgets/weight_calculator_widget/weight_input_widget.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/custom_appbar.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/primary_button.dart';
 import '../widgets/weight_calculator_widget/description_card.dart';
-import '../widgets/primary_button.dart';
 import '../widgets/weight_calculator_widget/input_panel_card.dart';
 import '../widgets/output_panel.dart';
 

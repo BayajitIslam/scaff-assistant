@@ -5,11 +5,11 @@ import 'package:get/get.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/custom_appbar.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/digital_passport_widget/document_card.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/digital_passport_widget/document_item.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/digital_passport_widget/quick_add_card.dart';
-import 'package:scaffassistant/feature/additional_screen/widgets/weight_calculator_widget/description_card.dart';
+import 'package:scaffassistant/feature/Calculator/widgets/weight_calculator_widget/description_card.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/custom_appbar.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/digital_passport_widget/document_card.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/digital_passport_widget/document_item.dart';
+import 'package:scaffassistant/feature/digital%20passport/widgets/digital_passport_widget/quick_add_card.dart';
 import '../controllers/digital_passport_controller.dart';
 
 class DigitalPassportScreen extends StatelessWidget {

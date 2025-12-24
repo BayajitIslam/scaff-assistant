@@ -59,10 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
       final regex = RegExp(r'\*\*(.+?)\*\*|`(.+?)`|\b\d+\b');
       int last = 0;
       for (final m in regex.allMatches(text)) {
-        if (m.start > last)
+        if (m.start > last) {
           parts.add(
             TextSpan(text: text.substring(last, m.start), style: style),
           );
+        }
 
         final bold = m.group(1);
         final code = m.group(2);
@@ -98,8 +99,9 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         last = m.end;
       }
-      if (last < text.length)
+      if (last < text.length) {
         parts.add(TextSpan(text: text.substring(last), style: style));
+      }
       return parts;
     }
 
@@ -179,19 +181,29 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: EdgeInsets.only(
                 right: DynamicSize.horizontalMedium(context),
               ),
-              child: GestureDetector(
-                onTap: () => Get.toNamed(RouteNames.profile),
-                child: CircleAvatar(
-                  backgroundColor: AppColors.textPrimary,
-                  child: Text(
-                    UserInfo.getUserName()[0],
-                    style: AppTextStyles.subHeadLine().copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Get.toNamed(RouteNames.notificationScreen),
+                    child: Image.asset(IconPath.notificationIcon, height: 34),
+                  ),
+                  SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => Get.toNamed(RouteNames.profile),
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: AppColors.textPrimary,
+                      child: Text(
+                        UserInfo.getUserName()[0],
+                        style: AppTextStyles.subHeadLine().copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             )
           else
