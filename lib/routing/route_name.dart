@@ -22,4 +22,11 @@ class RouteNames {
   // === Subscription Routes === //
   static const subscription = '/subscription';
 
+  // === Measure Routes === //
+  static const measureScreen = '/measureScreen';
+
+  // === Level Routes === //
+  static const levelScreen = '/levelScreen';
+  // === Level Routes === //
+  static const toolScreen = '/toolScreen';
 }

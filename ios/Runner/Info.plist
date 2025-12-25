@@ -2,6 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
+		<!--Airkit-->
+		<key>UIRequiredDeviceCapabilities</key>
+		<array>
+			<string>arkit</string>
+		</array>
+		<!--Camera-->
+		<key>NSCameraUsageDescription</key>
+		<string>Camera access is required for AR measurement</string>
+		<!--Motion
+		sensor -->
+		<key>NSMotionUsageDescription</key>
+		<string>Motion sensor access is required for the level tool</string>
 		<!-- Push Notifications -->
 		<key>UIBackgroundModes</key>
 		<array>
