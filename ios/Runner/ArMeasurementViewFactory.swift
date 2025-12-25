@@ -1,5 +1,3 @@
-// ios/Runner/ArMeasurementViewFactory.swift
-
 import Flutter
 import UIKit
 
