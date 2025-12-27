@@ -27,6 +27,16 @@ class RouteNames {
 
   // === Level Routes === //
   static const levelScreen = '/levelScreen';
+
   // === Level Routes === //
-  static const toolScreen = '/toolScreen';
+  static const measureMainScreen = '/measureMainScreen';
+
+  // === Revision Test Routes === //
+  static const scaffoldRevisionTest = '/ScaffoldRevisioTest';
+
+  // === Quiz Screen Routes === //
+  static const quizScreen = '/quizScreen';
+
+  // === Quiz Result Routes === //
+  static const quizResult = '/quizResult';
 }

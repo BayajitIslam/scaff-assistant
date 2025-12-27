@@ -26,6 +26,8 @@ class AppColors {
   // === Border and Shadow Colors === //
   static const Color borderColor = Color(0xFFE0E0E0);
 
+  static const Color grey = Color(0xFFB9B9B9);
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Text Colors
   // ═══════════════════════════════════════════════════════════════════════════
