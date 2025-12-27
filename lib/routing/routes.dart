@@ -1,9 +1,12 @@
 import 'package:get/get.dart';
 import 'package:scaffassistant/feature/Phase%203%20Front/Level/Screens/level_screen.dart';
 import 'package:scaffassistant/feature/Phase%203%20Front/Measure/Screens/measure_screen.dart';
-import 'package:scaffassistant/feature/Phase%203%20Front/tool_main_screen.dart';
+import 'package:scaffassistant/feature/Phase%203%20Front/measure_main_Screen.dart';
 import 'package:scaffassistant/feature/calculator/screens/quantity_calculator_screen.dart';
 import 'package:scaffassistant/feature/calculator/screens/weight_calculator_screen.dart';
+import 'package:scaffassistant/feature/scaffold%20revision%20test/bindings/quiz_binding.dart';
+import 'package:scaffassistant/feature/scaffold%20revision%20test/screens/quiz_screen.dart';
+import 'package:scaffassistant/feature/scaffold%20revision%20test/screens/quiz_selection_screen.dart';
 import 'package:scaffassistant/feature/wether%20alert%20&%20notification/screens/notifications_screen.dart';
 import 'package:scaffassistant/feature/wether%20alert%20&%20notification/screens/weather_alerts_screen.dart';
 import 'package:scaffassistant/feature/auth/screens/mail_verification_screen.dart';
@@ -65,8 +68,21 @@ class Routes {
       name: RouteNames.digitalPassportScreen,
       page: () => DigitalPassportScreen(),
     ),
-    GetPage(name: RouteNames.toolScreen, page: () => ToolsScreen()),
+    GetPage(
+      name: RouteNames.measureMainScreen,
+      page: () => MeasureMainScreen(),
+    ),
     GetPage(name: RouteNames.measureScreen, page: () => MeasureView()),
     GetPage(name: RouteNames.levelScreen, page: () => LevelView()),
+    GetPage(
+      name: RouteNames.scaffoldRevisionTest,
+      page: () => QuizSelectionScreen(),
+      binding: QuizeBinding(),
+    ),
+    GetPage(
+      name: RouteNames.quizScreen,
+      page: () => QuizScreen(),
+      binding: QuizeBinding(),
+    ),
   ];
 }

@@ -1,8 +1,9 @@
-// lib/features/tools/widgets/measure_view.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/feature/Phase%203%20Front/services/ar_measurement_service.dart';
 
 class MeasureView extends StatefulWidget {
@@ -17,6 +18,7 @@ class _MeasureViewState extends State<MeasureView> {
 
   bool _isReady = false;
   bool _planeDetected = false;
+  bool _permissionDenied = false;
   String _statusMessage = 'Initializing AR...';
   int _pointCount = 0;
   double? _currentDistance;
@@ -28,6 +30,34 @@ class _MeasureViewState extends State<MeasureView> {
   }
 
   Future<void> _initAR() async {
+    // ═══════════════════════════════════════════════════════════════
+    // Step 1: Request Camera Permission
+    // ═══════════════════════════════════════════════════════════════
+    final cameraStatus = await Permission.camera.request();
+
+    if (cameraStatus.isDenied) {
+      if (mounted) {
+        setState(() {
+          _permissionDenied = true;
+          _statusMessage = 'Camera permission required for AR';
+        });
+      }
+      return;
+    }
+
+    if (cameraStatus.isPermanentlyDenied) {
+      if (mounted) {
+        setState(() {
+          _permissionDenied = true;
+          _statusMessage = 'Please enable camera in Settings';
+        });
+      }
+      return;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Step 2: Initialize AR Service
+    // ═══════════════════════════════════════════════════════════════
     _arService = ArMeasurementService();
 
     _arService!.onPlaneDetected = (detected) {
@@ -94,6 +124,10 @@ class _MeasureViewState extends State<MeasureView> {
     }
   }
 
+  Future<void> _openSettings() async {
+    await openAppSettings();
+  }
+
   @override
   void dispose() {
     _arService?.dispose();
@@ -122,9 +156,9 @@ class _MeasureViewState extends State<MeasureView> {
     HapticFeedback.mediumImpact();
     final Uint8List? image = await _arService?.takeSnapshot();
     if (image != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Screenshot captured!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Screenshot captured!')));
     }
   }
 
@@ -152,6 +186,11 @@ class _MeasureViewState extends State<MeasureView> {
 
   @override
   Widget build(BuildContext context) {
+    // Show permission denied screen
+    if (_permissionDenied) {
+      return _buildPermissionDeniedScreen();
+    }
+
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -171,8 +210,81 @@ class _MeasureViewState extends State<MeasureView> {
         _buildTopControls(),
 
         // Bottom controls
-        _buildBottomControls(),
+        _buildBottomAddControls(),
+        _buildBottomCaptureControls(),
       ],
+    );
+  }
+
+  Widget _buildPermissionDeniedScreen() {
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.camera_alt_outlined,
+                size: 80,
+                color: Colors.white.withOpacity(0.5),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Camera Permission Required',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'To use the AR measurement tool, please allow camera access.',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _openSettings,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                child: const Text(
+                  'Open Settings',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _permissionDenied = false;
+                  });
+                  _initAR();
+                },
+                child: Text(
+                  'Try Again',
+                  style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -218,7 +330,6 @@ class _MeasureViewState extends State<MeasureView> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Center dot - green when plane detected
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 width: 12,
@@ -234,12 +345,11 @@ class _MeasureViewState extends State<MeasureView> {
                             color: Colors.green.withOpacity(0.5),
                             blurRadius: 8,
                             spreadRadius: 2,
-                          )
+                          ),
                         ]
                       : null,
                 ),
               ),
-              // Crosshair lines
               Positioned(top: 20, child: _line(true)),
               Positioned(bottom: 20, child: _line(true)),
               Positioned(left: 20, child: _line(false)),
@@ -252,10 +362,10 @@ class _MeasureViewState extends State<MeasureView> {
   }
 
   Widget _line(bool vertical) => Container(
-        width: vertical ? 1.5 : 15,
-        height: vertical ? 15 : 1.5,
-        color: Colors.white.withOpacity(0.7),
-      );
+    width: vertical ? 1.5 : 15,
+    height: vertical ? 15 : 1.5,
+    color: Colors.white.withOpacity(0.7),
+  );
 
   Widget _buildStatusMessage() {
     return Positioned(
@@ -305,18 +415,22 @@ class _MeasureViewState extends State<MeasureView> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Chevron icon
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.keyboard_arrow_up,
-                      color: Colors.grey.shade500, size: 16),
-                  Icon(Icons.keyboard_arrow_down,
-                      color: Colors.grey.shade500, size: 16),
+                  Icon(
+                    Icons.keyboard_arrow_up,
+                    color: Colors.grey.shade500,
+                    size: 16,
+                  ),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.grey.shade500,
+                    size: 16,
+                  ),
                 ],
               ),
               const SizedBox(width: 8),
-              // Imperial distance
               Text(
                 _formatDistanceImperial(_currentDistance!),
                 style: const TextStyle(
@@ -326,7 +440,6 @@ class _MeasureViewState extends State<MeasureView> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Metric distance
               Text(
                 '(${_formatDistanceMetric(_currentDistance!)})',
                 style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
@@ -352,8 +465,12 @@ class _MeasureViewState extends State<MeasureView> {
             enabled: _pointCount > 0,
           ),
           _buildControlButton(
+            weight: 80,
+            height: 50,
+            isText: true,
             icon: Icons.delete_outline_rounded,
             onTap: _clear,
+            text: 'CLEAR',
             enabled: _pointCount > 0,
           ),
         ],
@@ -365,6 +482,10 @@ class _MeasureViewState extends State<MeasureView> {
     required IconData icon,
     required VoidCallback onTap,
     bool enabled = true,
+    bool isText = false,
+    String text = '',
+    double height = 50,
+    double weight = 50,
   }) {
     return GestureDetector(
       onTap: enabled ? onTap : null,
@@ -372,75 +493,81 @@ class _MeasureViewState extends State<MeasureView> {
         duration: const Duration(milliseconds: 200),
         opacity: enabled ? 1.0 : 0.4,
         child: Container(
-          width: 50,
-          height: 50,
+          width: weight,
+          height: height,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
             color: Colors.black.withOpacity(0.4),
             border: Border.all(color: Colors.white.withOpacity(0.2)),
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: Colors.white, size: 24),
+          child: isText
+              ? Center(
+                  child: Text(
+                    text,
+                    style: AppTextStyles.headLine().copyWith(
+                      color: AppColors.textWhite,
+                    ),
+                  ),
+                )
+              : Icon(icon, color: Colors.white, size: 24),
         ),
       ),
     );
   }
 
-  Widget _buildBottomControls() {
+  Widget _buildBottomAddControls() {
     return Positioned(
       bottom: 100,
       left: 0,
       right: 0,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Add point button
-          GestureDetector(
-            onTap: _planeDetected ? _addPoint : null,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 200),
-              opacity: _planeDetected ? 1.0 : 0.5,
-              child: Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.6),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 2,
-                  ),
-                ),
-                child: const Icon(Icons.add, color: Colors.white, size: 36),
+      child: GestureDetector(
+        onTap: _planeDetected ? _addPoint : null,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: _planeDetected ? 1.0 : 0.5,
+          child: Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black.withOpacity(0.6),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 2,
+              ),
+            ),
+            child: const Icon(Icons.add, color: Colors.white, size: 36),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomCaptureControls() {
+    return Positioned(
+      bottom: 103,
+      right: 50,
+      child: GestureDetector(
+        onTap: _takeScreenshot,
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(color: Colors.white, width: 4),
+          ),
+          child: Container(
+            margin: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.black.withOpacity(0.1),
+                width: 2,
               ),
             ),
           ),
-
-          const SizedBox(width: 50),
-
-          // Capture/Screenshot button
-          GestureDetector(
-            onTap: _takeScreenshot,
-            child: Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-                border: Border.all(color: Colors.white, width: 4),
-              ),
-              child: Container(
-                margin: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.black.withOpacity(0.1),
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
