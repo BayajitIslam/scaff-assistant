@@ -1,11 +1,14 @@
+// android/app/build.gradle.kts
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 import java.util.Properties
-        import java.io.FileInputStream
+import java.io.FileInputStream
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
@@ -15,10 +18,11 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.ssaprktech.scaffassistant"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -29,10 +33,11 @@ android {
 
     defaultConfig {
         applicationId = "com.ssaprktech.scaffassistant"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 24  // ARCore requires minimum 24
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     signingConfigs {
@@ -55,4 +60,11 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    
+    // ARCore dependency
+    implementation("com.google.ar:core:1.40.0")
 }

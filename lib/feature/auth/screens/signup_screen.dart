@@ -1,201 +1,274 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/const/string_const/image_path.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/constants/image_paths.dart';
+import 'package:scaffassistant/core/widgets/app_button.dart';
+import 'package:scaffassistant/core/widgets/app_text_field.dart';
+import 'package:scaffassistant/core/widgets/social_button.dart';
 import 'package:scaffassistant/feature/auth/controllers/signup_controller.dart';
 
-import '../../../core/theme/text_theme.dart';
-import '../widgets/s_full_btn.dart';
-import '../widgets/s_text_field.dart';
-import '../widgets/social_button.dart';
-
+/// ═══════════════════════════════════════════════════════════════════════════
+/// SIGNUP SCREEN
+/// New user registration interface
+/// ═══════════════════════════════════════════════════════════════════════════
 class SignupScreen extends StatelessWidget {
-  const SignupScreen({super.key});
+  SignupScreen({super.key});
+
+  // Initialize controller
+  final SignupController controller = Get.put(SignupController());
 
   @override
   Widget build(BuildContext context) {
-    final SignupController signupController = Get.put(SignupController());
-
     return Scaffold(
-      backgroundColor: SColor.primary,
+      backgroundColor: AppColors.primary,
 
-      // === App Bar === //
+      // ─────────────────────────────────────────────────────────────────────
+      // App Bar
+      // ─────────────────────────────────────────────────────────────────────
       appBar: AppBar(
-        backgroundColor: SColor.primary,
-        actions: [
-          TextButton(
-            onPressed: null,
-            child: Text(
-              'Skip',
-              style: STextTheme.subHeadLine(),
-            ),
-          )
-        ],
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          onPressed: () => Get.back(),
+        ),
       ),
 
-      // === Body === //
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: DynamicSize.horizontalLarge(context)),
+      // ─────────────────────────────────────────────────────────────────────
+      // Body
+      // ─────────────────────────────────────────────────────────────────────
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 40),
+              // Logo
+              _buildLogo(),
 
-              // === Logo === //
-              Center(
-                child: Image(
-                  width: 100,
-                  image: AssetImage(ImagePath.logo),
-                ),
-              ),
-              SizedBox(
-                height: DynamicSize.large(context),
-              ),
+              const SizedBox(height: 32),
 
-              // === Login Form === //
-              Text(
-                'SIGN UP',
-                style: STextTheme.headLine().copyWith(fontWeight: FontWeight.w500, color: SColor.textPrimary, fontSize: 24),
-              ),
-              SizedBox(height: DynamicSize.small(context)),
-              Text(
-                'Create an account to continue!',
-                style: STextTheme.subHeadLine(),
-              ),
-              SizedBox(
-                height: DynamicSize.large(context),
-              ),
+              // Header Text
+              _buildHeaderText(),
 
-              // === Email Fields === //
-              STextField(
-                labelText: 'Name',
-                hintText: 'Enter your full name',
-                keyboardType: TextInputType.name,
-                controller: signupController.nameController,
-              ),
-              SizedBox(height: DynamicSize.medium(context)),
+              const SizedBox(height: 32),
 
-              STextField(
-                labelText: 'Email',
-                hintText: 'Enter your email address',
-                keyboardType: TextInputType.emailAddress,
-                controller: signupController.emailController,
-              ),
-              SizedBox(height: DynamicSize.medium(context)),
+              // Signup Form
+              _buildSignupForm(),
 
-              // === Password Fields === //
-              STextField(
-                labelText: 'Confirm Password',
-                hintText: 'Re-enter your password',
-                obscureText: true,
-                suffixIcon: Icon(Icons.visibility_off, color: SColor.borderColor),
-                changedSuffixIcon: Icon(Icons.visibility, color: SColor.textPrimary),
-                keyboardType: TextInputType.visiblePassword,
-                controller: signupController.passwordController,
-              ),
-              SizedBox(height: DynamicSize.large(context)),
+              const SizedBox(height: 24),
 
-              // === Login Button === //
-              Obx(
-                  ()=> SFullBtn(
-                    text: signupController.isLoading.value ? 'Signing Up ...' : 'Sign Up',
-                    onPressed: () {
-                      if(!signupController.isLoading.value){
-                        signupController.signUp();
-                      }
-                    },
-                  )
-              ),
+              // Signup Button
+              _buildSignupButton(),
 
-              SizedBox(height: DynamicSize.small(context)),
+              const SizedBox(height: 32),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      color: SColor.textPrimary,
-                      thickness: 1.5,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: DynamicSize.horizontalLarge(context)),
-                    child: Text(
-                      'or continue with',
-                      style: STextTheme.subHeadLine().copyWith(fontSize: 12),
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      color: SColor.textPrimary,
-                      thickness: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: DynamicSize.medium(context)),
+              // Divider
+              _buildDivider(),
 
-              // === Social Buttons === //
-              Row(
-                children: [
+              const SizedBox(height: 24),
 
-                  // === Google Button === //
-                  SocialButton(
-                    text: 'sign in with Google',
-                    image: ImagePath.google,
-                  ),
-                  // SizedBox(width: DynamicSize.horizontalMedium(context)),
-                  //
-                  // // === Apple Button === //
-                  // SocialButton(
-                  //   text: 'sign in with Apple',
-                  //   image: ImagePath.apple,
-                  // ),
-                ],
-              ),
-              SizedBox(height: DynamicSize.medium(context)),
+              // Social Buttons
+              _buildSocialButtons(),
 
-              // === Sign Up === //
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Already have an account? ',
-                      style: STextTheme.subHeadLine().copyWith(fontSize: 12),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Get.back();
-                      },
-                      child: Text(
-                        'Login',
-                        style: GoogleFonts.roboto(
-                          color: SColor.textPrimary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          decoration: TextDecoration.underline,
-                          decorationThickness: 3,
-                          decorationColor: SColor.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
+              const SizedBox(height: 32),
+
+              // Login Link
+              _buildLoginLink(),
+
+              const SizedBox(height: 40),
             ],
           ),
         ),
       ),
     );
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Logo Widget
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildLogo() {
+    return Center(child: Image.asset(ImagePaths.logo, width: 103, height: 103));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Header Text Widget
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildHeaderText() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Sign up',
+          style: AppTextStyles.headLine().copyWith(
+            fontSize: 24,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Access to your account',
+          style: AppTextStyles.subHeadLine().copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Signup Form Widget
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildSignupForm() {
+    return Obx(
+      () => Column(
+        children: [
+          // Full Name Field
+          AppTextField(
+            controller: controller.nameController,
+            labelText: 'Full Name',
+            hintText: 'Enter your full name',
+            keyboardType: TextInputType.name,
+            // textInputAction: TextInputAction.next,
+            // textCapitalization: TextCapitalization.words,
+            prefixIcon: const Icon(
+              Icons.person_outlined,
+              color: AppColors.textSecondary,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Email Field
+          AppTextField(
+            controller: controller.emailController,
+            labelText: 'Email',
+            hintText: 'Enter your email',
+            keyboardType: TextInputType.emailAddress,
+            // textInputAction: TextInputAction.next,
+            prefixIcon: const Icon(
+              Icons.email_outlined,
+              color: AppColors.textSecondary,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Password Field
+          AppTextField(
+            controller: controller.passwordController,
+            labelText: 'Password',
+            hintText: 'Enter your password',
+            obscureText: !controller.isPasswordVisible.value,
+            // textInputAction: TextInputAction.done,
+            prefixIcon: const Icon(
+              Icons.lock_outlined,
+              color: AppColors.textSecondary,
+            ),
+            suffixIcon: Icon(
+              controller.isPasswordVisible.value
+                  ? Icons.visibility
+                  : Icons.visibility_off,
+              color: AppColors.textSecondary,
+            ),
+            changedSuffixIcon: Icon(
+              controller.isPasswordVisible.value
+                  ? Icons.visibility
+                  : Icons.visibility_off,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Signup Button Widget
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildSignupButton() {
+    return Obx(
+      () => AppButton(
+        text: 'Sign Up',
+        onPressed: controller.signUp,
+        isLoading: controller.isLoading.value,
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Divider Widget
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildDivider() {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: AppColors.textSecondary)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'OR',
+            style: AppTextStyles.subHeadLine().copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+        const Expanded(child: Divider(color: AppColors.textSecondary)),
+      ],
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Social Buttons Widget
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildSocialButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: SocialButton(
+            text: 'Google',
+            image: ImagePaths.google,
+            onTap: controller.googleSignUp,
+          ),
+        ),
+        // const SizedBox(width: 16),
+        // Expanded(
+        //   child: SocialButton(
+        //     text: 'Apple',
+        //     image: ImagePaths.apple,
+        //     onTap: controller.appleSignUp,
+        //   ),
+        // ),
+      ],
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Login Link Widget
+  // ─────────────────────────────────────────────────────────────────────────
+  Widget _buildLoginLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Already have an account? ',
+          style: AppTextStyles.subHeadLine().copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        GestureDetector(
+          onTap: controller.goToLogin,
+          child: Text(
+            'Login',
+            style: AppTextStyles.subHeadLine().copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
-
-
-
-
-
-

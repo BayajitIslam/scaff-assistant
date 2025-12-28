@@ -22,4 +22,33 @@ class RouteNames {
   // === Subscription Routes === //
   static const subscription = '/subscription';
 
+  // === Measure Routes === //
+  static const measureScreen = '/measureScreen';
+
+  // === Level Routes === //
+  static const levelScreen = '/levelScreen';
+
+  // === Level Routes === //
+  static const measureMainScreen = '/measureMainScreen';
+
+  // === Revision Test Routes === //
+  static const scaffoldRevisionTest = '/ScaffoldRevisioTest';
+
+  // === Quiz Screen Routes === //
+  static const quizScreen = '/quizScreen';
+
+  // === Quiz Result Routes === //
+  static const quizResult = '/quizResult';
+
+  // === Count Tool Screen Routes === //
+  static const countToolScreen = '/countToolScreen';
+
+  // === Count Tool Result Routes === //
+  static const countToolResult = '/countToolResult';
+
+  // === Count Tool Camara  Routes === //
+  static const countToolCamera = '/countToolCamera';
+
+  // === Count Tool Image Preview  Routes === //
+  static const countToolImagePreview = '/countToolImagePreview';
 }

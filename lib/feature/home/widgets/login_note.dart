@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../core/const/size_const/dynamic_size.dart';
-import '../../../core/theme/SColor.dart';
-import '../../../core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import '../../../routing/route_name.dart';
 
 class LoginNote extends StatelessWidget {
-  const LoginNote({
-    super.key,
-  });
+  const LoginNote({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,16 +14,16 @@ class LoginNote extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(height: (DynamicSize.large(context)*15),),
+        SizedBox(height: (DynamicSize.large(context) * 15)),
         Text(
           'Made by ScaffAssistant',
-          style: STextTheme.subHeadLine().copyWith(
+          style: AppTextStyles.subHeadLine().copyWith(
             fontSize: 16,
             fontWeight: FontWeight.w400,
-            color: SColor.textPrimary,
+            color: AppColors.textPrimary,
           ),
         ),
-        SizedBox(height: DynamicSize.small(context),),
+        SizedBox(height: DynamicSize.small(context)),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -35,20 +32,20 @@ class LoginNote extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              backgroundColor: SColor.textPrimary,
+              backgroundColor: AppColors.textPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
             child: Text(
               'Login or Sign up',
-              style: STextTheme.headLine().copyWith(
+              style: AppTextStyles.headLine().copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }

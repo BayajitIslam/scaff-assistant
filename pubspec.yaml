@@ -39,6 +39,21 @@ dependencies:
   ## === In App Purchase === ##
   in_app_purchase: ^3.2.3
 
+  ## === loading Indicator === ##
+  loading_animation_widget: ^1.3.0
+  image_picker: ^1.2.1
+  camera: ^0.11.3
+  image: ^4.7.1
+  path_provider: ^2.1.5
+  connectivity_plus: ^7.0.0
+  firebase_core: ^4.3.0
+  firebase_messaging: ^16.1.0
+  geolocator: ^14.0.2
+  flutter_local_notifications: ^19.5.0
+  sensors_plus: ^7.0.0
+  permission_handler: ^12.0.1
+  percent_indicator: ^4.2.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

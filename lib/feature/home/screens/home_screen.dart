@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:scaffassistant/core/const/size_const/dynamic_size.dart';
-import 'package:scaffassistant/core/const/string_const/icon_path.dart';
-import 'package:scaffassistant/core/const/string_const/image_path.dart';
-import 'package:scaffassistant/core/local_storage/user_info.dart';
-import 'package:scaffassistant/core/local_storage/user_status.dart';
-import 'package:scaffassistant/core/theme/SColor.dart';
-import 'package:scaffassistant/core/theme/text_theme.dart';
+import 'package:scaffassistant/core/constants/app_colors.dart';
+import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/constants/icon_paths.dart';
+import 'package:scaffassistant/core/constants/image_paths.dart';
+import 'package:scaffassistant/core/services/local_storage/user_info.dart';
+import 'package:scaffassistant/core/services/local_storage/user_status.dart';
+import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/home/controllers/chat_controller.dart';
 import 'package:scaffassistant/feature/home/controllers/chat_session_controller.dart';
 import 'package:scaffassistant/routing/route_name.dart';
@@ -21,11 +21,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ChatController chatController = Get.put(ChatController());
-  final ChatSessionController chatSessionController = Get.put(ChatSessionController());
+  final ChatSessionController chatSessionController = Get.put(
+    ChatSessionController(),
+  );
 
   final ScrollController scrollController = ScrollController();
 
-  final List<String> chips = ['Safety', 'Tools', 'Load', 'Inspection', 'Training', 'More'];
+  final List<String> chips = [
+    'Safety',
+    'Tools',
+    'Load',
+    'Inspection',
+    'Training',
+    'More',
+  ];
 
   @override
   void initState() {
@@ -39,10 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // MARKDOWN-LIKE DECORATOR
   List<TextSpan> decorateText(String message) {
-    final baseStyle = STextTheme.subHeadLine().copyWith(
+    final baseStyle = AppTextStyles.subHeadLine().copyWith(
       fontSize: 14,
       fontWeight: FontWeight.w400,
-      color: Colors.black
+      color: Colors.black,
     );
 
     List<TextSpan> parseInline(String text, TextStyle style) {
@@ -50,31 +59,49 @@ class _HomeScreenState extends State<HomeScreen> {
       final regex = RegExp(r'\*\*(.+?)\*\*|`(.+?)`|\b\d+\b');
       int last = 0;
       for (final m in regex.allMatches(text)) {
-        if (m.start > last) parts.add(TextSpan(text: text.substring(last, m.start), style: style));
+        if (m.start > last) {
+          parts.add(
+            TextSpan(text: text.substring(last, m.start), style: style),
+          );
+        }
 
         final bold = m.group(1);
         final code = m.group(2);
         final matchText = text.substring(m.start, m.end);
 
         if (bold != null) {
-          parts.add(TextSpan(text: bold, style: style.copyWith(fontWeight: FontWeight.bold)));
-        } else if (code != null) {
-          parts.add(TextSpan(
-            text: code,
-            style: style.copyWith(
-              fontFamily: 'monospace',
-              backgroundColor: Colors.grey,
+          parts.add(
+            TextSpan(
+              text: bold,
+              style: style.copyWith(fontWeight: FontWeight.bold),
             ),
-          ));
+          );
+        } else if (code != null) {
+          parts.add(
+            TextSpan(
+              text: code,
+              style: style.copyWith(
+                fontFamily: 'monospace',
+                backgroundColor: Colors.grey,
+              ),
+            ),
+          );
         } else {
-          parts.add(TextSpan(
-            text: matchText,
-            style: style.copyWith(fontWeight: FontWeight.bold, color: Colors.orange),
-          ));
+          parts.add(
+            TextSpan(
+              text: matchText,
+              style: style.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.orange,
+              ),
+            ),
+          );
         }
         last = m.end;
       }
-      if (last < text.length) parts.add(TextSpan(text: text.substring(last), style: style));
+      if (last < text.length) {
+        parts.add(TextSpan(text: text.substring(last), style: style));
+      }
       return parts;
     }
 
@@ -89,17 +116,27 @@ class _HomeScreenState extends State<HomeScreen> {
       if (headingMatch != null) {
         final level = headingMatch.group(1)!.length;
         final content = headingMatch.group(2) ?? '';
-        spans.addAll(parseInline(content, baseStyle.copyWith(
-          fontSize: 22 - (level * 2),
-          fontWeight: FontWeight.w700,
-        )));
+        spans.addAll(
+          parseInline(
+            content,
+            baseStyle.copyWith(
+              fontSize: 22 - (level * 2),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        );
         if (!isLastLine) spans.add(TextSpan(text: '\n'));
         continue;
       }
 
       // Horizontal rule
       if (line.trim() == '---' || line.trim() == '***') {
-        spans.add(TextSpan(text: '\u2014\u2014\u2014\n', style: baseStyle.copyWith(color: Colors.grey)));
+        spans.add(
+          TextSpan(
+            text: '\u2014\u2014\u2014\n',
+            style: baseStyle.copyWith(color: Colors.grey),
+          ),
+        );
         continue;
       }
 
@@ -107,7 +144,12 @@ class _HomeScreenState extends State<HomeScreen> {
       final listMatch = RegExp(r'^\s*([-*])\s+(.*)').firstMatch(line);
       if (listMatch != null) {
         spans.add(TextSpan(text: '• ', style: baseStyle));
-        spans.addAll(parseInline(listMatch.group(2) ?? '', baseStyle.copyWith(color: SColor.textSecondary)));
+        spans.addAll(
+          parseInline(
+            listMatch.group(2) ?? '',
+            baseStyle.copyWith(color: AppColors.textSecondary),
+          ),
+        );
         if (!isLastLine) spans.add(TextSpan(text: '\n'));
         continue;
       }
@@ -125,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: SColor.primary,
+        backgroundColor: AppColors.primary,
         title: Image(image: AssetImage(ImagePath.logoIcon)),
         leading: Builder(
           builder: (context) => GestureDetector(
@@ -136,20 +178,33 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           if (UserStatus.getIsLoggedIn())
             Padding(
-              padding: EdgeInsets.only(right: DynamicSize.horizontalMedium(context)),
-              child: GestureDetector(
-                onTap: () => Get.toNamed(RouteNames.profile),
-                child: CircleAvatar(
-                  backgroundColor: SColor.textPrimary,
-                  child: Text(
-                    UserInfo.getUserName()[0],
-                    style: STextTheme.headLine().copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: SColor.primary,
+              padding: EdgeInsets.only(
+                right: DynamicSize.horizontalMedium(context),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Get.toNamed(RouteNames.notificationScreen),
+
+                    child: Image.asset(IconPath.notificationIcon, height: 34),
+                  ),
+                  SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => Get.toNamed(RouteNames.profile),
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: AppColors.borderFocused,
+                      child: Text(
+                        UserInfo.getUserName()[0].toUpperCase(),
+                        style: AppTextStyles.subHeadLine().copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             )
           else
@@ -157,12 +212,17 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () => Get.toNamed(RouteNames.login),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                backgroundColor: SColor.textPrimary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                backgroundColor: AppColors.textPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: Text(
                 'Sign up',
-                style: STextTheme.headLine().copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                style: AppTextStyles.headLine().copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           SizedBox(width: DynamicSize.horizontalMedium(context)),
@@ -171,60 +231,68 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: SDrawer(chatHistory: chatSessionController.chatSessions),
       body: UserStatus.getIsLoggedIn()
           ? Obx(() {
-        if (chatController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+              if (chatController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-        if (chatController.chatHistory.isEmpty) {
-          return NewChat(chips: chips);
-        }
+              if (chatController.chatHistory.isEmpty) {
+                return NewChat(chips: chips);
+              }
 
-        // Auto scroll
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (scrollController.hasClients) {
-            scrollController.jumpTo(scrollController.position.maxScrollExtent);
-          }
-        });
+              // Auto scroll
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (scrollController.hasClients) {
+                  scrollController.jumpTo(
+                    scrollController.position.maxScrollExtent,
+                  );
+                }
+              });
 
-        return Obx(
-              () => ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.all(DynamicSize.medium(context)),
-            itemCount: chatController.chatHistory.length,
-            itemBuilder: (context, index) {
-              final message = chatController.chatHistory[index];
-              final isUser = message.role == 'user';
-
-              return Container(
-                margin: EdgeInsets.only(
-                  bottom: DynamicSize.medium(context),
-                  left: isUser ? DynamicSize.horizontalLarge(context) : 0,
-                  right: isUser ? 0 : DynamicSize.horizontalLarge(context),
-                ),
-                alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                child: Container(
+              return Obx(
+                () => ListView.builder(
+                  controller: scrollController,
                   padding: EdgeInsets.all(DynamicSize.medium(context)),
-                  decoration: BoxDecoration(
-                    color: isUser ? Color(0xFFD1E7FF) : Color(0xFFF0F0F0),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: RichText(
-                    text: TextSpan(
-                      children: decorateText(message.content),
-                    ),
-                  ),
+                  itemCount: chatController.chatHistory.length,
+                  itemBuilder: (context, index) {
+                    final message = chatController.chatHistory[index];
+                    final isUser = message.role == 'user';
+
+                    return Container(
+                      margin: EdgeInsets.only(
+                        bottom: DynamicSize.medium(context),
+                        left: isUser ? DynamicSize.horizontalLarge(context) : 0,
+                        right: isUser
+                            ? 0
+                            : DynamicSize.horizontalLarge(context),
+                      ),
+                      alignment: isUser
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        padding: EdgeInsets.all(DynamicSize.medium(context)),
+                        decoration: BoxDecoration(
+                          color: isUser ? Color(0xFFD1E7FF) : Color(0xFFF0F0F0),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            children: decorateText(message.content),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               );
-            },
-          )
-        );
-      })
+            })
           : NewChat(chips: chips),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: Container(
           width: double.infinity,
-          color: SColor.primary,
+          color: AppColors.primary,
           padding: EdgeInsets.fromLTRB(
             DynamicSize.medium(context),
             DynamicSize.medium(context),
@@ -241,24 +309,28 @@ class _HomeScreenState extends State<HomeScreen> {
               fillColor: Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(color: SColor.borderColor),
+                borderSide: BorderSide(color: AppColors.borderColor),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide(color: SColor.borderColor),
+                borderSide: BorderSide(color: AppColors.borderColor),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 5,
+              ),
               suffixIcon: Obx(
-                    () => IconButton(
+                () => IconButton(
                   icon: chatController.isSending.value
                       ? const CircularProgressIndicator()
                       : const Icon(Icons.send),
                   onPressed: chatController.isSending.value
                       ? null
                       : () {
-                    chatController.sendMessage();
-                  },
-                ),),
+                          chatController.sendMessage();
+                        },
+                ),
+              ),
             ),
           ),
         ),
@@ -266,7 +338,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
 
 class NewChat extends StatelessWidget {
   const NewChat({super.key, required this.chips});
@@ -282,17 +353,18 @@ class NewChat extends StatelessWidget {
         children: [
           Text(
             'What can I help with?',
-            style: STextTheme.subHeadLine().copyWith(
+            style: AppTextStyles.subHeadLine().copyWith(
               fontSize: 24,
               fontWeight: FontWeight.w400,
-              color: SColor.textPrimary,
+              color: AppColors.textPrimary,
             ),
           ),
           SizedBox(height: DynamicSize.large(context)),
           GridView(
             shrinkWrap: true,
             padding: EdgeInsets.symmetric(
-                horizontal: DynamicSize.horizontalLarge(context)),
+              horizontal: DynamicSize.horizontalLarge(context),
+            ),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               crossAxisSpacing: DynamicSize.medium(context),
@@ -302,8 +374,7 @@ class NewChat extends StatelessWidget {
             children: List.generate(chips.length, (index) {
               return Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: SColor.borderColor, width: 1.5),
+                  border: Border.all(color: AppColors.borderColor, width: 1.5),
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: const [
                     BoxShadow(
@@ -317,10 +388,10 @@ class NewChat extends StatelessWidget {
                 child: Center(
                   child: Text(
                     chips[index],
-                    style: STextTheme.subHeadLine().copyWith(
+                    style: AppTextStyles.subHeadLine().copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: SColor.textSecondary,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ),

@@ -1,40 +1,88 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:scaffassistant/core/const/string_const/api_endpoint.dart';
-import 'package:scaffassistant/core/local_storage/user_info.dart';
-import 'package:scaffassistant/core/local_storage/user_status.dart';
+import 'package:scaffassistant/core/constants/api_endpoints.dart';
+import 'package:scaffassistant/core/services/api_service.dart';
+import 'package:scaffassistant/core/services/fcm_service.dart';
+import 'package:scaffassistant/core/services/local_storage/storage_service.dart';
+import 'package:scaffassistant/core/services/snackbar_service.dart';
+import 'package:scaffassistant/core/utils/console.dart';
 import 'package:scaffassistant/routing/route_name.dart';
 
-class LogoutController extends GetxController{
+/// ═══════════════════════════════════════════════════════════════════════════
+/// LOGOUT CONTROLLER
+/// Handles user logout with API call and local cleanup
+/// ═══════════════════════════════════════════════════════════════════════════
+class LogoutController extends GetxController {
+  // ─────────────────────────────────────────────────────────────────────────
+  // Observable States
+  // ─────────────────────────────────────────────────────────────────────────
+  final isLoading = false.obs;
 
-  RxBool isLoading = false.obs;
+  // ─────────────────────────────────────────────────────────────────────────
+  // Logout
+  // ─────────────────────────────────────────────────────────────────────────
+  Future<void> logout() async {
+    Console.divider(label: 'LOGOUT');
+    Console.auth('Logging out user...');
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
-  Future<void> login() async {
     isLoading.value = true;
-    final response = await http.post(
-      Uri.parse(APIEndPoint.logout),
-      headers: {
-        'Authorization': 'Bearer ${UserInfo.getAccessToken()}',
-      },
-    );
 
-    print('Response status for logout: ${response.statusCode}');
+    try {
+      // Call logout API
+      final response = await ApiService.postFormAuth(
+        ApiEndpoints.logout,
+        body: {},
+      );
 
-    if(response.statusCode == 200){
+      Console.auth('Response status: ${response.statusCode}');
+
+      if (response.success) {
+        Console.success('Logout successful');
+        // Unregister device from push notifications
+        await FcmService.unregisterDevice();
+        _clearAndNavigate();
+      } else {
+        // Even if API fails, clear local data and logout
+        Console.warning('Logout API failed, clearing local data anyway');
+        _clearAndNavigate();
+      }
+    } catch (e) {
+      Console.error('Logout exception: $e');
+      // Still logout even on exception
+      _clearAndNavigate();
+    } finally {
       isLoading.value = false;
-      UserInfo.clearUserInfo();
-      Get.offAllNamed(RouteNames.login);
-    } else {
-      isLoading.value = false;
-      print('Logout failed: ${response.body}');
+      Console.divider();
     }
-
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Logout with Confirmation
+  // ─────────────────────────────────────────────────────────────────────────
+  Future<void> logoutWithConfirmation() async {
+    final confirmed = await SnackbarService.confirm(
+      title: 'Logout',
+      message: 'Are you sure you want to logout?',
+      confirmText: 'Logout',
+      cancelText: 'Cancel',
+      isDanger: true,
+    );
+
+    if (confirmed) {
+      await logout();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Clear Data and Navigate to Login
+  // ─────────────────────────────────────────────────────────────────────────
+  void _clearAndNavigate() {
+    // Clear all user data
+    StorageService.clearUserSession();
+
+    // Show success message
+    SnackbarService.success('Logged out successfully');
+
+    // Navigate to login screen
+    Get.offAllNamed(RouteNames.login);
+  }
 }
