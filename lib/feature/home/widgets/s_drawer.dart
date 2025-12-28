@@ -102,6 +102,34 @@ class SDrawer extends StatelessWidget {
                                 Get.toNamed(RouteNames.digitalPassportScreen);
                               },
                             ),
+                            // Measure
+                            _buildMenuItem(
+                              context: context,
+                              title: 'Measure',
+                              onTap: () {
+                                Scaffold.of(context).closeDrawer();
+                                Get.toNamed(RouteNames.measureMainScreen);
+                              },
+                            ),
+
+                            //Scaffold Revision Test
+                            _buildMenuItem(
+                              context: context,
+                              title: 'Scaffold Revision Test',
+                              onTap: () {
+                                Scaffold.of(context).closeDrawer();
+                                Get.toNamed(RouteNames.scaffoldRevisionTest);
+                              },
+                            ),
+                            //Count Tool
+                            _buildMenuItem(
+                              context: context,
+                              title: 'Count Tool',
+                              onTap: () {
+                                Scaffold.of(context).closeDrawer();
+                                Get.toNamed(RouteNames.countToolScreen);
+                              },
+                            ),
 
                             // Notifications
                             _buildMenuItem(

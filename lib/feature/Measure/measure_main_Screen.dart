@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
-import 'package:scaffassistant/feature/Phase%203%20Front/Level/Screens/level_screen.dart';
-import 'package:scaffassistant/feature/Phase%203%20Front/Measure/Screens/measure_screen.dart';
+import 'package:scaffassistant/feature/Measure/Level/Screens/level_screen.dart';
+import 'package:scaffassistant/feature/Measure/Measure/Screens/measure_screen.dart';
 
 class MeasureMainScreen extends StatefulWidget {
   const MeasureMainScreen({super.key});
