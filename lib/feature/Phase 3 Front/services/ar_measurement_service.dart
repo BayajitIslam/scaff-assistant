@@ -2,14 +2,17 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class ArMeasurementService {
-  static const MethodChannel _channel = MethodChannel('com.ssaprktech.scaffassistant/ar_measurement');
-  
+  static const MethodChannel _channel = MethodChannel(
+    'com.ssaprktech.scaffassistant/ar_measurement',
+  );
+
   // Callbacks
   Function(bool)? onPlaneDetected;
   Function(Map<String, double>)? onPointAdded;
   Function(double)? onDistanceCalculated;
   Function(String)? onError;
   Function(int)? onPointCount;
+  Function(String)? onHitTestFailed;
 
   ArMeasurementService() {
     _channel.setMethodCallHandler(_handleMethodCall);
@@ -28,6 +31,9 @@ class ArMeasurementService {
         break;
       case 'onPointCount':
         onPointCount?.call(call.arguments as int);
+        break;
+      case 'onHitTestFailed':
+        onHitTestFailed?.call(call.arguments as String);
         break;
       case 'onError':
         onError?.call(call.arguments as String);

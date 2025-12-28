@@ -1,16 +1,15 @@
-// android/app/src/main/kotlin/com/ssaprktech/scaffassistant/ArMeasurementView.kt
-
 package com.ssaprktech.scaffassistant
 
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.view.Surface
 import android.view.View
 import com.google.ar.core.*
 import com.google.ar.core.exceptions.*
@@ -48,6 +47,11 @@ class ArMeasurementView(
     private var planeDetected = false
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    // Flags for initialization
+    private var shouldInitialize = false
+    private var isSessionResumed = false
+    private var isGLReady = false
+
     // Measurement points (3D world coordinates)
     private val points = mutableListOf<FloatArray>()
 
@@ -74,21 +78,45 @@ class ArMeasurementView(
     override fun getView(): View = glSurfaceView
 
     override fun dispose() {
+        session?.pause()
         session?.close()
         session = null
+        isSessionResumed = false
     }
 
     fun initialize(): Boolean {
-        return try {
-            // Check if ARCore is installed
-            when (ArCoreApk.getInstance().requestInstall(activity, true)) {
-                ArCoreApk.InstallStatus.INSTALLED -> {}
-                ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                    invokeOnMainThread("onError", "Please install ARCore")
-                    return false
-                }
+        shouldInitialize = true
+        if (isGLReady && !isSessionResumed) {
+            glSurfaceView.queueEvent {
+                initializeARSession()
             }
+        }
+        return true
+    }
 
+    private fun initializeARSession() {
+        if (isSessionResumed) return
+        
+        mainHandler.post {
+            try {
+                when (ArCoreApk.getInstance().requestInstall(activity, true)) {
+                    ArCoreApk.InstallStatus.INSTALLED -> {
+                        glSurfaceView.queueEvent {
+                            createSession()
+                        }
+                    }
+                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
+                        invokeOnMainThread("onError", "Please install ARCore")
+                    }
+                }
+            } catch (e: Exception) {
+                invokeOnMainThread("onError", "ARCore check failed: ${e.message}")
+            }
+        }
+    }
+
+    private fun createSession() {
+        try {
             session = Session(context)
             val config = Config(session)
             config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL
@@ -96,67 +124,79 @@ class ArMeasurementView(
             config.focusMode = Config.FocusMode.AUTO
             session?.configure(config)
             session?.resume()
-            true
+            isSessionResumed = true
         } catch (e: UnavailableArcoreNotInstalledException) {
             invokeOnMainThread("onError", "ARCore not installed")
-            false
         } catch (e: UnavailableDeviceNotCompatibleException) {
             invokeOnMainThread("onError", "Device not compatible with AR")
-            false
         } catch (e: UnavailableSdkTooOldException) {
             invokeOnMainThread("onError", "Please update this app")
-            false
         } catch (e: UnavailableApkTooOldException) {
             invokeOnMainThread("onError", "Please update ARCore")
-            false
         } catch (e: CameraNotAvailableException) {
             invokeOnMainThread("onError", "Camera not available")
-            false
         } catch (e: Exception) {
             invokeOnMainThread("onError", e.message ?: "Unknown error")
-            false
         }
     }
 
+    private fun getDisplayRotation(): Int {
+        val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity.display
+        } else {
+            @Suppress("DEPRECATION")
+            activity.windowManager.defaultDisplay
+        }
+        return display?.rotation ?: Surface.ROTATION_0
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ADD POINT - With Hit Test Feedback
+    // ═══════════════════════════════════════════════════════════════════════════
     fun addPoint() {
         val session = this.session ?: return
-        val frame = try {
-            session.update()
-        } catch (e: Exception) {
-            return
-        }
+        
+        glSurfaceView.queueEvent {
+            try {
+                val frame = session.update()
+                val hitResults = frame.hitTest(width / 2f, height / 2f)
 
-        // Hit test at screen center
-        val hitResults = frame.hitTest(width / 2f, height / 2f)
+                var pointAdded = false
+                
+                for (hit in hitResults) {
+                    val trackable = hit.trackable
+                    if (trackable is Plane && trackable.isPoseInPolygon(hit.hitPose)) {
+                        val pose = hit.hitPose
+                        val point = floatArrayOf(pose.tx(), pose.ty(), pose.tz())
+                        points.add(point)
 
-        for (hit in hitResults) {
-            val trackable = hit.trackable
-            if (trackable is Plane && trackable.isPoseInPolygon(hit.hitPose)) {
-                val pose = hit.hitPose
-                val point = floatArrayOf(
-                    pose.tx(),
-                    pose.ty(),
-                    pose.tz()
-                )
-                points.add(point)
+                        invokeOnMainThread("onPointAdded", mapOf(
+                            "x" to point[0].toDouble(),
+                            "y" to point[1].toDouble(),
+                            "z" to point[2].toDouble()
+                        ))
 
-                invokeOnMainThread("onPointAdded", mapOf(
-                    "x" to point[0].toDouble(),
-                    "y" to point[1].toDouble(),
-                    "z" to point[2].toDouble()
-                ))
+                        invokeOnMainThread("onPointCount", points.size)
 
-                invokeOnMainThread("onPointCount", points.size)
-
-                // Calculate distance if 2+ points
-                if (points.size >= 2) {
-                    val distance = calculateDistance(
-                        points[points.size - 2],
-                        points[points.size - 1]
-                    )
-                    invokeOnMainThread("onDistanceCalculated", distance)
+                        if (points.size >= 2) {
+                            val distance = calculateDistance(
+                                points[points.size - 2],
+                                points[points.size - 1]
+                            )
+                            invokeOnMainThread("onDistanceCalculated", distance)
+                        }
+                        pointAdded = true
+                        break
+                    }
                 }
-                break
+                
+                // If no point was added, send feedback to user
+                if (!pointAdded) {
+                    invokeOnMainThread("onHitTestFailed", "Aim at a flat surface")
+                }
+                
+            } catch (e: Exception) {
+                invokeOnMainThread("onHitTestFailed", "Try again")
             }
         }
     }
@@ -226,10 +266,16 @@ class ArMeasurementView(
 
         try {
             backgroundRenderer = BackgroundRenderer()
-            backgroundRenderer?.createOnGlThread(context)
+            backgroundRenderer?.createOnGlThread()
 
             pointRenderer = PointRenderer()
             lineRenderer = LineRenderer()
+            
+            isGLReady = true
+            
+            if (shouldInitialize && !isSessionResumed) {
+                initializeARSession()
+            }
         } catch (e: Exception) {
             invokeOnMainThread("onError", "Failed to initialize renderer")
         }
@@ -239,7 +285,9 @@ class ArMeasurementView(
         this.width = width
         this.height = height
         GLES20.glViewport(0, 0, width, height)
-        session?.setDisplayGeometry(activity.windowManager.defaultDisplay.rotation, width, height)
+        
+        val rotation = getDisplayRotation()
+        session?.setDisplayGeometry(rotation, width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -248,23 +296,23 @@ class ArMeasurementView(
         val session = this.session ?: return
 
         try {
+            val rotation = getDisplayRotation()
+            session.setDisplayGeometry(rotation, width, height)
+            
             session.setCameraTextureName(backgroundRenderer?.textureId ?: 0)
             val frame = session.update()
             val camera = frame.camera
 
-            // Draw camera background
+            // Draw camera background with proper rotation
             backgroundRenderer?.draw(frame)
 
-            // Don't render if not tracking
             if (camera.trackingState != TrackingState.TRACKING) {
                 return
             }
 
-            // Get projection matrix
             camera.getProjectionMatrix(projectionMatrix, 0, 0.1f, 100.0f)
             camera.getViewMatrix(viewMatrix, 0)
 
-            // Check plane detection
             val planes = session.getAllTrackables(Plane::class.java)
             val hasPlane = planes.any { 
                 it.trackingState == TrackingState.TRACKING && 
@@ -276,24 +324,22 @@ class ArMeasurementView(
                 invokeOnMainThread("onPlaneDetected", planeDetected)
             }
 
-            // Draw measurement points
             if (points.isNotEmpty()) {
                 pointRenderer?.draw(points, viewMatrix, projectionMatrix)
             }
 
-            // Draw lines between points
             if (points.size >= 2) {
                 lineRenderer?.draw(points, viewMatrix, projectionMatrix)
             }
 
         } catch (e: Exception) {
-            // Handle frame update errors silently
+            // Ignore
         }
     }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Background Renderer (Camera Feed)
+// Background Renderer - Fixed for Portrait Mode
 // ═══════════════════════════════════════════════════════════════════════════
 
 class BackgroundRenderer {
@@ -304,24 +350,18 @@ class BackgroundRenderer {
     private var positionAttrib = 0
     private var texCoordAttrib = 0
 
+    // Quad vertices (NDC coordinates)
     private val QUAD_COORDS = floatArrayOf(
-        -1.0f, -1.0f, 0.0f,
-        -1.0f, +1.0f, 0.0f,
-        +1.0f, -1.0f, 0.0f,
-        +1.0f, +1.0f, 0.0f
+        -1.0f, -1.0f,
+        -1.0f, +1.0f,
+        +1.0f, -1.0f,
+        +1.0f, +1.0f
     )
 
-    private val QUAD_TEXCOORDS = floatArrayOf(
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f
-    )
+    private var quadVertices: FloatBuffer? = null
+    private var quadTexCoordsTransformed: FloatBuffer? = null
 
-    private var quadCoords: FloatBuffer? = null
-    private var quadTexCoords: FloatBuffer? = null
-
-    fun createOnGlThread(context: Context) {
+    fun createOnGlThread() {
         // Create texture
         val textures = IntArray(1)
         GLES20.glGenTextures(1, textures, 0)
@@ -333,7 +373,6 @@ class BackgroundRenderer {
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
 
-        // Create shader program
         val vertexShader = """
             attribute vec4 a_Position;
             attribute vec2 a_TexCoord;
@@ -358,27 +397,27 @@ class BackgroundRenderer {
         positionAttrib = GLES20.glGetAttribLocation(program, "a_Position")
         texCoordAttrib = GLES20.glGetAttribLocation(program, "a_TexCoord")
 
-        // Create buffers
-        quadCoords = ByteBuffer.allocateDirect(QUAD_COORDS.size * 4)
+        // Create vertex buffer
+        quadVertices = ByteBuffer.allocateDirect(QUAD_COORDS.size * 4)
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer()
             .put(QUAD_COORDS)
-        quadCoords?.position(0)
+        quadVertices?.position(0)
 
-        quadTexCoords = ByteBuffer.allocateDirect(QUAD_TEXCOORDS.size * 4)
+        // Create texture coordinate buffer
+        quadTexCoordsTransformed = ByteBuffer.allocateDirect(8 * 4)
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer()
-            .put(QUAD_TEXCOORDS)
-        quadTexCoords?.position(0)
     }
 
     fun draw(frame: Frame) {
         if (frame.hasDisplayGeometryChanged()) {
+            // Update texture coordinates based on display geometry
             frame.transformCoordinates2d(
                 Coordinates2d.OPENGL_NORMALIZED_DEVICE_COORDINATES,
-                quadCoords,
+                quadVertices,
                 Coordinates2d.TEXTURE_NORMALIZED,
-                quadTexCoords
+                quadTexCoordsTransformed
             )
         }
 
@@ -388,8 +427,11 @@ class BackgroundRenderer {
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId)
         GLES20.glUseProgram(program)
 
-        GLES20.glVertexAttribPointer(positionAttrib, 3, GLES20.GL_FLOAT, false, 0, quadCoords)
-        GLES20.glVertexAttribPointer(texCoordAttrib, 2, GLES20.GL_FLOAT, false, 0, quadTexCoords)
+        // Use NDC quad coordinates for position
+        GLES20.glVertexAttribPointer(positionAttrib, 2, GLES20.GL_FLOAT, false, 0, quadVertices)
+        
+        // Use transformed texture coordinates
+        GLES20.glVertexAttribPointer(texCoordAttrib, 2, GLES20.GL_FLOAT, false, 0, quadTexCoordsTransformed)
 
         GLES20.glEnableVertexAttribArray(positionAttrib)
         GLES20.glEnableVertexAttribArray(texCoordAttrib)
@@ -484,7 +526,7 @@ class PointRenderer {
             Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
 
             GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0)
-            GLES20.glUniform4f(colorHandle, 1.0f, 1.0f, 1.0f, 1.0f) // White
+            GLES20.glUniform4f(colorHandle, 1.0f, 1.0f, 1.0f, 1.0f)
             GLES20.glUniform1f(pointSizeHandle, 30.0f)
 
             GLES20.glEnableVertexAttribArray(positionHandle)
@@ -552,9 +594,8 @@ class LineRenderer {
 
         Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0)
-        GLES20.glUniform4f(colorHandle, 1.0f, 1.0f, 1.0f, 1.0f) // White
+        GLES20.glUniform4f(colorHandle, 1.0f, 1.0f, 1.0f, 1.0f)
 
-        // Draw lines between consecutive points
         for (i in 0 until points.size - 1) {
             val lineCoords = floatArrayOf(
                 points[i][0], points[i][1], points[i][2],
