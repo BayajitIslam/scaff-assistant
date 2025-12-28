@@ -56,7 +56,7 @@ class QuizController extends GetxController {
     Console.info('===== QUIZ STARTED =====');
   }
 
-  //<============================ Is isAnswered ============================>
+  //<============================ Select Answer ============================>
 
   void selectAnswer(index) {
     Console.info('===== USER GAVE ANSWER =====');
@@ -66,6 +66,37 @@ class QuizController extends GetxController {
       "Answer: ${currentQuestions[currentQuestionIndex.value].options[index]}",
     );
     isAnswered.value = true;
+  }
+
+  //<============================ Next Question And Goto Result Screen ============================>
+
+  void nextQuestion() {
+    if (currentQuestionIndex.value + 1 >= selectedQuestionCount.value) {
+      Console.nav('Navigating to Result Screen');
+      Get.toNamed(
+        RouteNames.quizResult,
+        arguments: {
+          "correctCount": correctCount.value,
+          "totalQuestions": selectedQuestionCount.value,
+          'currentQuestionIndex': currentQuestionIndex.value,
+        },
+      );
+    } else {
+      if (currentQuestions[currentQuestionIndex.value].selectedIndex ==
+          currentQuestions[currentQuestionIndex.value].correctIndex) {
+        correctCount.value++;
+      }
+      Console.nav('Navigating to Next Question');
+      currentQuestionIndex.value++;
+      isAnswered.value = false;
+    }
+  }
+
+  //reset
+  void reset() {
+    currentQuestionIndex.value = 0;
+    isAnswered.value = false;
+    correctCount.value = 0;
   }
 
   //<=========================== DUMMY DATA ===========================>
@@ -86,7 +117,7 @@ class QuizController extends GetxController {
       id: 2,
       question:
           'Which component is used to support the vertical load of a scaffold?',
-      difficulty: QuizDifficulty.part2,
+      difficulty: QuizDifficulty.part1,
       options: [
         'To support permanent structures',
         'Ledger',
@@ -115,6 +146,181 @@ class QuizController extends GetxController {
       difficulty: QuizDifficulty.advanced,
       options: ['300kg', '600kg', '500kg', '400kg'],
       correctIndex: 1,
+    ),
+    QuizModel(
+      id: 6,
+      question: 'What is the primary purpose of scaffolding?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To provide safe access and working platforms',
+        'To replace ladders completely',
+        'To support permanent structures',
+        'To decorate a building',
+      ],
+      correctIndex: 0,
+    ),
+    QuizModel(
+      id: 7,
+      question:
+          'Which component is used to support the vertical load of a scaffold?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To support permanent structures',
+        'Ledger',
+        'Standard',
+        'Toe board',
+      ],
+      correctIndex: 2,
+    ),
+    QuizModel(
+      id: 8,
+      question: 'What is the primary purpose of scaffolding?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To provide safe access and working platforms',
+        'To replace ladders completely',
+        'To support permanent structures',
+        'To decorate a building',
+      ],
+      correctIndex: 0,
+    ),
+    QuizModel(
+      id: 9,
+      question:
+          'Which component is used to support the vertical load of a scaffold?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To support permanent structures',
+        'Ledger',
+        'Standard',
+        'Toe board',
+      ],
+      correctIndex: 2,
+    ),
+    QuizModel(
+      id: 10,
+      question: 'What is the primary purpose of scaffolding?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To provide safe access and working platforms',
+        'To replace ladders completely',
+        'To support permanent structures',
+        'To decorate a building',
+      ],
+      correctIndex: 0,
+    ),
+    QuizModel(
+      id: 11,
+      question:
+          'Which component is used to support the vertical load of a scaffold?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To support permanent structures',
+        'Ledger',
+        'Standard',
+        'Toe board',
+      ],
+      correctIndex: 2,
+    ),
+    QuizModel(
+      id: 12,
+      question: 'What is the primary purpose of scaffolding?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To provide safe access and working platforms',
+        'To replace ladders completely',
+        'To support permanent structures',
+        'To decorate a building',
+      ],
+      correctIndex: 0,
+    ),
+    QuizModel(
+      id: 13,
+      question:
+          'Which component is used to support the vertical load of a scaffold?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To support permanent structures',
+        'Ledger',
+        'Standard',
+        'Toe board',
+      ],
+      correctIndex: 2,
+    ),
+    QuizModel(
+      id: 14,
+      question: 'What is the primary purpose of scaffolding?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To provide safe access and working platforms',
+        'To replace ladders completely',
+        'To support permanent structures',
+        'To decorate a building',
+      ],
+      correctIndex: 0,
+    ),
+    QuizModel(
+      id: 15,
+      question:
+          'Which component is used to support the vertical load of a scaffold?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To support permanent structures',
+        'Ledger',
+        'Standard',
+        'Toe board',
+      ],
+      correctIndex: 2,
+    ),
+    QuizModel(
+      id: 16,
+      question: 'What is the primary purpose of scaffolding?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To provide safe access and working platforms',
+        'To replace ladders completely',
+        'To support permanent structures',
+        'To decorate a building',
+      ],
+      correctIndex: 0,
+    ),
+    QuizModel(
+      id: 17,
+      question:
+          'Which component is used to support the vertical load of a scaffold?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To support permanent structures',
+        'Ledger',
+        'Standard',
+        'Toe board',
+      ],
+      correctIndex: 2,
+    ),
+    QuizModel(
+      id: 18,
+      question: 'What is the primary purpose of scaffolding?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To provide safe access and working platforms',
+        'To replace ladders completely',
+        'To support permanent structures',
+        'To decorate a building',
+      ],
+      correctIndex: 0,
+    ),
+    QuizModel(
+      id: 19,
+      question:
+          'Which component is used to support the vertical load of a scaffold?',
+      difficulty: QuizDifficulty.part1,
+      options: [
+        'To support permanent structures',
+        'Ledger',
+        'Standard',
+        'Toe board',
+      ],
+      correctIndex: 2,
     ),
   ];
 }

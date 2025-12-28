@@ -34,7 +34,7 @@ Future<String> _getInitialRoute() async {
 
   // Not logged in → Login
   if (!hasToken) {
-    return RouteNames.measureMainScreen;
+    return RouteNames.login;
   }
 
   // Logged in → Check subscription from Play Store

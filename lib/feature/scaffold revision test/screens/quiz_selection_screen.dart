@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
@@ -7,6 +8,7 @@ import 'package:scaffassistant/core/widgets/app_button.dart';
 import 'package:scaffassistant/feature/scaffold%20revision%20test/controller/quiz_controller.dart';
 import 'package:scaffassistant/feature/scaffold%20revision%20test/models/quiz_model.dart';
 import 'package:scaffassistant/feature/scaffold%20revision%20test/widgets/build_card.dart';
+import 'package:scaffassistant/routing/route_name.dart';
 
 class QuizSelectionScreen extends GetView<QuizController> {
   const QuizSelectionScreen({super.key});
@@ -24,7 +26,7 @@ class QuizSelectionScreen extends GetView<QuizController> {
             color: Colors.black,
             size: 20,
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.toNamed(RouteNames.home),
         ),
         title: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
@@ -102,8 +104,9 @@ class QuizSelectionScreen extends GetView<QuizController> {
 
             // Questions Count
             SizedBox(height: 20),
-            SizedBox(
+            Container(
               height: 35,
+              padding: EdgeInsets.all(2),
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) => Obx(
