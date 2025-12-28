@@ -34,7 +34,7 @@ Future<String> _getInitialRoute() async {
 
   // Not logged in → Login
   if (!hasToken) {
-    return RouteNames.scaffoldRevisionTest;
+    return RouteNames.measureMainScreen;
   }
 
   // Logged in → Check subscription from Play Store
@@ -42,7 +42,7 @@ Future<String> _getInitialRoute() async {
       await SubscriptionController.checkSubscriptionOnStart();
 
   if (hasSubscription) {
-    return RouteNames.home;
+    return RouteNames.scaffoldRevisionTest;
   } else {
     return RouteNames.subscription;
   }

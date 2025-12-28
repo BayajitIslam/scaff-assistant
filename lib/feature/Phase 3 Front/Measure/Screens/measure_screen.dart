@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
+import 'package:scaffassistant/core/utils/console.dart';
 import 'package:scaffassistant/feature/Phase%203%20Front/services/ar_measurement_service.dart';
 
 class MeasureView extends StatefulWidget {
@@ -66,6 +67,25 @@ class _MeasureViewState extends State<MeasureView> {
           _planeDetected = detected;
           if (detected && _pointCount == 0) {
             _statusMessage = 'Tap + to add first point';
+          }
+        });
+      }
+    };
+
+    _arService!.onHitTestFailed = (message) {
+      if (mounted) {
+        setState(() {
+          _statusMessage = message;
+        });
+
+        // Reset message after 2 seconds
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted && _planeDetected) {
+            setState(() {
+              _statusMessage = _pointCount == 0
+                  ? 'Tap + to add first point'
+                  : 'Tap + to continue measuring';
+            });
           }
         });
       }
@@ -210,8 +230,7 @@ class _MeasureViewState extends State<MeasureView> {
         _buildTopControls(),
 
         // Bottom controls
-        _buildBottomAddControls(),
-        _buildBottomCaptureControls(),
+        _buildBottomControls(),
       ],
     );
   }
@@ -320,13 +339,7 @@ class _MeasureViewState extends State<MeasureView> {
         child: Container(
           width: 140,
           height: 140,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withOpacity(0.5),
-              width: 1.5,
-            ),
-          ),
+          decoration: BoxDecoration(shape: BoxShape.circle),
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -338,7 +351,7 @@ class _MeasureViewState extends State<MeasureView> {
                   shape: BoxShape.circle,
                   color: _planeDetected
                       ? Colors.green
-                      : Colors.white.withOpacity(0.9),
+                      : AppColors.background.withOpacity(0.9),
                   boxShadow: _planeDetected
                       ? [
                           BoxShadow(
@@ -350,10 +363,10 @@ class _MeasureViewState extends State<MeasureView> {
                       : null,
                 ),
               ),
-              Positioned(top: 20, child: _line(true)),
-              Positioned(bottom: 20, child: _line(true)),
-              Positioned(left: 20, child: _line(false)),
-              Positioned(right: 20, child: _line(false)),
+              // Positioned(top: 20, child: _line(true)),
+              // Positioned(bottom: 20, child: _line(true)),
+              // Positioned(left: 20, child: _line(false)),
+              // Positioned(right: 20, child: _line(false)),
             ],
           ),
         ),
@@ -361,11 +374,11 @@ class _MeasureViewState extends State<MeasureView> {
     );
   }
 
-  Widget _line(bool vertical) => Container(
-    width: vertical ? 1.5 : 15,
-    height: vertical ? 15 : 1.5,
-    color: Colors.white.withOpacity(0.7),
-  );
+  // Widget _line(bool vertical) => Container(
+  //   width: vertical ? 1.5 : 15,
+  //   height: vertical ? 15 : 1.5,
+  //   color: Colors.white.withOpacity(0.7),
+  // );
 
   Widget _buildStatusMessage() {
     return Positioned(
@@ -509,65 +522,74 @@ class _MeasureViewState extends State<MeasureView> {
                     ),
                   ),
                 )
-              : Icon(icon, color: Colors.white, size: 24),
+              : Icon(icon, color: AppColors.background, size: 24),
         ),
       ),
     );
   }
 
-  Widget _buildBottomAddControls() {
+  Widget _buildBottomControls() {
     return Positioned(
       bottom: 100,
       left: 0,
       right: 0,
-      child: GestureDetector(
-        onTap: _planeDetected ? _addPoint : null,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: _planeDetected ? 1.0 : 0.5,
-          child: Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black.withOpacity(0.6),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.3),
-                width: 2,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          GestureDetector(
+            onTap: () {
+              Console.info(
+                "Button tapped! planeDetected: $_planeDetected",
+              ); // Debug
+              if (_planeDetected) {
+                _addPoint();
+              }
+            },
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: _planeDetected ? 1.0 : 0.5,
+              child: Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withOpacity(0.6),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 2,
+                  ),
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 36),
               ),
             ),
-            child: const Icon(Icons.add, color: Colors.white, size: 36),
           ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildBottomCaptureControls() {
-    return Positioned(
-      bottom: 103,
-      right: 50,
-      child: GestureDetector(
-        onTap: _takeScreenshot,
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            border: Border.all(color: Colors.white, width: 4),
-          ),
-          child: Container(
-            margin: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.black.withOpacity(0.1),
-                width: 2,
+          Positioned(
+            right: 50,
+            child: GestureDetector(
+              onTap: _takeScreenshot,
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.chatUserBubble,
+                  border: Border.all(color: AppColors.background, width: 4),
+                ),
+                child: Container(
+                  margin: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.black.withOpacity(0.1),
+                      width: 2,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
