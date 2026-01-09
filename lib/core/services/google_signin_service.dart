@@ -119,10 +119,10 @@ class GoogleSignInService {
           .authorizationClient
           .authorizeScopes(_scopes);
 
-      final String? accessToken = authorization.accessToken;
-      final String? idToken = authorization.accessToken; // Use as ID token
+      final String accessToken = authorization.accessToken;
+      final String idToken = authorization.accessToken; // Use as ID token
 
-      if (idToken == null || idToken.isEmpty) {
+      if (idToken.isEmpty) {
         Console.error('Failed to get Google ID token');
         SnackbarService.error('Failed to get Google authentication token');
         return null;

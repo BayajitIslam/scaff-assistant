@@ -203,12 +203,12 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
       cropWidth = cropWidth.clamp(1, imageWidth - cropX);
       cropHeight = cropHeight.clamp(1, imageHeight - cropY);
 
-      debugPrint('Image: ${imageWidth}x${imageHeight}');
-      debugPrint('Screen: ${screenWidth}x${screenHeight}');
+      debugPrint('Image: ${imageWidth}x$imageHeight');
+      debugPrint('Screen: ${screenWidth}x$screenHeight');
       debugPrint(
-        'Frame: ${frameWidth}x${frameHeight} at ($frameLeft, $frameTop)',
+        'Frame: ${frameWidth}x$frameHeight at ($frameLeft, $frameTop)',
       );
-      debugPrint('Crop: ${cropWidth}x${cropHeight} at ($cropX, $cropY)');
+      debugPrint('Crop: ${cropWidth}x$cropHeight at ($cropX, $cropY)');
 
       // Crop the image
       img.Image croppedImage = img.copyCrop(

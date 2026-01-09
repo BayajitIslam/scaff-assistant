@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.ssaprktech.scaffassistant</string>
+	<string>com.scaffassistant.app</string>
 	<key>PROJECT_ID</key>
 	<string>scaff-assistant</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:921168008628:ios:3b98adc202e1cf55d0cee1</string>
+	<string>1:921168008628:ios:fe4372eaea3d5da2d0cee1</string>
 </dict>
 </plist>

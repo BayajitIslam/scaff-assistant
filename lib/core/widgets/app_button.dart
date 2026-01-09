@@ -52,7 +52,7 @@ class AppButton extends StatelessWidget {
   final BorderSide? border;
 
   const AppButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.backgroundColor,
@@ -66,7 +66,7 @@ class AppButton extends StatelessWidget {
     this.icon,
     this.iconPosition = IconPosition.left,
     this.border,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -152,13 +152,13 @@ class AppPrimaryButton extends StatelessWidget {
   final IconData? icon;
 
   const AppPrimaryButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
     this.loadingText,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -183,13 +183,13 @@ class AppSecondaryButton extends StatelessWidget {
   final IconData? icon;
 
   const AppSecondaryButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
     this.loadingText,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -215,14 +215,14 @@ class AppOutlineButton extends StatelessWidget {
   final IconData? icon;
 
   const AppOutlineButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.borderColor,
     this.textColor,
     this.isLoading = false,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -246,11 +246,11 @@ class AppTextButton extends StatelessWidget {
   final Color? textColor;
 
   const AppTextButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.textColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
