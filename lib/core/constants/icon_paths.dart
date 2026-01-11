@@ -33,6 +33,7 @@ class IconPaths {
   static const String notification = 'assets/icons/notfiy.png';
   static const String passport = 'assets/icons/passport.png';
   static const String camera = 'assets/icons/camera.png';
+  static const String logoSvg = 'assets/branding/logo_svg.svg';
 
   // ─────────────────────────────────────────────────────────────────────────
   // Action Icons
@@ -56,4 +57,5 @@ class IconPath {
   static const String exitIcon = IconPaths.exit;
   static const String noteIcon = IconPaths.note;
   static const String notificationIcon = IconPaths.notification;
+  static const String logoIconSvg = IconPaths.logoSvg;
 }

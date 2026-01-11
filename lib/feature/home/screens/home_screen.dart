@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/constants/icon_paths.dart';
-import 'package:scaffassistant/core/constants/image_paths.dart';
 import 'package:scaffassistant/core/services/local_storage/user_info.dart';
 import 'package:scaffassistant/core/services/local_storage/user_status.dart';
 import 'package:scaffassistant/core/utils/dynamic_size.dart';
@@ -168,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        title: Image(image: AssetImage(ImagePath.logoIcon)),
+        title: SvgPicture.asset(IconPath.logoIconSvg),
         leading: Builder(
           builder: (context) => GestureDetector(
             onTap: () => Scaffold.of(context).openDrawer(),

@@ -3,12 +3,12 @@
 
 flutter_native_splash:
   color: "#e2fa0e"
-  image: assets/branding/logo_black.png
+  image: assets/branding/logo_yellow.png
   fullscreen: true
 
   android_12:
     color: "#e2fa0e"
-    image: assets/branding/logo_black.png
+    image: assets/branding/logo_yellow.png
 
   android: true
   ios: true
