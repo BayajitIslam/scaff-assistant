@@ -6,6 +6,7 @@ import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
 import 'package:scaffassistant/core/utils/console.dart';
 import 'package:scaffassistant/feature/Measure/services/ar_measurement_service.dart';
+import 'package:scaffassistant/feature/Measure/widgets/ar_loading_animation.dart';
 
 class MeasureView extends StatefulWidget {
   const MeasureView({super.key});
@@ -23,6 +24,7 @@ class _MeasureViewState extends State<MeasureView> {
   String _statusMessage = 'Initializing AR...';
   int _pointCount = 0;
   double? _currentDistance;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -31,34 +33,13 @@ class _MeasureViewState extends State<MeasureView> {
   }
 
   Future<void> _initAR() async {
-    // ═══════════════════════════════════════════════════════════════
-    // Step 1: Request Camera Permission
-    // ═══════════════════════════════════════════════════════════════
-    final cameraStatus = await Permission.camera.request();
+    Console.info("🚀 _initAR() started");
 
-    if (cameraStatus.isDenied) {
-      if (mounted) {
-        setState(() {
-          _permissionDenied = true;
-          _statusMessage = 'Camera permission required for AR';
-        });
-      }
-      return;
-    }
+    // Show loading
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (cameraStatus.isPermanentlyDenied) {
-      if (mounted) {
-        setState(() {
-          _permissionDenied = true;
-          _statusMessage = 'Please enable camera in Settings';
-        });
-      }
-      return;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // Step 2: Initialize AR Service
-    // ═══════════════════════════════════════════════════════════════
     _arService = ArMeasurementService();
 
     _arService!.onPlaneDetected = (detected) {
@@ -78,7 +59,6 @@ class _MeasureViewState extends State<MeasureView> {
           _statusMessage = message;
         });
 
-        // Reset message after 2 seconds
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted && _planeDetected) {
             setState(() {
@@ -123,23 +103,39 @@ class _MeasureViewState extends State<MeasureView> {
     };
 
     _arService!.onError = (error) {
+      Console.info("❌ AR Error: $error");
       if (mounted) {
         setState(() {
-          _statusMessage = error;
+          _isLoading = false;
+          if (error.toLowerCase().contains('camera') ||
+              error.toLowerCase().contains('permission')) {
+            _permissionDenied = true;
+            _statusMessage = 'Please enable camera in Settings';
+          } else {
+            _statusMessage = error;
+          }
         });
       }
     };
 
-    // Small delay to let platform view initialize
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Delay for animation effect
+    await Future.delayed(const Duration(milliseconds: 1500));
 
+    Console.info("🔧 Calling _arService.initialize()");
     final success = await _arService!.initialize();
+    Console.info("🔧 AR initialize result: $success");
+
     if (mounted) {
       setState(() {
-        _isReady = success;
-        _statusMessage = success
-            ? 'Move device to detect surface'
-            : 'AR not available on this device';
+        _isLoading = false; // Hide loading
+        if (success) {
+          _isReady = true;
+          _statusMessage = 'Move device to detect surface';
+        } else {
+          _permissionDenied = true;
+          _statusMessage =
+              'AR not available. Check camera permission in Settings.';
+        }
       });
     }
   }
@@ -231,6 +227,9 @@ class _MeasureViewState extends State<MeasureView> {
 
         // Bottom controls
         _buildBottomControls(),
+
+        // Loading Animation (show on top when loading)
+        if (_isLoading) const ARLoadingAnimation(),
       ],
     );
   }
@@ -530,7 +529,7 @@ class _MeasureViewState extends State<MeasureView> {
 
   Widget _buildBottomControls() {
     return Positioned(
-      bottom: 100,
+      bottom: 140,
       left: 0,
       right: 0,
       child: Stack(

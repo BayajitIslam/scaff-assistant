@@ -2,13 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
+		<key>UIApplicationSceneManifest</key>
+		<dict>
+			<key>UIApplicationSupportsMultipleScenes</key>
+			<false />
+		</dict>
 		<key>BGTaskSchedulerPermittedIdentifiers</key>
 		<array>
 			<string>com.scaffassistant.app.refresh</string>
 			<string>com.scaffassistant.app.processing</string>
 		</array>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true/>
+		<true />
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
@@ -30,9 +35,9 @@
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>FirebaseAppDelegateProxyEnabled</key>
-		<false/>
+		<false />
 		<key>LSRequiresIPhoneOS</key>
-		<true/>
+		<true />
 		<key>NSCameraUsageDescription</key>
 		<string>Camera access is required for AR measurement</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -44,7 +49,7 @@
 		<key>NSMotionUsageDescription</key>
 		<string>Motion sensor access is required for the level tool</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
-		<true/>
+		<true />
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>fetch</string>
@@ -61,7 +66,7 @@
 			<string>arkit</string>
 		</array>
 		<key>UIStatusBarHidden</key>
-		<true/>
+		<true />
 		<key>UISupportedInterfaceOrientations</key>
 		<array>
 			<string>UIInterfaceOrientationPortrait</string>
@@ -76,6 +81,6 @@
 			<string>UIInterfaceOrientationLandscapeRight</string>
 		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
-		<false/>
+		<false />
 	</dict>
 </plist>
