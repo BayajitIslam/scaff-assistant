@@ -60,12 +60,10 @@ class QuizSelectionScreen extends GetView<QuizController> {
 
             // Category Card
             SizedBox(height: 20),
-            SizedBox(
-              height: 242,
+            Expanded(
               child: ListView.separated(
                 itemBuilder: (context, index) => Obx(
                   () => BuildCard(
-                    width: double.infinity,
                     name: QuizDifficulty.values[index].displayName,
 
                     isActive:
@@ -103,32 +101,84 @@ class QuizSelectionScreen extends GetView<QuizController> {
 
             // Questions Count
             SizedBox(height: 20),
-            Container(
+
+            // Expanded(
+            //   child: ListView.builder(
+            //     scrollDirection: Axis.horizontal,
+            //     physics: NeverScrollableScrollPhysics(),
+            //     itemBuilder: (context, index) => Obx(
+            //       () => BuildCard(
+            //         name: '${controller.questionsCountOptions[index]}',
+            //         isActive:
+            //             controller.selectedQuestionCount.value ==
+            //             controller.questionsCountOptions[index],
+            //         onTap: () {
+            //           controller.selectedQuestionCount.value =
+            //               controller.questionsCountOptions[index];
+            //           Console.info(
+            //             "Selected question count: ${controller.selectedQuestionCount.value}",
+            //           );
+            //         },
+            //       ),
+            //     ),
+
+            //     itemCount: controller.questionsCountOptions.length,
+            //   ),
+            // ),
+            SizedBox(
               height: 35,
-              padding: EdgeInsets.all(2),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) => Obx(
-                  () => BuildCard(
-                    width: 95,
-                    name: '${controller.questionsCountOptions[index]}',
-                    isActive:
-                        controller.selectedQuestionCount.value ==
-                        controller.questionsCountOptions[index],
-                    onTap: () {
-                      controller.selectedQuestionCount.value =
+              child: Obx(() {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    controller.questionsCountOptions.length,
+                    (index) {
+                      bool isActive =
+                          controller.selectedQuestionCount.value ==
                           controller.questionsCountOptions[index];
-                      Console.info(
-                        "Selected question count: ${controller.selectedQuestionCount.value}",
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            controller.selectedQuestionCount.value =
+                                controller.questionsCountOptions[index];
+                            Console.info(
+                              "Selected question count: ${controller.selectedQuestionCount.value}",
+                            );
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            margin: EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: isActive
+                                  ? AppColors.grey
+                                  : AppColors.background,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.withOpacity(
+                                    AppColors.textBlack,
+                                    0.18,
+                                  ),
+                                  blurRadius: 2,
+                                  spreadRadius: 1.3,
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              '${controller.questionsCountOptions[index]}',
+                              style: AppTextStyles.subHeadLine().copyWith(
+                                color: isActive
+                                    ? AppColors.textWhite
+                                    : AppColors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
                       );
                     },
                   ),
-                ),
-                separatorBuilder: (context, index) {
-                  return const SizedBox(width: 10);
-                },
-                itemCount: controller.questionsCountOptions.length,
-              ),
+                );
+              }),
             ),
 
             // Start Quiz Button

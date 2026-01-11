@@ -70,7 +70,6 @@ class CountToolScreen extends GetView<CountToolController> {
               child: ListView.separated(
                 itemBuilder: (context, index) => Obx(
                   () => BuildCard(
-                    width: double.infinity,
                     name: controller.componentTypes[index],
 
                     isActive: controller.selectedComponentIndex.value == index,

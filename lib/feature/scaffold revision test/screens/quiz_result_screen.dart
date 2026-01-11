@@ -66,7 +66,7 @@ class QuizResultScreen extends StatelessWidget {
             const SizedBox(height: 10),
             LinearPercentIndicator(
               padding: EdgeInsets.all(0),
-              width: MediaQuery.of(context).size.width * 0.87,
+              width: MediaQuery.of(context).size.width * 0.85,
               // animation: true,
               lineHeight: 8.0,
               animationDuration: 1000,
@@ -131,31 +131,22 @@ class QuizResultScreen extends StatelessWidget {
 
             //
             SizedBox(height: 22),
-            BuildCard(
-              width: double.infinity,
-
-              name: "Review answers",
-              isActive: true,
-            ),
+            BuildCard(name: "Review answers", isActive: true),
 
             //
             SizedBox(height: 22),
+            BuildCard(name: "Retry test", isActive: false),
+
+            //
+            SizedBox(height: 22),
+            BuildCard(name: "Change category", isActive: false),
+            //
+            SizedBox(height: 22),
             BuildCard(
-              width: double.infinity,
-              name: "Retry test",
+              onTap: () => RouteNames.home,
+              name: "Exit",
               isActive: false,
             ),
-
-            //
-            SizedBox(height: 22),
-            BuildCard(
-              width: double.infinity,
-              name: "Change category",
-              isActive: false,
-            ),
-            //
-            SizedBox(height: 22),
-            BuildCard(width: double.infinity, name: "Exit", isActive: false),
           ],
         ),
       ),

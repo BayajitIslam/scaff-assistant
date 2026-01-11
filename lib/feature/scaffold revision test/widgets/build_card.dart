@@ -3,27 +3,23 @@ import 'package:scaffassistant/core/constants/app_colors.dart';
 import 'package:scaffassistant/core/constants/app_text_styles.dart';
 
 class BuildCard extends StatelessWidget {
-  final double width;
   final String name;
   final bool isActive;
 
   final void Function()? onTap;
   const BuildCard({
     super.key,
-    required this.width,
     required this.name,
     required this.isActive,
     this.onTap,
   });
 
   @override
-
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 35,
-        width: width,
+        width: double.infinity,
         decoration: BoxDecoration(
           color: isActive ? AppColors.grey : AppColors.background,
           borderRadius: BorderRadius.circular(5),
@@ -35,6 +31,7 @@ class BuildCard extends StatelessWidget {
             ),
           ],
         ),
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
         child: Center(
           child: Text(
             name,

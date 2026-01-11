@@ -69,7 +69,7 @@ class QuizScreen extends GetView<QuizController> {
             Obx(
               () => LinearPercentIndicator(
                 padding: EdgeInsets.all(0),
-                width: MediaQuery.of(context).size.width * 0.87,
+                width: MediaQuery.of(context).size.width * 0.85,
                 // animation: true,
                 lineHeight: 8.0,
                 animationDuration: 1000,
@@ -96,8 +96,7 @@ class QuizScreen extends GetView<QuizController> {
 
             //Options
             SizedBox(height: 22),
-            SizedBox(
-              height: 251,
+            Expanded(
               child: ListView.separated(
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) => Obx(
@@ -124,7 +123,6 @@ class QuizScreen extends GetView<QuizController> {
             ),
 
             //Next Button
-            Spacer(),
             Obx(
               () => controller.isAnswered.value
                   ? AppButton(

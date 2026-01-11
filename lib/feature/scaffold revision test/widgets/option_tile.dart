@@ -19,7 +19,8 @@ class OptionTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 50,
+
+        // height: 50,
         decoration: BoxDecoration(
           color: AppColors.background,
           borderRadius: BorderRadius.circular(5),
@@ -39,10 +40,12 @@ class OptionTile extends StatelessWidget {
 
             //Option tile content
             SizedBox(width: 15),
-            Text(
-              option,
-              style: AppTextStyles.subHeadLine().copyWith(
-                color: AppColors.textBlack,
+            Expanded(
+              child: Text(
+                option,
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlack,
+                ),
               ),
             ),
           ],
@@ -54,6 +57,7 @@ class OptionTile extends StatelessWidget {
   Widget _buildRadioButton(bool isActive) {
     return Container(
       width: 16.7,
+      height: 16.7,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
