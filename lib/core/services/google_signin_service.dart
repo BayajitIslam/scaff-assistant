@@ -18,8 +18,11 @@ class GoogleSignInService {
   // ─────────────────────────────────────────────────────────────────────────
 
   /// Google OAuth Client ID (Web Client ID from Google Console)
+  // static const String _serverClientId =
+  //     '594391332991-sfgb1ks9qpqitcf2lavhd4qr7nsa92au.apps.googleusercontent.com';
+
   static const String _serverClientId =
-      '594391332991-sfgb1ks9qpqitcf2lavhd4qr7nsa92au.apps.googleusercontent.com';
+      '594391332991-p20trg65g0gfqsmqtg8a2edmlmg55sfp.apps.googleusercontent.com';
 
   /// Required OAuth scopes
   static const List<String> _scopes = ['email', 'profile', 'openid'];
