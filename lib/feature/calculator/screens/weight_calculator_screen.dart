@@ -44,81 +44,70 @@ class WeightCalculatorScreen extends StatelessWidget {
 
                   SizedBox(height: DynamicSize.large(context)),
 
-                  // Input Panel
+                  // ═══════════════════════════════════════════════════════════
+                  // TUBES INPUT PANEL
+                  // ═══════════════════════════════════════════════════════════
                   InputPanelCard(
-                    title: 'INPUT PANEL',
+                    title: 'TUBES',
+                    trailing: _buildAddButton(
+                      context: context,
+                      onPressed: () => controller.addTubeInput(),
+                      label: 'Add Tube',
+                    ),
                     children: [
-                      // Tubes Input
                       Obx(
-                        () => WeightInputWidget(
-                          title: 'Tubes',
-                          type: InputRowType.tubes,
-                          selectedValue: controller.selectedTube.value,
-                          items: controller.tubeOptions,
-                          hint: '1ft',
-                          onChanged: (value) {
-                            controller.selectedTube.value = value;
-                          },
-                          selectedWallThickness:
-                              controller.selectedWallThickness.value,
-                          wallThicknessItems: controller.wallThicknessOptions,
-                          wallThicknessHint: '3.2mm',
-                          onWallThicknessChanged: (value) {
-                            controller.selectedWallThickness.value = value;
-                          },
-                          quantity: controller.tubeQuantity.value,
-                          onQuantityChanged: (value) {
-                            controller.tubeQuantity.value = value;
-                          },
+                        () => Column(
+                          children: controller.tubeInputs.map((tubeInput) {
+                            return _buildTubeInputRow(context, tubeInput);
+                          }).toList(),
                         ),
                       ),
+                    ],
+                  ),
 
-                      // Boards Input
+                  SizedBox(height: DynamicSize.medium(context)),
+
+                  // ═══════════════════════════════════════════════════════════
+                  // BOARDS INPUT PANEL
+                  // ═══════════════════════════════════════════════════════════
+                  InputPanelCard(
+                    title: 'BOARDS',
+                    trailing: _buildAddButton(
+                      context: context,
+                      onPressed: () => controller.addBoardInput(),
+                      label: 'Add Board',
+                    ),
+                    children: [
                       Obx(
-                        () => WeightInputWidget(
-                          title: 'Boards',
-                          type: InputRowType.boards,
-                          selectedValue: controller.selectedBoard.value,
-                          items: controller.boardOptions,
-                          hint: '3ft',
-                          onChanged: (value) {
-                            controller.selectedBoard.value = value;
-                          },
-                          quantity: controller.boardQuantity.value,
-                          onQuantityChanged: (value) {
-                            controller.boardQuantity.value = value;
-                          },
+                        () => Column(
+                          children: controller.boardInputs.map((boardInput) {
+                            return _buildBoardInputRow(context, boardInput);
+                          }).toList(),
                         ),
                       ),
+                    ],
+                  ),
 
-                      // Fittings Input
+                  SizedBox(height: DynamicSize.medium(context)),
+
+                  // ═══════════════════════════════════════════════════════════
+                  // FITTINGS INPUT PANEL
+                  // ═══════════════════════════════════════════════════════════
+                  InputPanelCard(
+                    title: 'FITTINGS',
+                    trailing: _buildAddButton(
+                      context: context,
+                      onPressed: () => controller.addFittingInput(),
+                      label: 'Add Fitting',
+                    ),
+                    children: [
                       Obx(
-                        () => WeightInputWidget(
-                          title: 'Fittings',
-                          type: InputRowType.fittings,
-                          selectedValue: controller.selectedFitting.value,
-                          items: controller.fittingOptions,
-                          hint: 'Double',
-                          onChanged: (value) {
-                            controller.selectedFitting.value = value;
-                          },
-                          quantity: controller.fittingQuantity.value,
-                          onQuantityChanged: (value) {
-                            controller.fittingQuantity.value = value;
-                          },
-                        ),
-                      ),
-
-                      SizedBox(height: DynamicSize.medium(context)),
-
-                      // Calculate Button
-                      Obx(
-                        () => PrimaryButton(
-                          text: 'CALCULATE WEIGHT',
-                          isLoading: controller.isLoading.value,
-                          onPressed: () {
-                            controller.calculateWeight();
-                          },
+                        () => Column(
+                          children: controller.fittingInputs.map((
+                            fittingInput,
+                          ) {
+                            return _buildFittingInputRow(context, fittingInput);
+                          }).toList(),
                         ),
                       ),
                     ],
@@ -126,7 +115,56 @@ class WeightCalculatorScreen extends StatelessWidget {
 
                   SizedBox(height: DynamicSize.large(context)),
 
-                  // Output Panel
+                  // ═══════════════════════════════════════════════════════════
+                  // ACTION BUTTONS
+                  // ═══════════════════════════════════════════════════════════
+                  Row(
+                    children: [
+                      // Clear Button
+                      Expanded(
+                        flex: 1,
+                        child: OutlinedButton(
+                          onPressed: () => controller.clearAll(),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: const BorderSide(
+                              color: AppColors.textSecondary,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            'CLEAR',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(width: DynamicSize.small(context)),
+
+                      // Calculate Button
+                      Expanded(
+                        flex: 2,
+                        child: Obx(
+                          () => PrimaryButton(
+                            text: 'CALCULATE WEIGHT',
+                            isLoading: controller.isLoading.value,
+                            onPressed: () => controller.calculateWeight(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: DynamicSize.large(context)),
+
+                  // ═══════════════════════════════════════════════════════════
+                  // OUTPUT PANEL
+                  // ═══════════════════════════════════════════════════════════
                   Obx(
                     () => controller.showOutput.value
                         ? OutputPanel(
@@ -180,7 +218,7 @@ class WeightCalculatorScreen extends StatelessWidget {
                               ],
                             ),
                           )
-                        : SizedBox.shrink(),
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),
@@ -188,6 +226,220 @@ class WeightCalculatorScreen extends StatelessWidget {
           ),
           SizedBox(height: DynamicSize.large(context)),
         ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Add Button Widget
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildAddButton({
+    required BuildContext context,
+    required VoidCallback onPressed,
+    required String label,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.add_circle_outline,
+              size: 18,
+              color: AppColors.textPrimary,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Remove Button Widget
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildRemoveButton({
+    required VoidCallback onPressed,
+    required bool canRemove,
+  }) {
+    if (!canRemove) return const SizedBox.shrink();
+
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Icon(
+          Icons.remove_circle_outline,
+          size: 20,
+          color: Colors.red,
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Tube Input Row
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildTubeInputRow(BuildContext context, TubeInput tubeInput) {
+    return Obx(
+      () => Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: WeightInputWidget(
+                    title:
+                        'Tube ${controller.tubeInputs.indexOf(tubeInput) + 1}',
+                    type: InputRowType.tubes,
+                    selectedValue: tubeInput.selectedTube.value,
+                    items: controller.tubeOptions,
+                    hint: '1ft',
+                    onChanged: (value) {
+                      tubeInput.selectedTube.value = value;
+                    },
+                    selectedWallThickness:
+                        tubeInput.selectedWallThickness.value,
+                    wallThicknessItems: controller.wallThicknessOptions,
+                    wallThicknessHint: '3.2mm',
+                    onWallThicknessChanged: (value) {
+                      tubeInput.selectedWallThickness.value = value;
+                    },
+                    quantity: tubeInput.quantity.value,
+                    onQuantityChanged: (value) {
+                      tubeInput.quantity.value = value;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _buildRemoveButton(
+                  onPressed: () => controller.removeTubeInput(tubeInput.id),
+                  canRemove: controller.tubeInputs.length > 1,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Board Input Row
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildBoardInputRow(BuildContext context, BoardInput boardInput) {
+    return Obx(
+      () => Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: WeightInputWidget(
+                title:
+                    'Board ${controller.boardInputs.indexOf(boardInput) + 1}',
+                type: InputRowType.boards,
+                selectedValue: boardInput.selectedBoard.value,
+                items: controller.boardOptions,
+                hint: '3ft',
+                onChanged: (value) {
+                  boardInput.selectedBoard.value = value;
+                },
+                quantity: boardInput.quantity.value,
+                onQuantityChanged: (value) {
+                  boardInput.quantity.value = value;
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            _buildRemoveButton(
+              onPressed: () => controller.removeBoardInput(boardInput.id),
+              canRemove: controller.boardInputs.length > 1,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Fitting Input Row
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Widget _buildFittingInputRow(
+    BuildContext context,
+    FittingInput fittingInput,
+  ) {
+    return Obx(
+      () => Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: WeightInputWidget(
+                title:
+                    'Fitting ${controller.fittingInputs.indexOf(fittingInput) + 1}',
+                type: InputRowType.fittings,
+                selectedValue: fittingInput.selectedFitting.value,
+                items: controller.fittingOptions,
+                hint: 'Double',
+                onChanged: (value) {
+                  fittingInput.selectedFitting.value = value;
+                },
+                quantity: fittingInput.quantity.value,
+                onQuantityChanged: (value) {
+                  fittingInput.quantity.value = value;
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            _buildRemoveButton(
+              onPressed: () => controller.removeFittingInput(fittingInput.id),
+              canRemove: controller.fittingInputs.length > 1,
+            ),
+          ],
+        ),
       ),
     );
   }

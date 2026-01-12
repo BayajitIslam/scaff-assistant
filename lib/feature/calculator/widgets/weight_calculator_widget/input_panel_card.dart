@@ -6,8 +6,14 @@ import 'package:scaffassistant/core/utils/dynamic_size.dart';
 class InputPanelCard extends StatelessWidget {
   final String? title;
   final List<Widget> children;
+  final Widget? trailing;
 
-  const InputPanelCard({super.key, this.title, required this.children});
+  const InputPanelCard({
+    super.key,
+    this.title,
+    required this.children,
+    this.trailing,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,21 +30,23 @@ class InputPanelCard extends StatelessWidget {
             spreadRadius: 1.3,
           ),
         ],
-        // border: Border.all(
-        //   color: SColor.borderColor,
-        //   width: 1,
-        // ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (title != null) ...[
-            Text(
-              title!,
-              style: AppTextStyles.headLine().copyWith(
-                color: AppColors.textBlackPrimary,
-                fontWeight: FontWeight.w400,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title!,
+                  style: AppTextStyles.headLine().copyWith(
+                    color: AppColors.textBlackPrimary,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                if (trailing != null) trailing!,
+              ],
             ),
             SizedBox(height: DynamicSize.medium(context)),
           ],
