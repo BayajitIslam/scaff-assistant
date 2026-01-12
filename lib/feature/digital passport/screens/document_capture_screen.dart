@@ -7,14 +7,20 @@ import 'package:get/get.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:scaffassistant/core/constants/app_colors.dart';
+
+/// Document capture mode
+enum CaptureMode { card, a4Document }
+
 class DocumentCaptureScreen extends StatefulWidget {
-  final String initialSide; // 'front' or 'back'
-  final Function(File imageFile, String side) onImageCaptured;
+  final String initialSide;
+  final Function(File imageFile, String side, CaptureMode mode) onImageCaptured;
+  final CaptureMode initialMode;
 
   const DocumentCaptureScreen({
     super.key,
     this.initialSide = 'front',
     required this.onImageCaptured,
+    this.initialMode = CaptureMode.card,
   });
 
   @override
@@ -30,16 +36,14 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
   bool _isFlashOn = false;
   int _currentCameraIndex = 0;
 
-  // Current capture side
   late String _currentSide;
-
-  // Frame key for getting exact position
-  final GlobalKey _frameKey = GlobalKey();
+  late CaptureMode _captureMode;
 
   @override
   void initState() {
     super.initState();
     _currentSide = widget.initialSide;
+    _captureMode = widget.initialMode;
     WidgetsBinding.instance.addObserver(this);
     _initializeCamera();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -49,21 +53,14 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _cameraController?.dispose();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+    if (_cameraController == null || !_cameraController!.value.isInitialized)
       return;
-    }
-
     if (state == AppLifecycleState.inactive) {
       _cameraController?.dispose();
     } else if (state == AppLifecycleState.resumed) {
@@ -78,17 +75,14 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
         _showError('No camera available');
         return;
       }
-
       await _setupCamera(_cameras![_currentCameraIndex]);
     } catch (e) {
-      _showError('Failed to initialize camera: $e');
+      _showError('Failed to initialize camera');
     }
   }
 
   Future<void> _setupCamera(CameraDescription camera) async {
-    if (_cameraController != null) {
-      await _cameraController!.dispose();
-    }
+    if (_cameraController != null) await _cameraController!.dispose();
 
     _cameraController = CameraController(
       camera,
@@ -99,214 +93,156 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
 
     try {
       await _cameraController!.initialize();
-      if (mounted) {
-        setState(() {
-          _isInitialized = true;
-        });
-      }
+      if (mounted) setState(() => _isInitialized = true);
     } catch (e) {
-      _showError('Failed to setup camera: $e');
+      _showError('Failed to setup camera');
     }
   }
 
   Future<void> _toggleFlash() async {
     if (_cameraController == null) return;
-
     try {
-      if (_isFlashOn) {
-        await _cameraController!.setFlashMode(FlashMode.off);
-      } else {
-        await _cameraController!.setFlashMode(FlashMode.torch);
-      }
-      setState(() {
-        _isFlashOn = !_isFlashOn;
-      });
+      await _cameraController!.setFlashMode(
+        _isFlashOn ? FlashMode.off : FlashMode.torch,
+      );
+      setState(() => _isFlashOn = !_isFlashOn);
     } catch (e) {
-      debugPrint('Flash toggle error: $e');
+      debugPrint('Flash error: $e');
     }
   }
 
   Future<void> _switchCamera() async {
     if (_cameras == null || _cameras!.length < 2) return;
-
     setState(() {
       _isInitialized = false;
       _currentCameraIndex = (_currentCameraIndex + 1) % _cameras!.length;
     });
-
     await _setupCamera(_cameras![_currentCameraIndex]);
   }
 
-  // Toggle between front and back capture
-  void _toggleSide() {
-    setState(() {
-      _currentSide = _currentSide == 'front' ? 'back' : 'front';
-    });
+  bool get _isA4 => _captureMode == CaptureMode.a4Document;
+
+  _FrameDimensions _getFrameDimensions(Size screenSize) {
+    final sw = screenSize.width;
+    final sh = screenSize.height;
+
+    if (_isA4) {
+      // A4 Portrait ratio (1:1.414)
+      final maxH = sh * 0.55;
+      var h = maxH;
+      var w = h / 1.414;
+      if (w > sw - 40) {
+        w = sw - 40;
+        h = w * 1.414;
+      }
+      return _FrameDimensions(
+        left: (sw - w) / 2,
+        top: sh * 0.22,
+        width: w,
+        height: h,
+      );
+    } else {
+      // Card ratio (wider)
+      final w = sw - 48;
+      final h = w * 0.63;
+      return _FrameDimensions(left: 24, top: sh * 0.32, width: w, height: h);
+    }
   }
 
-  // Crop image to document frame area
-  Future<File> _cropToDocumentFrame(File imageFile) async {
+  Future<File> _cropToFrame(File imageFile) async {
     try {
-      // Read image bytes
-      final Uint8List bytes = await imageFile.readAsBytes();
-      img.Image? originalImage = img.decodeImage(bytes);
+      final bytes = await imageFile.readAsBytes();
+      final original = img.decodeImage(bytes);
+      if (original == null) return imageFile;
 
-      if (originalImage == null) {
-        debugPrint('Failed to decode image');
-        return imageFile;
-      }
+      final screen = MediaQuery.of(context).size;
+      final frame = _getFrameDimensions(screen);
 
-      // Get screen dimensions
-      final screenSize = MediaQuery.of(context).size;
-      final screenWidth = screenSize.width;
-      final screenHeight = screenSize.height;
+      final imgW = original.width;
+      final imgH = original.height;
 
-      // Frame dimensions (same as in build method)
-      final double frameWidth = screenWidth - 48;
-      final double frameHeight = frameWidth * 0.63;
-      final double frameLeft = 24;
-      final double frameTop = screenHeight * 0.28;
+      final previewRatio = imgW / imgH;
+      final screenRatio = screen.width / screen.height;
 
-      // Image dimensions
-      final int imageWidth = originalImage.width;
-      final int imageHeight = originalImage.height;
-
-      // Camera preview fills the screen (cover mode)
-      // Calculate how the image maps to screen
-      double previewAspectRatio = imageWidth / imageHeight;
-      double screenAspectRatio = screenWidth / screenHeight;
-
-      double scaleX, scaleY;
-      double offsetX = 0, offsetY = 0;
-
-      if (previewAspectRatio > screenAspectRatio) {
-        // Image is wider - height fits, width is cropped
-        scaleY = imageHeight / screenHeight;
-        scaleX = scaleY;
-        offsetX = (imageWidth - (screenWidth * scaleX)) / 2;
+      double scale, offX = 0, offY = 0;
+      if (previewRatio > screenRatio) {
+        scale = imgH / screen.height;
+        offX = (imgW - screen.width * scale) / 2;
       } else {
-        // Image is taller - width fits, height is cropped
-        scaleX = imageWidth / screenWidth;
-        scaleY = scaleX;
-        offsetY = (imageHeight - (screenHeight * scaleY)) / 2;
+        scale = imgW / screen.width;
+        offY = (imgH - screen.height * scale) / 2;
       }
 
-      // Calculate crop coordinates in image space
-      int cropX = (offsetX + (frameLeft * scaleX)).round();
-      int cropY = (offsetY + (frameTop * scaleY)).round();
-      int cropWidth = (frameWidth * scaleX).round();
-      int cropHeight = (frameHeight * scaleY).round();
+      var cropX = (offX + frame.left * scale).round().clamp(0, imgW - 1);
+      var cropY = (offY + frame.top * scale).round().clamp(0, imgH - 1);
+      var cropW = (frame.width * scale).round().clamp(1, imgW - cropX);
+      var cropH = (frame.height * scale).round().clamp(1, imgH - cropY);
 
-      // Clamp values to image bounds
-      cropX = cropX.clamp(0, imageWidth - 1);
-      cropY = cropY.clamp(0, imageHeight - 1);
-      cropWidth = cropWidth.clamp(1, imageWidth - cropX);
-      cropHeight = cropHeight.clamp(1, imageHeight - cropY);
-
-      debugPrint('Image: ${imageWidth}x$imageHeight');
-      debugPrint('Screen: ${screenWidth}x$screenHeight');
-      debugPrint(
-        'Frame: ${frameWidth}x$frameHeight at ($frameLeft, $frameTop)',
-      );
-      debugPrint('Crop: ${cropWidth}x$cropHeight at ($cropX, $cropY)');
-
-      // Crop the image
-      img.Image croppedImage = img.copyCrop(
-        originalImage,
+      final cropped = img.copyCrop(
+        original,
         x: cropX,
         y: cropY,
-        width: cropWidth,
-        height: cropHeight,
+        width: cropW,
+        height: cropH,
+      );
+      final croppedBytes = Uint8List.fromList(
+        img.encodeJpg(cropped, quality: 95),
       );
 
-      // Encode to JPEG
-      final Uint8List croppedBytes = Uint8List.fromList(
-        img.encodeJpg(croppedImage, quality: 90),
+      final dir = await getTemporaryDirectory();
+      final prefix = _isA4 ? 'a4' : 'card';
+      final file = File(
+        '${dir.path}/doc_${prefix}_${_currentSide}_${DateTime.now().millisecondsSinceEpoch}.jpg',
       );
+      await file.writeAsBytes(croppedBytes);
 
-      // Save to new file
-      final directory = await getTemporaryDirectory();
-      final String fileName =
-          'doc_${_currentSide}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final File croppedFile = File('${directory.path}/$fileName');
-      await croppedFile.writeAsBytes(croppedBytes);
-
-      // Delete original
       try {
         await imageFile.delete();
-      } catch (e) {
-        debugPrint('Could not delete original: $e');
-      }
-
-      return croppedFile;
+      } catch (_) {}
+      return file;
     } catch (e) {
-      debugPrint('Error cropping image: $e');
+      debugPrint('Crop error: $e');
       return imageFile;
     }
   }
 
-  Future<void> _captureImage() async {
+  Future<void> _capture() async {
     if (_cameraController == null ||
         !_cameraController!.value.isInitialized ||
-        _isCapturing) {
+        _isCapturing)
       return;
-    }
 
-    setState(() {
-      _isCapturing = true;
-    });
+    setState(() => _isCapturing = true);
 
     try {
-      // Turn off flash for capture
-      if (_isFlashOn) {
-        await _cameraController!.setFlashMode(FlashMode.off);
-      }
+      if (_isFlashOn) await _cameraController!.setFlashMode(FlashMode.off);
 
-      final XFile image = await _cameraController!.takePicture();
-      File imageFile = File(image.path);
+      final xFile = await _cameraController!.takePicture();
+      var file = File(xFile.path);
+      file = await _cropToFrame(file);
 
-      // Crop to document frame
-      imageFile = await _cropToDocumentFrame(imageFile);
-
-      // Call callback with cropped image and side
-      widget.onImageCaptured(imageFile, _currentSide);
-
-      // Go back
-      if (mounted) {
-        Get.back();
-      }
+      widget.onImageCaptured(file, _currentSide, _captureMode);
+      if (mounted) Get.back();
     } catch (e) {
-      _showError('Failed to capture image: $e');
+      _showError('Capture failed');
     } finally {
-      if (mounted) {
-        setState(() {
-          _isCapturing = false;
-        });
-      }
+      if (mounted) setState(() => _isCapturing = false);
     }
   }
 
-  void _showError(String message) {
+  void _showError(String msg) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red));
     }
   }
-
-  String get _title =>
-      _currentSide == 'front' ? 'Capture Front' : 'Capture Back';
-  String get _subtitle => _currentSide == 'front'
-      ? 'Position the FRONT of your document'
-      : 'Position the BACK of your document';
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final double frameWidth = screenSize.width - 48;
-    final double frameHeight = frameWidth * 0.63;
-    final double frameLeft = 24;
-    final double frameTop = screenSize.height * 0.28;
+    final screen = MediaQuery.of(context).size;
+    final frame = _getFrameDimensions(screen);
+    final safeTop = MediaQuery.of(context).padding.top;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -315,361 +251,298 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
           // Camera Preview
           if (_isInitialized && _cameraController != null)
             Positioned.fill(
-              child: ClipRect(
-                child: OverflowBox(
-                  alignment: Alignment.center,
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      width: screenSize.width,
-                      height:
-                          screenSize.width *
-                          _cameraController!.value.aspectRatio,
-                      child: CameraPreview(_cameraController!),
-                    ),
-                  ),
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: screen.width,
+                  height: screen.width * _cameraController!.value.aspectRatio,
+                  child: CameraPreview(_cameraController!),
                 ),
               ),
             )
           else
-            Center(child: CircularProgressIndicator(color: AppColors.primary)),
+            const Center(child: CircularProgressIndicator(color: Colors.white)),
 
-          // Document Frame Overlay
+          // Dark Overlay with Frame Cutout
           Positioned.fill(
             child: CustomPaint(
-              key: _frameKey,
-              painter: DocumentFramePainter(
-                frameLeft: frameLeft,
-                frameTop: frameTop,
-                frameWidth: frameWidth,
-                frameHeight: frameHeight,
-              ),
+              painter: _FramePainter(frame: frame, isA4: _isA4),
             ),
           ),
 
-          // Top Bar
-          _buildTopBar(),
+          // Corner Brackets
+          ..._buildCorners(frame),
 
-          // Side Toggle & Instructions
+          // Top Bar: Close & Flash
           Positioned(
-            top: MediaQuery.of(context).padding.top + 70,
-            left: 20,
-            right: 20,
-            child: Column(
+            top: safeTop + 12,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Side Toggle Buttons
-                _buildSideToggle(),
-                SizedBox(height: 12),
-                // Instructions
-                _buildInstructions(),
+                _IconBtn(icon: Icons.close, onTap: () => Get.back()),
+                _IconBtn(
+                  icon: _isFlashOn ? Icons.flash_on : Icons.flash_off,
+                  onTap: _toggleFlash,
+                  active: _isFlashOn,
+                ),
               ],
             ),
           ),
 
-          // Corner Guides
-          _buildCornerGuides(frameLeft, frameTop, frameWidth, frameHeight),
+          // Mode Toggle (Card / A4)
+          Positioned(
+            top: safeTop + 70,
+            left: 0,
+            right: 0,
+            child: Center(child: _buildModeToggle()),
+          ),
 
-          // Bottom Controls
-          _buildBottomControls(),
+          // Side Toggle (Front/Back) - Card mode only
+          if (!_isA4)
+            Positioned(
+              top: safeTop + 130,
+              left: 0,
+              right: 0,
+              child: Center(child: _buildSideToggle()),
+            ),
+
+          // Bottom: Capture Button & Camera Switch
+          Positioned(
+            bottom: MediaQuery.of(context).padding.bottom + 30,
+            left: 0,
+            right: 0,
+            child: _buildBottomBar(),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTopBar() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + 10,
-          left: 16,
-          right: 16,
-          bottom: 10,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+  Widget _buildModeToggle() {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ModeBtn(
+            label: 'Card',
+            icon: Icons.credit_card,
+            selected: !_isA4,
+            color: AppColors.primary,
+            onTap: () => setState(() {
+              _captureMode = CaptureMode.card;
+              _currentSide = 'front';
+            }),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Close Button
-            GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.close, color: Colors.white, size: 24),
-              ),
-            ),
-
-            // Title
-            Text(
-              _title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
-            // Flash Toggle
-            GestureDetector(
-              onTap: _toggleFlash,
-              child: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _isFlashOn
-                      ? AppColors.primary.withOpacity(0.8)
-                      : Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _isFlashOn ? Icons.flash_on : Icons.flash_off,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ),
-          ],
-        ),
+          _ModeBtn(
+            label: 'A4',
+            icon: Icons.description,
+            selected: _isA4,
+            color: Colors.blue,
+            onTap: () => setState(() {
+              _captureMode = CaptureMode.a4Document;
+              _currentSide = 'front';
+            }),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSideToggle() {
     return Container(
-      padding: EdgeInsets.all(4),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(30),
+        color: Colors.black.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Front Button
-          GestureDetector(
-            onTap: () {
-              if (_currentSide != 'front') _toggleSide();
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-              decoration: BoxDecoration(
-                color: _currentSide == 'front'
-                    ? AppColors.primary
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Text(
-                'FRONT',
-                style: TextStyle(
-                  color: _currentSide == 'front' ? Colors.black : Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
+          _SideBtn(
+            label: 'FRONT',
+            selected: _currentSide == 'front',
+            onTap: () => setState(() => _currentSide = 'front'),
           ),
-          // Back Button
-          GestureDetector(
-            onTap: () {
-              if (_currentSide != 'back') _toggleSide();
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-              decoration: BoxDecoration(
-                color: _currentSide == 'back'
-                    ? AppColors.primary
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Text(
-                'BACK',
-                style: TextStyle(
-                  color: _currentSide == 'back' ? Colors.black : Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
+          _SideBtn(
+            label: 'BACK',
+            selected: _currentSide == 'back',
+            onTap: () => setState(() => _currentSide = 'back'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInstructions() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        _subtitle,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCornerGuides(
-    double frameLeft,
-    double frameTop,
-    double frameWidth,
-    double frameHeight,
-  ) {
-    return Stack(
+  Widget _buildBottomBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        // Top Left
-        Positioned(
-          left: frameLeft - 2,
-          top: frameTop - 2,
-          child: _buildCorner(isTop: true, isLeft: true),
+        // Camera Switch
+        _IconBtn(icon: Icons.flip_camera_ios, onTap: _switchCamera, size: 50),
+
+        // Capture Button
+        GestureDetector(
+          onTap: _isCapturing ? null : _capture,
+          child: Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 4),
+            ),
+            padding: const EdgeInsets.all(4),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _isCapturing
+                    ? Colors.grey
+                    : (_isA4 ? Colors.blue : AppColors.primary),
+              ),
+              child: _isCapturing
+                  ? const Center(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    )
+                  : Icon(
+                      Icons.camera_alt,
+                      color: _isA4 ? Colors.white : Colors.black,
+                      size: 28,
+                    ),
+            ),
+          ),
         ),
-        // Top Right
-        Positioned(
-          right: frameLeft - 2,
-          top: frameTop - 2,
-          child: _buildCorner(isTop: true, isLeft: false),
-        ),
-        // Bottom Left
-        Positioned(
-          left: frameLeft - 2,
-          top: frameTop + frameHeight - 38,
-          child: _buildCorner(isTop: false, isLeft: true),
-        ),
-        // Bottom Right
-        Positioned(
-          right: frameLeft - 2,
-          top: frameTop + frameHeight - 38,
-          child: _buildCorner(isTop: false, isLeft: false),
-        ),
+
+        // Placeholder for symmetry
+        const SizedBox(width: 50),
       ],
     );
   }
 
-  Widget _buildCorner({required bool isTop, required bool isLeft}) {
-    return SizedBox(
-      width: 40,
-      height: 40,
-      child: CustomPaint(
-        painter: CornerPainter(
-          isTop: isTop,
-          isLeft: isLeft,
-          color: AppColors.primary,
+  List<Widget> _buildCorners(_FrameDimensions f) {
+    final color = _isA4 ? Colors.blue : AppColors.primary;
+    const size = 28.0;
+    const stroke = 3.0;
+
+    Widget corner(Alignment align) {
+      return Positioned(
+        left: align == Alignment.topLeft || align == Alignment.bottomLeft
+            ? f.left - 2
+            : null,
+        right: align == Alignment.topRight || align == Alignment.bottomRight
+            ? MediaQuery.of(context).size.width - f.left - f.width - 2
+            : null,
+        top: align == Alignment.topLeft || align == Alignment.topRight
+            ? f.top - 2
+            : null,
+        bottom: align == Alignment.bottomLeft || align == Alignment.bottomRight
+            ? MediaQuery.of(context).size.height - f.top - f.height - 2
+            : null,
+        child: CustomPaint(
+          size: const Size(size, size),
+          painter: _CornerPainter(align: align, color: color, stroke: stroke),
+        ),
+      );
+    }
+
+    return [
+      corner(Alignment.topLeft),
+      corner(Alignment.topRight),
+      corner(Alignment.bottomLeft),
+      corner(Alignment.bottomRight),
+    ];
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// WIDGETS
+// ════════════════════════════════════════════════════════════════════════════
+
+class _IconBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool active;
+  final double size;
+
+  const _IconBtn({
+    required this.icon,
+    required this.onTap,
+    this.active = false,
+    this.size = 44,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary : Colors.black38,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: active ? Colors.black : Colors.white,
+          size: size * 0.5,
         ),
       ),
     );
   }
+}
 
-  Widget _buildBottomControls() {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
+class _ModeBtn extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ModeBtn({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        padding: EdgeInsets.only(
-          left: 30,
-          right: 30,
-          bottom: MediaQuery.of(context).padding.bottom + 30,
-          top: 30,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [Colors.black.withOpacity(0.8), Colors.transparent],
-          ),
+          color: selected ? color : Colors.transparent,
+          borderRadius: BorderRadius.circular(22),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // Cancel/Back Button
-            GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 2,
-                  ),
-                ),
-                child: Icon(Icons.arrow_back, color: Colors.white, size: 24),
-              ),
+            Icon(
+              icon,
+              size: 18,
+              color: selected ? Colors.white : Colors.white60,
             ),
-
-            // Capture Button
-            GestureDetector(
-              onTap: _isCapturing ? null : _captureImage,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                ),
-                child: Container(
-                  margin: EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _isCapturing ? Colors.grey : AppColors.primary,
-                  ),
-                  child: _isCapturing
-                      ? Center(
-                          child: SizedBox(
-                            width: 30,
-                            height: 30,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 3,
-                            ),
-                          ),
-                        )
-                      : Icon(
-                          Icons.camera_alt,
-                          color: AppColors.textBlackPrimary,
-                          size: 32,
-                        ),
-                ),
-              ),
-            ),
-
-            // Switch Camera Button
-            GestureDetector(
-              onTap: _switchCamera,
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 2,
-                  ),
-                ),
-                child: Icon(
-                  Icons.flip_camera_ios_outlined,
-                  color: Colors.white,
-                  size: 24,
-                ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: selected ? Colors.white : Colors.white60,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
               ),
             ),
           ],
@@ -679,103 +552,136 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen>
   }
 }
 
-// Document Frame Overlay Painter
-class DocumentFramePainter extends CustomPainter {
-  final double frameLeft;
-  final double frameTop;
-  final double frameWidth;
-  final double frameHeight;
+class _SideBtn extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
 
-  DocumentFramePainter({
-    required this.frameLeft,
-    required this.frameTop,
-    required this.frameWidth,
-    required this.frameHeight,
+  const _SideBtn({
+    required this.label,
+    required this.selected,
+    required this.onTap,
   });
 
   @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? Colors.black : Colors.white60,
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// PAINTERS
+// ════════════════════════════════════════════════════════════════════════════
+
+class _FrameDimensions {
+  final double left, top, width, height;
+  _FrameDimensions({
+    required this.left,
+    required this.top,
+    required this.width,
+    required this.height,
+  });
+}
+
+class _FramePainter extends CustomPainter {
+  final _FrameDimensions frame;
+  final bool isA4;
+
+  _FramePainter({required this.frame, required this.isA4});
+
+  @override
   void paint(Canvas canvas, Size size) {
-    final Paint overlayPaint = Paint()
-      ..color = Colors.black.withOpacity(0.6)
-      ..style = PaintingStyle.fill;
-
-    // Draw overlay with cutout
-    final Path overlayPath = Path()
-      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    final RRect frameRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(frameLeft, frameTop, frameWidth, frameHeight),
-      Radius.circular(12),
+    // Dark overlay
+    final overlay = Paint()..color = Colors.black.withOpacity(0.6);
+    final fullRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final frameRect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(frame.left, frame.top, frame.width, frame.height),
+      Radius.circular(isA4 ? 4 : 10),
     );
 
-    final Path framePath = Path()..addRRect(frameRect);
-
-    final Path combinedPath = Path.combine(
-      PathOperation.difference,
-      overlayPath,
-      framePath,
+    canvas.drawPath(
+      Path.combine(
+        PathOperation.difference,
+        Path()..addRect(fullRect),
+        Path()..addRRect(frameRect),
+      ),
+      overlay,
     );
 
-    canvas.drawPath(combinedPath, overlayPaint);
-
-    // Draw frame border
-    final Paint borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.8)
+    // Frame border
+    final border = Paint()
+      ..color = (isA4 ? Colors.blue : Colors.white).withOpacity(0.5)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    canvas.drawRRect(frameRect, borderPaint);
+      ..strokeWidth = 1.5;
+    canvas.drawRRect(frameRect, border);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// Corner Guide Painter
-class CornerPainter extends CustomPainter {
-  final bool isTop;
-  final bool isLeft;
+class _CornerPainter extends CustomPainter {
+  final Alignment align;
   final Color color;
+  final double stroke;
 
-  CornerPainter({
-    required this.isTop,
-    required this.isLeft,
+  _CornerPainter({
+    required this.align,
     required this.color,
+    required this.stroke,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
+    final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
+      ..strokeWidth = stroke
       ..strokeCap = StrokeCap.round;
 
-    final Path path = Path();
+    final path = Path();
+    const r = 6.0;
 
-    if (isTop && isLeft) {
+    if (align == Alignment.topLeft) {
       path.moveTo(0, size.height);
-      path.lineTo(0, 8);
-      path.quadraticBezierTo(0, 0, 8, 0);
+      path.lineTo(0, r);
+      path.quadraticBezierTo(0, 0, r, 0);
       path.lineTo(size.width, 0);
-    } else if (isTop && !isLeft) {
+    } else if (align == Alignment.topRight) {
       path.moveTo(0, 0);
-      path.lineTo(size.width - 8, 0);
-      path.quadraticBezierTo(size.width, 0, size.width, 8);
+      path.lineTo(size.width - r, 0);
+      path.quadraticBezierTo(size.width, 0, size.width, r);
       path.lineTo(size.width, size.height);
-    } else if (!isTop && isLeft) {
+    } else if (align == Alignment.bottomLeft) {
       path.moveTo(0, 0);
-      path.lineTo(0, size.height - 8);
-      path.quadraticBezierTo(0, size.height, 8, size.height);
+      path.lineTo(0, size.height - r);
+      path.quadraticBezierTo(0, size.height, r, size.height);
       path.lineTo(size.width, size.height);
     } else {
       path.moveTo(0, size.height);
-      path.lineTo(size.width - 8, size.height);
+      path.lineTo(size.width - r, size.height);
       path.quadraticBezierTo(
         size.width,
         size.height,
         size.width,
-        size.height - 8,
+        size.height - r,
       );
       path.lineTo(size.width, 0);
     }

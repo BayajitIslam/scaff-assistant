@@ -23,59 +23,46 @@ class DigitalPassportScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // App Bar
           CustomAppBar(
             title: 'DIGITAL PASSPORT',
             onBackPressed: () => Get.back(),
           ),
-
-          // Content
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(DynamicSize.medium(context)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Description Card
                   DescriptionCard(
                     text:
-                        'Store CISRS, training cards , A4 certificates, and business docs securely under your account',
+                        'Store CISRS, training cards, A4 certificates, and business docs securely under your account',
                   ),
-
                   SizedBox(height: DynamicSize.medium(context)),
-
-                  // Quick Add Card
                   QuickAddCard(
-                    // Capture → Direct camera for FRONT image
                     onCapture: () => controller.onCaptureFront(context),
-                    // Upload → Direct gallery for FRONT image
                     onUpload: () => controller.onUploadFront(context),
                   ),
-
                   SizedBox(height: DynamicSize.medium(context)),
-
-                  // Listen for dialog trigger
                   Obx(() {
                     if (controller.showUploadDialog.value) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _showUploadDialog(context);
-                      });
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) => _showUploadDialog(context),
+                      );
                     }
-                    return SizedBox.shrink();
+                    return const SizedBox.shrink();
                   }),
-
-                  // Documents List
                   Obx(() {
                     if (controller.isLoading.value) {
                       return Center(
-                        child: CircularProgressIndicator(color: AppColors.primary),
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
                       );
                     }
-
                     if (controller.documents.isEmpty) {
                       return Center(
                         child: Padding(
-                          padding: EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(20),
                           child: Text(
                             'No documents yet.\nCapture or upload to add.',
                             textAlign: TextAlign.center,
@@ -84,7 +71,6 @@ class DigitalPassportScreen extends StatelessWidget {
                         ),
                       );
                     }
-
                     return Column(
                       children: controller.documents.map((document) {
                         return Padding(
@@ -92,7 +78,9 @@ class DigitalPassportScreen extends StatelessWidget {
                             bottom: DynamicSize.medium(context),
                           ),
                           child: DocumentCard(
-                            title: 'YOUR DOCUMENT',
+                            title: document.isA4Document
+                                ? 'A4 DOCUMENT'
+                                : 'CARD DOCUMENT',
                             onEdit: () => _showEditDialog(context, document),
                             onDelete: () =>
                                 controller.onDeleteDocument(context, document),
@@ -116,26 +104,22 @@ class DigitalPassportScreen extends StatelessWidget {
     );
   }
 
-  // Show upload dialog with front/back images, name, and type
   void _showUploadDialog(BuildContext context) {
-    controller.showUploadDialog.value = false; // Reset flag
-
+    controller.showUploadDialog.value = false;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) =>
-          _UploadDocumentDialog(controller: controller, parentContext: context),
+          UploadDocumentDialog(controller: controller, parentContext: context),
     );
   }
 
-  // Show edit dialog for existing document
   void _showEditDialog(BuildContext context, DocumentModel document) {
     controller.onEditDocument(document);
-
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => _EditDocumentDialog(
+      builder: (dialogContext) => EditDocumentDialog(
         controller: controller,
         document: document,
         parentContext: context,
@@ -144,12 +128,15 @@ class DigitalPassportScreen extends StatelessWidget {
   }
 }
 
-// Upload Document Dialog
-class _UploadDocumentDialog extends StatelessWidget {
+// ═══════════════════════════════════════════════════════════════════════════
+// UPLOAD DOCUMENT DIALOG
+// ═══════════════════════════════════════════════════════════════════════════
+class UploadDocumentDialog extends StatelessWidget {
   final DigitalPassportController controller;
   final BuildContext parentContext;
 
-  const _UploadDocumentDialog({
+  const UploadDocumentDialog({
+    super.key,
     required this.controller,
     required this.parentContext,
   });
@@ -160,7 +147,7 @@ class _UploadDocumentDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,61 +169,219 @@ class _UploadDocumentDialog extends StatelessWidget {
                       controller.clearSelection();
                       Navigator.pop(context);
                     },
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
+                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
 
-              SizedBox(height: 20),
-
-              // Front & Back Images Row
-              Row(
-                children: [
-                  // Front Image (already selected, can tap to change)
-                  Expanded(
-                    child: _ImageBox(
-                      label: 'Front',
-                      imagePath: controller.frontImagePath,
-                      onTap: () {
-                        // Show choice for changing front image
-                        _showFrontImageChangeDialog(context);
-                      },
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  // Back Image (tap to choose camera/gallery)
-                  Expanded(
-                    child: _ImageBox(
-                      label: 'Back',
-                      imagePath: controller.backImagePath,
-                      onTap: () {
-                        // Show bottom sheet for back image
-                        controller.showBackImageSourceDialog(parentContext);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 20),
-
-              // Document Name Input
+              // ═══════════════════════════════════════════════════════════
+              // STEP 1: Document Size Selection
+              // ═══════════════════════════════════════════════════════════
               Text(
-                'Document Name',
+                'Document Size *',
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Obx(
+                () => Row(
+                  children: [
+                    // Card Option
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => controller.selectedDocumentSize.value =
+                            'Card (Front & Back)',
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color:
+                                controller.selectedDocumentSize.value ==
+                                    'Card (Front & Back)'
+                                ? AppColors.primary.withOpacity(0.15)
+                                : Colors.grey.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color:
+                                  controller.selectedDocumentSize.value ==
+                                      'Card (Front & Back)'
+                                  ? AppColors.primary
+                                  : Colors.grey.withOpacity(0.3),
+                              width:
+                                  controller.selectedDocumentSize.value ==
+                                      'Card (Front & Back)'
+                                  ? 2
+                                  : 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.credit_card,
+                                size: 28,
+                                color:
+                                    controller.selectedDocumentSize.value ==
+                                        'Card (Front & Back)'
+                                    ? AppColors.primary
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Card',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color:
+                                      controller.selectedDocumentSize.value ==
+                                          'Card (Front & Back)'
+                                      ? AppColors.primary
+                                      : Colors.grey[700],
+                                ),
+                              ),
+                              Text(
+                                'Front & Back',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // A4 Option
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          controller.selectedDocumentSize.value =
+                              'A4 Document (Single Page)';
+                          // Clear back image when switching to A4
+                          controller.backImagePath.value = null;
+                          controller.backImageFile.value = null;
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color:
+                                controller.selectedDocumentSize.value ==
+                                    'A4 Document (Single Page)'
+                                ? Colors.blue.withOpacity(0.15)
+                                : Colors.grey.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color:
+                                  controller.selectedDocumentSize.value ==
+                                      'A4 Document (Single Page)'
+                                  ? Colors.blue
+                                  : Colors.grey.withOpacity(0.3),
+                              width:
+                                  controller.selectedDocumentSize.value ==
+                                      'A4 Document (Single Page)'
+                                  ? 2
+                                  : 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.description,
+                                size: 28,
+                                color:
+                                    controller.selectedDocumentSize.value ==
+                                        'A4 Document (Single Page)'
+                                    ? Colors.blue
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'A4 Doc',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color:
+                                      controller.selectedDocumentSize.value ==
+                                          'A4 Document (Single Page)'
+                                      ? Colors.blue
+                                      : Colors.grey[700],
+                                ),
+                              ),
+                              Text(
+                                'Single Page',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // ═══════════════════════════════════════════════════════════
+              // STEP 2: Images Section (changes based on size)
+              // ═══════════════════════════════════════════════════════════
+              Obx(() {
+                if (controller.isA4Mode) {
+                  // A4: Only Front Image (Full Width)
+                  return A4ImageBox(
+                    imagePath: controller.frontImagePath,
+                    onTap: () => _showFrontImageChangeDialog(context),
+                  );
+                } else {
+                  // Card: Front & Back Images
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: ImageBox(
+                          label: 'Front *',
+                          imagePath: controller.frontImagePath,
+                          onTap: () => _showFrontImageChangeDialog(context),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ImageBox(
+                          label: 'Back *',
+                          imagePath: controller.backImagePath,
+                          onTap: () => controller.showBackImageSourceDialog(
+                            parentContext,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              }),
+              const SizedBox(height: 16),
+
+              // ═══════════════════════════════════════════════════════════
+              // STEP 3: Document Name
+              // ═══════════════════════════════════════════════════════════
+              Text(
+                'Document Name *',
                 style: AppTextStyles.subHeadLine().copyWith(
                   color: AppColors.textBlackPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextField(
                 controller: controller.nameController,
                 decoration: InputDecoration(
-                  hintText: 'Enter document name',
+                  hintText: 'e.g., My CISRS Card, Safety Certificate',
                   hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
                   ),
@@ -254,21 +399,22 @@ class _UploadDocumentDialog extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
 
-              SizedBox(height: 16),
-
-              // Document Type Dropdown
+              // ═══════════════════════════════════════════════════════════
+              // STEP 4: Document Type
+              // ═══════════════════════════════════════════════════════════
               Text(
-                'Document Type',
+                'Document Type *',
                 style: AppTextStyles.subHeadLine().copyWith(
                   color: AppColors.textBlackPrimary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Obx(
                 () => Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.withOpacity(0.3)),
                     borderRadius: BorderRadius.circular(8),
@@ -283,25 +429,37 @@ class _UploadDocumentDialog extends StatelessWidget {
                       isExpanded: true,
                       icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
                       items: controller.documentTypeOptions.map((type) {
+                        IconData icon = Icons.description;
+                        if (type.contains('CISRS'))
+                          icon = Icons.badge;
+                        else if (type.contains('Training'))
+                          icon = Icons.school;
+                        else if (type.contains('Certificate'))
+                          icon = Icons.workspace_premium;
+                        else if (type.contains('Business'))
+                          icon = Icons.business;
                         return DropdownMenuItem<String>(
                           value: type,
-                          child: Text(type),
+                          child: Row(
+                            children: [
+                              Icon(icon, size: 18, color: Colors.grey[600]),
+                              const SizedBox(width: 10),
+                              Text(type),
+                            ],
+                          ),
                         );
                       }).toList(),
-                      onChanged: (value) {
-                        controller.selectedDocumentType.value = value;
-                      },
+                      onChanged: (value) =>
+                          controller.selectedDocumentType.value = value,
                     ),
                   ),
                 ),
               ),
-
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Buttons
               Row(
                 children: [
-                  // Cancel Button
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
@@ -309,10 +467,10 @@ class _UploadDocumentDialog extends StatelessWidget {
                         Navigator.pop(context);
                       },
                       style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(color: Colors.grey),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(color: Colors.grey.shade400),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       child: Text(
@@ -324,10 +482,7 @@ class _UploadDocumentDialog extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  SizedBox(width: 12),
-
-                  // Upload Button
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Obx(
                       () => ElevatedButton(
@@ -337,19 +492,19 @@ class _UploadDocumentDialog extends StatelessWidget {
                                 final success = await controller.uploadDocument(
                                   parentContext,
                                 );
-                                if (success) {
-                                  Navigator.pop(context);
-                                }
+                                if (success) Navigator.pop(context);
                               },
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          backgroundColor: controller.isA4Mode
+                              ? Colors.blue
+                              : AppColors.primary,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         child: controller.isUploading.value
-                            ? SizedBox(
+                            ? const SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
@@ -360,8 +515,10 @@ class _UploadDocumentDialog extends StatelessWidget {
                             : Text(
                                 'Upload',
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
+                                  color: controller.isA4Mode
+                                      ? Colors.white
+                                      : Colors.black,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                       ),
@@ -376,15 +533,14 @@ class _UploadDocumentDialog extends StatelessWidget {
     );
   }
 
-  // Show choice dialog to change front image
   void _showFrontImageChangeDialog(BuildContext context) {
     showModalBottomSheet(
       context: parentContext,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) => Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -392,11 +548,10 @@ class _UploadDocumentDialog extends StatelessWidget {
               'Change Front Image',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Camera option
                 GestureDetector(
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -405,23 +560,22 @@ class _UploadDocumentDialog extends StatelessWidget {
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.blue.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.camera_alt,
                           size: 32,
                           color: Colors.blue,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Text('Camera'),
+                      const SizedBox(height: 8),
+                      const Text('Camera'),
                     ],
                   ),
                 ),
-                // Gallery option
                 GestureDetector(
                   onTap: () async {
                     Navigator.pop(ctx);
@@ -430,25 +584,25 @@ class _UploadDocumentDialog extends StatelessWidget {
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.green.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.photo_library,
                           size: 32,
                           color: Colors.green,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Text('Gallery'),
+                      const SizedBox(height: 8),
+                      const Text('Gallery'),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -456,13 +610,462 @@ class _UploadDocumentDialog extends StatelessWidget {
   }
 }
 
-// Image Box Widget
-class _ImageBox extends StatelessWidget {
+// ═══════════════════════════════════════════════════════════════════════════
+// EDIT DOCUMENT DIALOG
+// ═══════════════════════════════════════════════════════════════════════════
+class EditDocumentDialog extends StatelessWidget {
+  final DigitalPassportController controller;
+  final DocumentModel document;
+  final BuildContext parentContext;
+
+  const EditDocumentDialog({
+    super.key,
+    required this.controller,
+    required this.document,
+    required this.parentContext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Edit Document',
+                    style: AppTextStyles.headLine().copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textBlackPrimary,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      controller.closeEditDialog();
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.close),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Document Size Selection
+              Text(
+                'Document Size',
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Obx(
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => controller.selectedDocumentSize.value =
+                            'Card (Front & Back)',
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: !controller.isA4Mode
+                                ? AppColors.primary.withOpacity(0.15)
+                                : Colors.grey.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: !controller.isA4Mode
+                                  ? AppColors.primary
+                                  : Colors.grey.withOpacity(0.3),
+                              width: !controller.isA4Mode ? 2 : 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.credit_card,
+                                size: 24,
+                                color: !controller.isA4Mode
+                                    ? AppColors.primary
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Card',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  color: !controller.isA4Mode
+                                      ? AppColors.primary
+                                      : Colors.grey[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => controller.selectedDocumentSize.value =
+                            'A4 Document (Single Page)',
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: controller.isA4Mode
+                                ? Colors.blue.withOpacity(0.15)
+                                : Colors.grey.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: controller.isA4Mode
+                                  ? Colors.blue
+                                  : Colors.grey.withOpacity(0.3),
+                              width: controller.isA4Mode ? 2 : 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.description,
+                                size: 24,
+                                color: controller.isA4Mode
+                                    ? Colors.blue
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'A4 Doc',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  color: controller.isA4Mode
+                                      ? Colors.blue
+                                      : Colors.grey[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Images
+              Obx(() {
+                if (controller.isA4Mode) {
+                  return EditA4ImageBox(
+                    networkImageUrl: document.frontImageUrl,
+                    newImageFile: controller.editFrontImageFile,
+                    onTap: () => controller.showEditImageSourceDialog(
+                      parentContext,
+                      isFront: true,
+                    ),
+                  );
+                } else {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: EditImageBox(
+                          label: 'Front',
+                          networkImageUrl: document.frontImageUrl,
+                          newImageFile: controller.editFrontImageFile,
+                          onTap: () => controller.showEditImageSourceDialog(
+                            parentContext,
+                            isFront: true,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: EditImageBox(
+                          label: 'Back',
+                          networkImageUrl: document.backImageUrl,
+                          newImageFile: controller.editBackImageFile,
+                          onTap: () => controller.showEditImageSourceDialog(
+                            parentContext,
+                            isFront: false,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              }),
+              const SizedBox(height: 16),
+
+              // Name
+              Text(
+                'Document Name',
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: controller.nameController,
+                decoration: InputDecoration(
+                  hintText: 'Enter document name',
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Type
+              Text(
+                'Document Type',
+                style: AppTextStyles.subHeadLine().copyWith(
+                  color: AppColors.textBlackPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Obx(
+                () => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: controller.selectedDocumentType.value,
+                      hint: const Text('Select document type'),
+                      isExpanded: true,
+                      items: controller.documentTypeOptions
+                          .map(
+                            (type) => DropdownMenuItem<String>(
+                              value: type,
+                              child: Text(type),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) =>
+                          controller.selectedDocumentType.value = value,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        controller.closeEditDialog();
+                        Navigator.pop(context);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(color: Colors.grey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.grey[700]),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Obx(
+                      () => ElevatedButton(
+                        onPressed: controller.isUploading.value
+                            ? null
+                            : () async {
+                                await controller.onSaveEdit(parentContext);
+                                Navigator.pop(context);
+                              },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          backgroundColor: controller.isA4Mode
+                              ? Colors.blue
+                              : AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: controller.isUploading.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                'Save',
+                                style: TextStyle(
+                                  color: controller.isA4Mode
+                                      ? Colors.white
+                                      : Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// IMAGE WIDGETS
+// ═══════════════════════════════════════════════════════════════════════════
+
+class A4ImageBox extends StatelessWidget {
+  final Rxn<String> imagePath;
+  final VoidCallback onTap;
+  const A4ImageBox({super.key, required this.imagePath, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.description, size: 16, color: Colors.blue),
+            const SizedBox(width: 6),
+            Text(
+              'A4 Document Image *',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: onTap,
+          child: Obx(
+            () => Container(
+              height: 180,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.blue.withOpacity(0.4),
+                  width: 2,
+                ),
+                color: Colors.blue.withOpacity(0.05),
+              ),
+              child: imagePath.value != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.file(
+                            File(imagePath.value!),
+                            fit: BoxFit.contain,
+                          ),
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 8,
+                            top: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                'A4',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.document_scanner,
+                          size: 48,
+                          color: Colors.blue.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Tap to add image',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.blue.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ImageBox extends StatelessWidget {
   final String label;
   final Rxn<String> imagePath;
   final VoidCallback onTap;
-
-  const _ImageBox({
+  const ImageBox({
+    super.key,
     required this.label,
     required this.imagePath,
     required this.onTap,
@@ -481,19 +1084,18 @@ class _ImageBox extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         GestureDetector(
           onTap: onTap,
           child: Obx(
             () => Container(
-              height: 120,
+              height: 110,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: Colors.grey.withOpacity(0.3),
                   width: 1.5,
-                  style: BorderStyle.solid,
                 ),
                 color: Colors.grey.withOpacity(0.05),
               ),
@@ -504,19 +1106,18 @@ class _ImageBox extends StatelessWidget {
                         fit: StackFit.expand,
                         children: [
                           Image.file(File(imagePath.value!), fit: BoxFit.cover),
-                          // Edit overlay
                           Positioned(
-                            right: 8,
-                            top: 8,
+                            right: 6,
+                            top: 6,
                             child: Container(
-                              padding: EdgeInsets.all(4),
+                              padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 color: Colors.black54,
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.edit,
-                                size: 16,
+                                size: 14,
                                 color: Colors.white,
                               ),
                             ),
@@ -529,12 +1130,12 @@ class _ImageBox extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.add_a_photo_outlined,
-                          size: 32,
+                          size: 28,
                           color: Colors.grey,
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Text(
-                          'Add $label',
+                          'Add',
                           style: TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ],
@@ -547,229 +1148,12 @@ class _ImageBox extends StatelessWidget {
   }
 }
 
-// Edit Document Dialog
-class _EditDocumentDialog extends StatelessWidget {
-  final DigitalPassportController controller;
-  final DocumentModel document;
-  final BuildContext parentContext;
-
-  const _EditDocumentDialog({
-    required this.controller,
-    required this.document,
-    required this.parentContext,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Edit Document',
-                    style: AppTextStyles.headLine().copyWith(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textBlackPrimary,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      controller.closeEditDialog();
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.close),
-                    padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 20),
-
-              // Front & Back Images Row
-              Row(
-                children: [
-                  // Front Image
-                  Expanded(
-                    child: _EditImageBox(
-                      label: 'Front',
-                      networkImageUrl: document.frontImageUrl,
-                      newImageFile: controller.editFrontImageFile,
-                      onTap: () {
-                        controller.showEditImageSourceDialog(
-                          parentContext,
-                          isFront: true,
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  // Back Image
-                  Expanded(
-                    child: _EditImageBox(
-                      label: 'Back',
-                      networkImageUrl: document.backImageUrl,
-                      newImageFile: controller.editBackImageFile,
-                      onTap: () {
-                        controller.showEditImageSourceDialog(
-                          parentContext,
-                          isFront: false,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 20),
-
-              // Document Name Input
-              Text(
-                'Document Name',
-                style: AppTextStyles.subHeadLine().copyWith(
-                  color: AppColors.textBlackPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 8),
-              TextField(
-                controller: controller.nameController,
-                decoration: InputDecoration(
-                  hintText: 'Enter document name',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 16),
-
-              // Document Type Dropdown
-              Text(
-                'Document Type',
-                style: AppTextStyles.subHeadLine().copyWith(
-                  color: AppColors.textBlackPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 8),
-              Obx(
-                () => Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: controller.selectedDocumentType.value,
-                      hint: Text('Select document type'),
-                      isExpanded: true,
-                      items: controller.documentTypeOptions.map((type) {
-                        return DropdownMenuItem<String>(
-                          value: type,
-                          child: Text(type),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        controller.selectedDocumentType.value = value;
-                      },
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 24),
-
-              // Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        controller.closeEditDialog();
-                        Navigator.pop(context);
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Obx(
-                      () => ElevatedButton(
-                        onPressed: controller.isUploading.value
-                            ? null
-                            : () async {
-                                await controller.onSaveEdit(parentContext);
-                                Navigator.pop(context);
-                              },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: controller.isUploading.value
-                            ? SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Text(
-                                'Save',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Edit Image Box Widget - Shows existing or new image with edit option
-class _EditImageBox extends StatelessWidget {
-  final String label;
+class EditA4ImageBox extends StatelessWidget {
   final String? networkImageUrl;
   final Rxn<File> newImageFile;
   final VoidCallback onTap;
-
-  const _EditImageBox({
-    required this.label,
+  const EditA4ImageBox({
+    super.key,
     this.networkImageUrl,
     required this.newImageFile,
     required this.onTap,
@@ -780,64 +1164,74 @@ class _EditImageBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
+        Row(
+          children: [
+            Icon(Icons.description, size: 16, color: Colors.blue),
+            const SizedBox(width: 6),
+            Text(
+              'A4 Document Image',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         GestureDetector(
           onTap: onTap,
           child: Obx(
             () => Container(
-              height: 100,
+              height: 160,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.grey.withOpacity(0.3),
-                  width: 1.5,
+                  color: Colors.blue.withOpacity(0.4),
+                  width: 2,
                 ),
-                color: Colors.grey.withOpacity(0.05),
+                color: Colors.blue.withOpacity(0.05),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Show new image if selected, otherwise show existing
                     if (newImageFile.value != null)
-                      Image.file(newImageFile.value!, fit: BoxFit.cover)
+                      Image.file(newImageFile.value!, fit: BoxFit.contain)
                     else if (networkImageUrl != null)
                       Image.network(
                         networkImageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _buildPlaceholder();
-                        },
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          );
-                        },
+                        fit: BoxFit.contain,
+                        errorBuilder: (c, e, s) => Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 48,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        loadingBuilder: (c, child, p) => p == null
+                            ? child
+                            : Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
                       )
                     else
-                      _buildPlaceholder(),
-
-                    // Edit overlay
+                      Center(
+                        child: Icon(
+                          Icons.add_a_photo_outlined,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                      ),
                     Positioned(
                       right: 8,
                       top: 8,
                       child: Container(
-                        padding: EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: Colors.black54,
                           shape: BoxShape.circle,
@@ -845,14 +1239,12 @@ class _EditImageBox extends StatelessWidget {
                         child: Icon(Icons.edit, size: 14, color: Colors.white),
                       ),
                     ),
-
-                    // "New" badge if new image selected
                     if (newImageFile.value != null)
                       Positioned(
                         left: 8,
                         top: 8,
                         child: Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
@@ -879,20 +1271,142 @@ class _EditImageBox extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildPlaceholder() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.add_a_photo_outlined, size: 24, color: Colors.grey),
-          SizedBox(height: 4),
-          Text(
-            'Add $label',
-            style: TextStyle(fontSize: 11, color: Colors.grey),
+class EditImageBox extends StatelessWidget {
+  final String label;
+  final String? networkImageUrl;
+  final Rxn<File> newImageFile;
+  final VoidCallback onTap;
+  const EditImageBox({
+    super.key,
+    required this.label,
+    this.networkImageUrl,
+    required this.newImageFile,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: onTap,
+          child: Obx(
+            () => Container(
+              height: 90,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.3),
+                  width: 1.5,
+                ),
+                color: Colors.grey.withOpacity(0.05),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (newImageFile.value != null)
+                      Image.file(newImageFile.value!, fit: BoxFit.cover)
+                    else if (networkImageUrl != null)
+                      Image.network(
+                        networkImageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (c, e, s) => Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 24,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        loadingBuilder: (c, child, p) => p == null
+                            ? child
+                            : Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
+                      )
+                    else
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_a_photo_outlined,
+                              size: 24,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Add',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.edit, size: 12, color: Colors.white),
+                      ),
+                    ),
+                    if (newImageFile.value != null)
+                      Positioned(
+                        left: 6,
+                        top: 6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'NEW',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

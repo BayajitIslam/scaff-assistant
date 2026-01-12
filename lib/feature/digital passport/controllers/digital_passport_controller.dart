@@ -14,6 +14,7 @@ class DocumentModel {
   final String id;
   final String name;
   final String cardType;
+  final String? documentSize; // 'card' or 'a4'
   final String? usernameOnCard;
   final String? frontImageUrl;
   final String? backImageUrl;
@@ -24,6 +25,7 @@ class DocumentModel {
     required this.id,
     required this.name,
     required this.cardType,
+    this.documentSize,
     this.usernameOnCard,
     this.frontImageUrl,
     this.backImageUrl,
@@ -36,6 +38,7 @@ class DocumentModel {
       id: json['id'].toString(),
       name: json['name'] ?? '',
       cardType: json['card_type'] ?? '',
+      documentSize: json['document_size'],
       usernameOnCard: json['username_on_card'],
       frontImageUrl: json['front_image_url'],
       backImageUrl: json['back_image_url'],
@@ -44,17 +47,25 @@ class DocumentModel {
     );
   }
 
+  // Check if this is an A4 document
+  bool get isA4Document {
+    if (documentSize == 'a4') return true;
+    if (captureMethod == 'a4_capture') return true;
+    return false;
+  }
+
   // Helper to get formatted subtitle
   String get subtitle {
+    String sizeLabel = isA4Document ? 'A4' : 'Card';
     String status = '';
     if (frontImageUrl != null && backImageUrl != null) {
-      status = 'Front and back';
+      status = 'Front & Back';
     } else if (frontImageUrl != null) {
       status = 'Front only';
     } else if (backImageUrl != null) {
       status = 'Back only';
     }
-    return '$status . Added';
+    return '$sizeLabel • $status';
   }
 
   // Helper to get display type
@@ -75,31 +86,37 @@ class DocumentModel {
 }
 
 class DigitalPassportController extends GetxController {
-  // Documents list
   var documents = <DocumentModel>[].obs;
-
-  // Loading state
   var isLoading = false.obs;
   var isUploading = false.obs;
 
-  // Image picker
   final ImagePicker _picker = ImagePicker();
 
-  // Front image
   var frontImagePath = Rxn<String>();
   var frontImageFile = Rxn<File>();
-
-  // Back image
   var backImagePath = Rxn<String>();
   var backImageFile = Rxn<File>();
 
-  // Document name
   final nameController = TextEditingController();
 
-  // Document type dropdown
+  // ═══════════════════════════════════════════════════════════════════════
+  // DOCUMENT SIZE (Card or A4) - User selects manually
+  // ═══════════════════════════════════════════════════════════════════════
+  var selectedDocumentSize = Rxn<String>();
+
+  final List<String> documentSizeOptions = [
+    'Card (Front & Back)',
+    'A4 Document (Single Page)',
+  ];
+
+  bool get isA4Mode =>
+      selectedDocumentSize.value == 'A4 Document (Single Page)';
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // DOCUMENT TYPE - Separate selection
+  // ═══════════════════════════════════════════════════════════════════════
   var selectedDocumentType = Rxn<String>();
 
-  // Document type options (4 types + Other = 5)
   final List<String> documentTypeOptions = [
     'CISRS Card',
     'Training Card',
@@ -108,10 +125,7 @@ class DigitalPassportController extends GetxController {
     'Other',
   ];
 
-  // Edit dialog state
   var selectedDocument = Rxn<DocumentModel>();
-
-  // Flag to show dialog
   var showUploadDialog = false.obs;
 
   @override
@@ -121,7 +135,6 @@ class DigitalPassportController extends GetxController {
     fetchDocuments();
   }
 
-  // Show snackbar helper
   void _showSnackBar(
     BuildContext context,
     String message, {
@@ -132,14 +145,13 @@ class DigitalPassportController extends GetxController {
         content: Text(message),
         backgroundColor: isError ? Colors.red : Colors.green,
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(16),
+        margin: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  // Fetch documents from API
   Future<void> fetchDocuments() async {
     try {
       isLoading(true);
@@ -154,8 +166,6 @@ class DigitalPassportController extends GetxController {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-
-        // Data is inside 'data' key
         if (responseData['data'] != null) {
           final List data = responseData['data'];
           documents.value = data.map((e) => DocumentModel.fromJson(e)).toList();
@@ -171,20 +181,25 @@ class DigitalPassportController extends GetxController {
     }
   }
 
-  // ==================== FRONT IMAGE (Direct - No Dialog) ====================
-
-  // Capture front image using custom camera screen
   Future<void> onCaptureFront(BuildContext context) async {
-    Console.blue('Opening camera for front image...');
-
+    Console.blue('Opening camera...');
     Get.to(
       () => DocumentCaptureScreen(
         initialSide: 'front',
-        onImageCaptured: (File imageFile, String side) {
+        initialMode: CaptureMode.card,
+        onImageCaptured: (File imageFile, String side, CaptureMode mode) {
+          if (mode == CaptureMode.a4Document) {
+            selectedDocumentSize.value = 'A4 Document (Single Page)';
+          } else {
+            selectedDocumentSize.value = 'Card (Front & Back)';
+          }
+
           if (side == 'front') {
             frontImagePath.value = imageFile.path;
             frontImageFile.value = imageFile;
-            Console.green('Front image captured: ${imageFile.path}');
+            Console.green(
+              'Front image captured (${mode.name}): ${imageFile.path}',
+            );
           } else {
             backImagePath.value = imageFile.path;
             backImageFile.value = imageFile;
@@ -196,7 +211,6 @@ class DigitalPassportController extends GetxController {
     );
   }
 
-  // Pick front image directly from gallery (Upload button)
   Future<void> onUploadFront(BuildContext context) async {
     try {
       Console.blue('Opening gallery for front image...');
@@ -210,6 +224,7 @@ class DigitalPassportController extends GetxController {
       if (image != null) {
         frontImagePath.value = image.path;
         frontImageFile.value = File(image.path);
+        selectedDocumentSize.value = null;
         showUploadDialog.value = true;
         Console.green('Front image selected: ${image.path}');
       }
@@ -219,31 +234,21 @@ class DigitalPassportController extends GetxController {
     }
   }
 
-  // ==================== BACK IMAGE (With Dialog Choice) ====================
-
-  // Capture back image using custom camera screen
   Future<void> captureBackImage(BuildContext context) async {
     Console.blue('Opening camera for back image...');
-
     Get.to(
       () => DocumentCaptureScreen(
         initialSide: 'back',
-        onImageCaptured: (File imageFile, String side) {
-          if (side == 'front') {
-            frontImagePath.value = imageFile.path;
-            frontImageFile.value = imageFile;
-            Console.green('Front image captured: ${imageFile.path}');
-          } else {
-            backImagePath.value = imageFile.path;
-            backImageFile.value = imageFile;
-            Console.green('Back image captured: ${imageFile.path}');
-          }
+        initialMode: CaptureMode.card,
+        onImageCaptured: (File imageFile, String side, CaptureMode mode) {
+          backImagePath.value = imageFile.path;
+          backImageFile.value = imageFile;
+          Console.green('Back image captured: ${imageFile.path}');
         },
       ),
     );
   }
 
-  // Pick back image from gallery
   Future<void> pickBackImage(BuildContext context) async {
     try {
       Console.blue('Opening gallery for back image...');
@@ -265,27 +270,25 @@ class DigitalPassportController extends GetxController {
     }
   }
 
-  // Show image source selection for BACK image only (Camera or Gallery)
   void showBackImageSourceDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) => Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               'Add Back Image',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Camera option
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(ctx);
@@ -294,23 +297,22 @@ class DigitalPassportController extends GetxController {
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.blue.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.camera_alt,
                           size: 32,
                           color: Colors.blue,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Text('Camera'),
+                      const SizedBox(height: 8),
+                      const Text('Camera'),
                     ],
                   ),
                 ),
-                // Gallery option
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(ctx);
@@ -319,62 +321,60 @@ class DigitalPassportController extends GetxController {
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.green.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.photo_library,
                           size: 32,
                           color: Colors.green,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Text('Gallery'),
+                      const SizedBox(height: 8),
+                      const Text('Gallery'),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  // Validate before upload
   bool validateUpload(BuildContext context) {
     if (frontImageFile.value == null) {
-      Console.yellow('Validation failed: No front image');
       _showSnackBar(context, 'Please add front image', isError: true);
       return false;
     }
-
-    if (backImageFile.value == null) {
-      Console.yellow('Validation failed: No back image');
-      _showSnackBar(context, 'Please add back image', isError: true);
+    if (selectedDocumentSize.value == null) {
+      _showSnackBar(context, 'Please select document size', isError: true);
       return false;
     }
-
+    if (!isA4Mode && backImageFile.value == null) {
+      _showSnackBar(
+        context,
+        'Please add back image for card documents',
+        isError: true,
+      );
+      return false;
+    }
     if (nameController.text.trim().isEmpty) {
-      Console.yellow('Validation failed: No document name');
       _showSnackBar(context, 'Please enter document name', isError: true);
       return false;
     }
-
     if (selectedDocumentType.value == null) {
-      Console.yellow('Validation failed: No document type');
       _showSnackBar(context, 'Please select document type', isError: true);
       return false;
     }
-
     Console.green('Validation passed');
     return true;
   }
 
-  // Upload document to API
   Future<bool> uploadDocument(BuildContext context) async {
     if (!validateUpload(context)) return false;
 
@@ -382,9 +382,9 @@ class DigitalPassportController extends GetxController {
       isUploading(true);
       Console.blue('Uploading document...');
       Console.cyan('Name: ${nameController.text}');
+      Console.cyan('Size: ${selectedDocumentSize.value}');
       Console.cyan('Type: ${selectedDocumentType.value}');
 
-      // Map dropdown to API card_type
       String cardType = 'other';
       switch (selectedDocumentType.value) {
         case 'CISRS Card':
@@ -403,23 +403,21 @@ class DigitalPassportController extends GetxController {
           cardType = 'other';
       }
 
-      // Create multipart request
       var request = http.MultipartRequest(
         'POST',
         Uri.parse(APIEndPoint.digitalPassportUpload),
       );
-
-      // Add headers
       request.headers.addAll({
         'Authorization': 'Bearer ${UserInfo.getAccessToken()}',
       });
 
-      // Add fields
       request.fields['name'] = nameController.text.trim();
       request.fields['card_type'] = cardType;
-      request.fields['capture_method'] = 'upload';
+      request.fields['document_size'] = isA4Mode ? 'a4' : 'card';
+      request.fields['capture_method'] = isA4Mode
+          ? 'a4_capture'
+          : 'card_capture';
 
-      // Add front image
       request.files.add(
         await http.MultipartFile.fromPath(
           'front_image',
@@ -427,31 +425,26 @@ class DigitalPassportController extends GetxController {
         ),
       );
 
-      // Add back image
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'back_image',
-          backImageFile.value!.path,
-        ),
-      );
+      if (!isA4Mode && backImageFile.value != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'back_image',
+            backImageFile.value!.path,
+          ),
+        );
+      }
 
-      // Send request
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
       Console.magenta('StatusCode: ${response.statusCode}');
-      Console.magenta('Response: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         Console.green('Document uploaded successfully!');
         _showSnackBar(context, 'Document uploaded successfully');
-
-        // Clear selection
         clearSelection();
-
-        // Refresh documents list
         fetchDocuments();
-        return true; // Success
+        return true;
       } else {
         Console.red('Upload failed: ${response.body}');
         _showSnackBar(context, 'Failed to upload document', isError: true);
@@ -466,41 +459,40 @@ class DigitalPassportController extends GetxController {
     }
   }
 
-  // Clear all selections
   void clearSelection() {
     frontImagePath.value = null;
     frontImageFile.value = null;
     backImagePath.value = null;
     backImageFile.value = null;
     nameController.clear();
+    selectedDocumentSize.value = null;
     selectedDocumentType.value = null;
     showUploadDialog.value = false;
     Console.cyan('Selection cleared');
   }
 
-  // New images for edit
+  // ==================== EDIT ====================
   var editFrontImageFile = Rxn<File>();
   var editBackImageFile = Rxn<File>();
 
-  // Edit existing document
   void onEditDocument(DocumentModel document) {
     selectedDocument.value = document;
     nameController.text = document.name;
     selectedDocumentType.value = document.displayType;
-    // Clear any previous edit images
+    selectedDocumentSize.value = document.isA4Document
+        ? 'A4 Document (Single Page)'
+        : 'Card (Front & Back)';
     editFrontImageFile.value = null;
     editBackImageFile.value = null;
     Console.blue('Editing document: ${document.id}');
   }
 
-  // Capture new front image for edit
   Future<void> captureEditFrontImage(BuildContext context) async {
-    Console.blue('Opening camera for edit front image...');
-
     Get.to(
       () => DocumentCaptureScreen(
         initialSide: 'front',
-        onImageCaptured: (File imageFile, String side) {
+        initialMode: isA4Mode ? CaptureMode.a4Document : CaptureMode.card,
+        onImageCaptured: (File imageFile, String side, CaptureMode mode) {
           editFrontImageFile.value = imageFile;
           Console.green('Edit front image captured: ${imageFile.path}');
         },
@@ -508,17 +500,14 @@ class DigitalPassportController extends GetxController {
     );
   }
 
-  // Pick new front image for edit from gallery
   Future<void> pickEditFrontImage(BuildContext context) async {
     try {
-      Console.blue('Opening gallery for edit front image...');
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
         maxWidth: 1080,
         maxHeight: 1080,
         imageQuality: 80,
       );
-
       if (image != null) {
         editFrontImageFile.value = File(image.path);
         Console.green('Edit front image selected: ${image.path}');
@@ -528,14 +517,12 @@ class DigitalPassportController extends GetxController {
     }
   }
 
-  // Capture new back image for edit
   Future<void> captureEditBackImage(BuildContext context) async {
-    Console.blue('Opening camera for edit back image...');
-
     Get.to(
       () => DocumentCaptureScreen(
         initialSide: 'back',
-        onImageCaptured: (File imageFile, String side) {
+        initialMode: CaptureMode.card,
+        onImageCaptured: (File imageFile, String side, CaptureMode mode) {
           editBackImageFile.value = imageFile;
           Console.green('Edit back image captured: ${imageFile.path}');
         },
@@ -543,17 +530,14 @@ class DigitalPassportController extends GetxController {
     );
   }
 
-  // Pick new back image for edit from gallery
   Future<void> pickEditBackImage(BuildContext context) async {
     try {
-      Console.blue('Opening gallery for edit back image...');
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
         maxWidth: 1080,
         maxHeight: 1080,
         imageQuality: 80,
       );
-
       if (image != null) {
         editBackImageFile.value = File(image.path);
         Console.green('Edit back image selected: ${image.path}');
@@ -563,97 +547,89 @@ class DigitalPassportController extends GetxController {
     }
   }
 
-  // Show image source dialog for edit
   void showEditImageSourceDialog(
     BuildContext context, {
     required bool isFront,
   }) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) => Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               isFront ? 'Change Front Image' : 'Change Back Image',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Camera option
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(ctx);
-                    if (isFront) {
-                      captureEditFrontImage(context);
-                    } else {
-                      captureEditBackImage(context);
-                    }
+                    isFront
+                        ? captureEditFrontImage(context)
+                        : captureEditBackImage(context);
                   },
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.blue.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.camera_alt,
                           size: 32,
                           color: Colors.blue,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Text('Camera'),
+                      const SizedBox(height: 8),
+                      const Text('Camera'),
                     ],
                   ),
                 ),
-                // Gallery option
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(ctx);
-                    if (isFront) {
-                      pickEditFrontImage(context);
-                    } else {
-                      pickEditBackImage(context);
-                    }
+                    isFront
+                        ? pickEditFrontImage(context)
+                        : pickEditBackImage(context);
                   },
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.green.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.photo_library,
                           size: 32,
                           color: Colors.green,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Text('Gallery'),
+                      const SizedBox(height: 8),
+                      const Text('Gallery'),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  // Save edited document - Using multipart/form-data
   Future<void> onSaveEdit(BuildContext context) async {
     if (selectedDocument.value == null) return;
 
@@ -661,7 +637,6 @@ class DigitalPassportController extends GetxController {
       _showSnackBar(context, 'Please enter document name', isError: true);
       return;
     }
-
     if (selectedDocumentType.value == null) {
       _showSnackBar(context, 'Please select document type', isError: true);
       return;
@@ -671,7 +646,6 @@ class DigitalPassportController extends GetxController {
       isUploading(true);
       Console.blue('Saving edit for: ${selectedDocument.value!.id}');
 
-      // Map dropdown to API card_type
       String cardType = 'other';
       switch (selectedDocumentType.value) {
         case 'CISRS Card':
@@ -690,24 +664,20 @@ class DigitalPassportController extends GetxController {
           cardType = 'other';
       }
 
-      // Create multipart request for PATCH
       var request = http.MultipartRequest(
         'PATCH',
         Uri.parse(
           '${APIEndPoint.digitalPassportFetchAll}${selectedDocument.value!.id}/',
         ),
       );
-
-      // Add headers
       request.headers.addAll({
         'Authorization': 'Bearer ${UserInfo.getAccessToken()}',
       });
 
-      // Add fields
       request.fields['name'] = nameController.text.trim();
       request.fields['card_type'] = cardType;
+      request.fields['document_size'] = isA4Mode ? 'a4' : 'card';
 
-      // Add new front image if selected
       if (editFrontImageFile.value != null) {
         request.files.add(
           await http.MultipartFile.fromPath(
@@ -715,10 +685,7 @@ class DigitalPassportController extends GetxController {
             editFrontImageFile.value!.path,
           ),
         );
-        Console.cyan('Adding new front image');
       }
-
-      // Add new back image if selected
       if (editBackImageFile.value != null) {
         request.files.add(
           await http.MultipartFile.fromPath(
@@ -726,21 +693,14 @@ class DigitalPassportController extends GetxController {
             editBackImageFile.value!.path,
           ),
         );
-        Console.cyan('Adding new back image');
       }
 
-      // Send request
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-
-      Console.magenta('Update StatusCode: ${response.statusCode}');
-      Console.magenta('Update Response: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         Console.green('Document updated');
         _showSnackBar(context, 'Document updated');
-
-        // Refresh documents list
         fetchDocuments();
         closeEditDialog();
       } else {
@@ -759,21 +719,20 @@ class DigitalPassportController extends GetxController {
     BuildContext context,
     DocumentModel document,
   ) async {
-    // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Delete Document'),
+        title: const Text('Delete Document'),
         content: Text('Are you sure you want to delete "${document.name}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('Delete'),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -783,13 +742,10 @@ class DigitalPassportController extends GetxController {
 
     try {
       Console.yellow('Deleting document: ${document.id}');
-
       final response = await http.delete(
         Uri.parse('${APIEndPoint.digitalPassportFetchAll}${document.id}/'),
         headers: {'Authorization': 'Bearer ${UserInfo.getAccessToken()}'},
       );
-
-      Console.magenta('Delete StatusCode: ${response.statusCode}');
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         documents.removeWhere((d) => d.id == document.id);
@@ -805,10 +761,10 @@ class DigitalPassportController extends GetxController {
     }
   }
 
-  // Save edited document
   void closeEditDialog() {
     selectedDocument.value = null;
     nameController.clear();
+    selectedDocumentSize.value = null;
     selectedDocumentType.value = null;
     editFrontImageFile.value = null;
     editBackImageFile.value = null;
