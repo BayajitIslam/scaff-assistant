@@ -67,7 +67,8 @@ firebase_messaging       # Push notifications
 ---
 
 ## 👥 Developer
+ 
+[Bayajit Islam](https://github.com/BayajitIslam) & [Siamul Islam Soaib](https://github.com/mdsiamulislam)
 
-**Sparktech Agency**
 
 ---
