@@ -6,8 +6,6 @@ import 'package:scaffassistant/core/utils/dynamic_size.dart';
 import 'package:scaffassistant/feature/calculator/widgets/output_panel.dart';
 import 'package:scaffassistant/feature/calculator/widgets/quantity_calculator_widget/double_dropdown.dart';
 import 'package:scaffassistant/feature/calculator/widgets/quantity_calculator_widget/text_field_with_label.dart';
-import 'package:scaffassistant/feature/calculator/widgets/quantity_calculator_widget/tubetype_selector.dart'
-    show TubeTypeSelector;
 import 'package:scaffassistant/feature/calculator/widgets/shared_dropdown.dart';
 import 'package:scaffassistant/feature/calculator/widgets/weight_calculator_widget/input_panel_card.dart';
 import 'package:scaffassistant/feature/digital%20passport/widgets/custom_appbar.dart';
@@ -116,8 +114,8 @@ class QuantityCalculatorScreen extends StatelessWidget {
                                 controller.selectedPlatformWidth1.value,
                             selectedValue2:
                                 controller.selectedPlatformWidth2.value,
-                            items1: controller.platformWidthOptions,
-                            items2: controller.platformWidthOptions,
+                            items1: controller.mainDeckBoardOptions,
+                            items2: controller.insideBoardOptions,
                             hint1: 'Main deck',
                             hint2: 'Inside boards',
                             onChanged1: (value) {
@@ -143,36 +141,47 @@ class QuantityCalculatorScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: DynamicSize.small(context)),
-
-                      // Tube Type Selector with left border and two toggles
-                      Obx(
-                        () => Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0x2E000000),
-                                blurRadius: 2,
-                                spreadRadius: 1.3,
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.only(left: 2, right: 16),
-                          child: TubeTypeSelector(
-                            label: 'Tube Type',
-                            value1: '3.2 mm',
-                            value2: '4.0 mm',
-                            isSecondSelected: controller.isTubeType4mm.value,
-                            onToggleChanged: (value) {
-                              controller.isTubeType4mm.value = value;
-                            },
-                          ),
-                        ),
-                      ),
-
+                      // Tube Type Selector removed as per requirements
                       SizedBox(height: DynamicSize.medium(context)),
+
+                      // Error Message
+                      Obx(
+                        () => controller.errorMessage.value.isNotEmpty
+                            ? Container(
+                                margin: EdgeInsets.only(
+                                  bottom: DynamicSize.medium(context),
+                                ),
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFEBEE),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFFFFCDD2),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline,
+                                      color: const Color(0xFFD32F2F),
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        controller.errorMessage.value,
+                                        style: TextStyle(
+                                          color: const Color(0xFFD32F2F),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : SizedBox.shrink(),
+                      ),
 
                       // Calculate Button
                       Obx(
@@ -180,6 +189,8 @@ class QuantityCalculatorScreen extends StatelessWidget {
                           text: 'CALCULATE QUANTITIES',
                           isLoading: controller.isLoading.value,
                           onPressed: () {
+                            controller.errorMessage.value =
+                                ''; // Clear previous error
                             controller.calculateQuantities();
                           },
                         ),
@@ -187,31 +198,36 @@ class QuantityCalculatorScreen extends StatelessWidget {
                     ],
                   ),
 
-                  // Output Panel
+                  // Output Panel (Only visible after calculation)
                   Obx(
-                    () => OutputPanel(
-                      title: 'OUTPUT PANEL',
-                      items: [
-                        OutputPanelItem(
-                          label: 'Tubes :',
-                          value: controller.tubesOutput.value,
-                        ),
-                        OutputPanelItem(
-                          label: 'Boards :',
-                          value: controller.boardsOutput.value,
-                        ),
-                        OutputPanelItem(
-                          label: 'Fittings :',
-                          value: controller.fittingsOutput.value,
-                        ),
-                        OutputPanelItem(
-                          label: 'Base Support :',
-                          value: controller.baseSupportOutput.value,
-                        ),
-                      ],
-                      totalLabel: 'TOTAL WEIGHT :',
-                      totalValue: controller.totalWeight.value,
-                    ),
+                    () => controller.tubesOutput.value != '-'
+                        ? Padding(
+                            padding: EdgeInsets.only(
+                              top: DynamicSize.medium(context),
+                            ),
+                            child: OutputPanel(
+                              title: 'OUTPUT PANEL',
+                              items: [
+                                OutputPanelItem(
+                                  label: 'Tubes :',
+                                  value: controller.tubesOutput.value,
+                                ),
+                                OutputPanelItem(
+                                  label: 'Boards :',
+                                  value: controller.boardsOutput.value,
+                                ),
+                                OutputPanelItem(
+                                  label: 'Fittings :',
+                                  value: controller.fittingsOutput.value,
+                                ),
+                                OutputPanelItem(
+                                  label: 'Base Support :',
+                                  value: controller.baseSupportOutput.value,
+                                ),
+                              ],
+                            ),
+                          )
+                        : SizedBox.shrink(),
                   ),
                 ],
               ),

@@ -58,9 +58,13 @@ class OutputPanel extends StatelessWidget {
                     vertical: DynamicSize.small(context) * 0.5,
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Bullet Point
                       Container(
+                        margin: EdgeInsets.only(
+                          top: 6,
+                        ), // Align with first line of text
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
@@ -76,17 +80,24 @@ class OutputPanel extends StatelessWidget {
                           item.label,
                           style: AppTextStyles.subHeadLine().copyWith(
                             color: AppColors.textPrimary,
-                            height: 0.22,
+                            height: 1.2, // Improved line height
                           ),
                         ),
                       ),
 
+                      SizedBox(width: 8), // Spacing between label and value
                       // Value
-                      Text(
-                        item.value,
-                        style: AppTextStyles.subHeadLine().copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        flex:
+                            2, // Give more space to value if needed, or just let it wrap
+                        child: Text(
+                          item.value,
+                          textAlign: TextAlign.right,
+                          style: AppTextStyles.subHeadLine().copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                            height: 1.2, // Match line height
+                          ),
                         ),
                       ),
                     ],
