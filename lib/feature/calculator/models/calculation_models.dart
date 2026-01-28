@@ -1,339 +1,367 @@
-/// Core data models for scaffold quantity calculations
-/// Each model represents the output of a specific calculation card
+/// =====================================================
+/// SCAFFOLD CALCULATOR - DATA MODELS
+/// Based on Golden Reference 14 Documentation
+/// =====================================================
 
-/// Represents a component with size and quantity
-class ComponentQuantity {
-  final double size; // in feet
+/// Component with size and quantity
+class SizedComponent {
+  final String size;
   final int quantity;
 
-  ComponentQuantity({required this.size, required this.quantity});
+  SizedComponent({required this.size, required this.quantity});
 
   @override
-  String toString() => '${size}ft × $quantity';
+  String toString() => '$quantity x $size';
 }
 
-/// Height Calculation Result (per SET of standards)
-class HeightCalculationResult {
-  final double heightFt;
-  final List<ComponentQuantity> primaryStandards;
-  final List<ComponentQuantity> staggeredStandards;
-  final int sleeves;
-  final int soleBoards; // Always 2 per SET
-  final int baseplates; // Always 2 per SET
+/// Lift types enum
+enum LiftType {
+  base2m('2M BASE LIFT'),
+  fromBoarded2m('2M FROM BOARDED'),
+  fromUnboarded2m('2M FROM UNBOARDED'),
+  remainder1_5m('1.5M REMAINDER LIFT'),
+  remainder1m('1M REMAINDER LIFT'),
+  remainder0_5m('0.5M REMAINDER LIFT');
+
+  final String displayName;
+  const LiftType(this.displayName);
+}
+
+/// Single lift in the stack
+class Lift {
+  final int number;
+  final double startHeight; // in meters
+  final double endHeight; // in meters
+  final LiftType type;
+  final bool isBoarded;
+
+  Lift({
+    required this.number,
+    required this.startHeight,
+    required this.endHeight,
+    required this.type,
+    required this.isBoarded,
+  });
+
+  double get height => endHeight - startHeight;
+
+  String get rangeDisplay => '${startHeight.toStringAsFixed(1)} - ${endHeight.toStringAsFixed(1)}m';
+
+  @override
+  String toString() => 'Lift $number: $rangeDisplay ($type, boarded: $isBoarded)';
+}
+
+/// Complete lift stack
+class LiftStack {
+  final List<Lift> lifts;
+
+  LiftStack(this.lifts);
+
+  int get totalLifts => lifts.length;
+  int get boardedLifts => lifts.where((l) => l.isBoarded).length;
+  int get unboardedLifts => totalLifts - boardedLifts;
+
+  /// Count lifts by type
+  Map<LiftType, int> get liftTypeCounts {
+    final counts = <LiftType, int>{};
+    for (final lift in lifts) {
+      counts[lift.type] = (counts[lift.type] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  /// Get base type for brace calculations
+  String getLiftBaseType(LiftType type) {
+    switch (type) {
+      case LiftType.base2m:
+        return '2m Base';
+      case LiftType.fromBoarded2m:
+      case LiftType.fromUnboarded2m:
+        return '2m From Boarded';
+      case LiftType.remainder1_5m:
+        return '1.5m Remainder';
+      case LiftType.remainder1m:
+        return '1m Remainder';
+      case LiftType.remainder0_5m:
+        return '0.5m Remainder';
+    }
+  }
+}
+
+/// Height card result (per SET of standards)
+class HeightResult {
+  final int heightFt;
+  final Map<String, int> primaryStandards; // size -> qty per set
+  final Map<String, int> staggeredStandards; // size -> qty per set
+  final int sleevesPerSet;
+  final int soleBoardsPerLeg;
+  final int baseplatesPerLeg;
+  final int? goldenLength;
   final bool isGolden;
 
-  HeightCalculationResult({
+  HeightResult({
     required this.heightFt,
     required this.primaryStandards,
     required this.staggeredStandards,
-    required this.sleeves,
-    this.soleBoards = 2,
-    this.baseplates = 2,
+    required this.sleevesPerSet,
+    this.soleBoardsPerLeg = 1,
+    this.baseplatesPerLeg = 1,
+    this.goldenLength,
+    this.isGolden = false,
+  });
+
+  /// Combined standards per SET (primary + staggered)
+  Map<String, int> get combinedStandardsPerSet {
+    final combined = <String, int>{};
+    primaryStandards.forEach((size, qty) {
+      combined[size] = (combined[size] ?? 0) + qty;
+    });
+    staggeredStandards.forEach((size, qty) {
+      combined[size] = (combined[size] ?? 0) + qty;
+    });
+    return combined;
+  }
+
+  /// Total sleeves per SET (primary + staggered)
+  int get totalSleevesPerSet => sleevesPerSet * 2;
+}
+
+/// Length card result (per lift)
+class LengthResult {
+  final int lengthFt;
+
+  // Board options
+  final BoardOption boardOption1;
+  final BoardOption boardOption2;
+
+  // Ledgers per lift (primary + staggered combined)
+  final Map<String, int> ledgersPerLift;
+  final int ledgerSleevesPerLift; // per run line, so x2 for primary+staggered
+
+  // Handrails per lift (top + bottom combined)
+  final Map<String, int> handrailsPerLift;
+  final int handrailSleevesPerLift; // per run line, so x2 for top+bottom
+
+  // Boards per boarded lift
+  final Map<String, int> mainDeckBoardsPerLift;
+  final Map<String, int> insideBoardsPerLift;
+  final Map<String, int> toeBoardsPerLift;
+
+  final int? goldenLength;
+  final bool isGolden;
+
+  LengthResult({
+    required this.lengthFt,
+    required this.boardOption1,
+    required this.boardOption2,
+    required this.ledgersPerLift,
+    required this.ledgerSleevesPerLift,
+    required this.handrailsPerLift,
+    required this.handrailSleevesPerLift,
+    required this.mainDeckBoardsPerLift,
+    required this.insideBoardsPerLift,
+    required this.toeBoardsPerLift,
+    this.goldenLength,
     this.isGolden = false,
   });
 }
 
-/// Boarding option for length calculation
-class BoardingOption {
-  final String optionId;
-  final List<ComponentQuantity> boards;
+/// Board option data
+class BoardOption {
+  final int optionNumber;
   final int transomCount;
   final int transomSingles;
   final int toeBoardSingles;
   final int insideBoardSingles;
-  final bool isGolden;
 
-  BoardingOption({
-    required this.optionId,
-    required this.boards,
+  BoardOption({
+    required this.optionNumber,
     required this.transomCount,
     required this.transomSingles,
     required this.toeBoardSingles,
-    this.insideBoardSingles = 0,
-    this.isGolden = false,
+    required this.insideBoardSingles,
   });
 }
 
-/// Length Calculation Result (per lift)
-class LengthCalculationResult {
-  final double lengthFt;
-  final List<BoardingOption> boardingOptions;
-  final String selectedBoardingOptionId;
-  final List<ComponentQuantity> primaryLedgers;
-  final List<ComponentQuantity> staggeredLedgers;
-  final int ledgerSleeves;
-  final List<ComponentQuantity> topHandrails;
-  final List<ComponentQuantity> bottomHandrails;
-  final int handrailSleeves;
-  final List<double>
-  shortBoardSizes; // Boards ≤ 6ft (flagged for clips/droppers)
-  final bool isGolden;
+/// Bay card result
+class BayResult {
+  final int lengthFt;
+  final int bayClass;
 
-  LengthCalculationResult({
-    required this.lengthFt,
-    required this.boardingOptions,
-    required this.selectedBoardingOptionId,
-    required this.primaryLedgers,
-    required this.staggeredLedgers,
-    required this.ledgerSleeves,
-    required this.topHandrails,
-    required this.bottomHandrails,
-    required this.handrailSleeves,
-    this.shortBoardSizes = const [],
-    this.isGolden = false,
-  });
-
-  BoardingOption get selectedBoardingOption => boardingOptions.firstWhere(
-    (opt) => opt.optionId == selectedBoardingOptionId,
-  );
-}
-
-/// Bay Calculation Result
-class BayCalculationResult {
-  final double lengthFt;
-  final int bayClass; // 1-4
-
-  // One-time outputs (applied once, not per lift)
+  // ONE-TIME outputs (not multiplied by lifts)
   final int setsOfLegs;
   final int numberOfBays;
-  final List<double> bayDimensions;
-  final String endBaySplitDescription;
 
-  // Per-lift outputs
-  final int ledgerDoubles;
-  final int handrailDoubles; // Conditional - only if lift has handrails
-  final int aberdeenDoubles;
-  final int ledgerBraces;
-  final int swayBraces;
-  final int swivelsForLedgerBraces;
-  final int swivelsForSwayBraces;
+  // PER-LIFT outputs
+  final int ledgerDoublesPerLift;
+  final int topHandrailDoublesPerLift;
+  final int bottomHandrailDoublesPerLift;
+  final int aberdeenDoublesPerLift;
+  final int ledgerBracesPerLift;
+  final int swayBracesPerLift;
+  final int ledgerBraceSwivelsPerLift;
+  final int swayBraceSwivelsPerLift;
 
   final bool isGolden;
 
-  BayCalculationResult({
+  BayResult({
     required this.lengthFt,
     required this.bayClass,
     required this.setsOfLegs,
     required this.numberOfBays,
-    required this.bayDimensions,
-    required this.endBaySplitDescription,
-    required this.ledgerDoubles,
-    required this.handrailDoubles,
-    required this.aberdeenDoubles,
-    required this.ledgerBraces,
-    required this.swayBraces,
-    required this.swivelsForLedgerBraces,
-    required this.swivelsForSwayBraces,
+    required this.ledgerDoublesPerLift,
+    required this.topHandrailDoublesPerLift,
+    required this.bottomHandrailDoublesPerLift,
+    required this.aberdeenDoublesPerLift,
+    required this.ledgerBracesPerLift,
+    required this.swayBracesPerLift,
+    required this.ledgerBraceSwivelsPerLift,
+    required this.swayBraceSwivelsPerLift,
     this.isGolden = false,
   });
 
-  int get totalSwivels => swivelsForLedgerBraces + swivelsForSwayBraces;
+  int get handrailDoublesPerLift =>
+      topHandrailDoublesPerLift + bottomHandrailDoublesPerLift;
+
+  int get swivelsPerLift =>
+      ledgerBraceSwivelsPerLift + swayBraceSwivelsPerLift;
 }
 
-/// Width Calculation Result
-class WidthCalculationResult {
-  final int mainDeckBoards; // 3, 4, or 5
-  final int insideBoards; // 0-3
+/// Width card result (per boarded lift)
+class WidthResult {
+  final int mainDeckBoards;
+  final int insideBoards;
 
-  // Boards per deck
-  final int mainDeckBoardsPerDeck;
-  final int insideBoardsPerDeck;
-  final int toeBoardsPerDeck;
-  final int totalBoardsPerDeck;
+  // Component sizes
+  final String transomLength;
+  final String aberdeenLength;
+  final String stopEndHandrailLength;
+  final String stopEndToeBoardLength;
+  final String stopEndDropperLength;
+  final String shortDeckDropperLength;
 
-  // Stop-end handrails (conditional - only if lift has handrails)
+  // Stop end handrails (per boarded lift)
   final int topStopEndHandrails;
   final int bottomStopEndHandrails;
-  final int stopEndHandrailDoubles;
+  final int topStopEndHandrailDoubles;
+  final int bottomStopEndHandrailDoubles;
 
-  // Stop-end toe boards (boarded lifts only)
+  // Stop end toe boards (per boarded lift)
   final int stopEndToeBoards;
-  final int stopEndToeBoardSingles;
-  final int stopEndToeBoardDroppers;
-  final int stopEndToeBoardDropperDoubles;
+  final int droppersForStopEndToeBoards;
+  final int doublesForStopEndToeBoards;
+  final int singlesForStopEndToeBoards;
 
-  // Board clips & short deck droppers (triggered by short boards from length calc)
+  // Short board handling
   final int boardClipsPerShortDeck;
-  final int droppersPerShortDeck;
-  final int dropperDoublesPerShortDeck;
-
-  // Component sizes (reference values)
-  final double transomLength;
-  final double stopEndHandrailLength;
-  final double aberdeenLength;
-  final double stopEndToeBoardLength;
-  final List<double> dropperLengths;
+  final int dropperPerShortDeck;
+  final int doublesPerShortDeckDropper;
 
   final bool isGolden;
 
-  WidthCalculationResult({
+  WidthResult({
     required this.mainDeckBoards,
     required this.insideBoards,
-    required this.mainDeckBoardsPerDeck,
-    required this.insideBoardsPerDeck,
-    required this.toeBoardsPerDeck,
-    required this.totalBoardsPerDeck,
+    required this.transomLength,
+    required this.aberdeenLength,
+    required this.stopEndHandrailLength,
+    required this.stopEndToeBoardLength,
+    required this.stopEndDropperLength,
+    required this.shortDeckDropperLength,
     required this.topStopEndHandrails,
     required this.bottomStopEndHandrails,
-    required this.stopEndHandrailDoubles,
+    required this.topStopEndHandrailDoubles,
+    required this.bottomStopEndHandrailDoubles,
     required this.stopEndToeBoards,
-    required this.stopEndToeBoardSingles,
-    required this.stopEndToeBoardDroppers,
-    required this.stopEndToeBoardDropperDoubles,
+    required this.droppersForStopEndToeBoards,
+    required this.doublesForStopEndToeBoards,
+    required this.singlesForStopEndToeBoards,
     required this.boardClipsPerShortDeck,
-    required this.droppersPerShortDeck,
-    required this.dropperDoublesPerShortDeck,
-    required this.transomLength,
-    required this.stopEndHandrailLength,
-    required this.aberdeenLength,
-    required this.stopEndToeBoardLength,
-    required this.dropperLengths,
+    required this.dropperPerShortDeck,
+    required this.doublesPerShortDeckDropper,
     this.isGolden = false,
   });
-}
 
-/// Brace sizing result
-class BraceCalculationResult {
-  final double ledgerBraceSize;
-  final double swayBraceSize;
-
-  BraceCalculationResult({
-    required this.ledgerBraceSize,
-    required this.swayBraceSize,
-  });
-}
-
-/// Lift type enumeration
-enum LiftType {
-  base2mBoarded,
-  from2mBoarded,
-  from2mUnboardedToBoarded,
-  remainder15mBoarded,
-  remainder10mBoarded,
-  remainder05mBoarded,
-  baseWithBoardedAbove,
-  intermediateUnboarded,
-  unboardedWithRemainderAbove,
-}
-
-/// Component permissions for a lift type
-class LiftComponentPermissions {
-  final bool ledgers;
-  final bool transoms;
-  final bool ledgerBraces;
-  final bool swayBraces;
-  final bool aberdeens;
-  final bool mainDeckBoards;
-  final bool insideBoards;
-  final bool toeBoards;
-  final bool stopEndHandrails;
-  final bool topHandrails;
-  final bool bottomHandrails;
-  final bool droppers;
-
-  LiftComponentPermissions({
-    required this.ledgers,
-    required this.transoms,
-    required this.ledgerBraces,
-    required this.swayBraces,
-    required this.aberdeens,
-    required this.mainDeckBoards,
-    required this.insideBoards,
-    required this.toeBoards,
-    required this.stopEndHandrails,
-    required this.topHandrails,
-    required this.bottomHandrails,
-    required this.droppers,
-  });
-
-  bool get isBoarded => mainDeckBoards;
-  bool get hasHandrails => topHandrails || bottomHandrails || stopEndHandrails;
-}
-
-/// Lift configuration
-class LiftConfiguration {
-  final int liftNumber; // 1-based index
-  final LiftType liftType;
-  final double heightM; // 2.0, 1.5, 1.0, or 0.5
-  final LiftComponentPermissions permissions;
-
-  LiftConfiguration({
-    required this.liftNumber,
-    required this.liftType,
-    required this.heightM,
-    required this.permissions,
-  });
-
-  bool get isBoarded => permissions.isBoarded;
-  bool get hasHandrails => permissions.hasHandrails;
+  int get totalStopEndHandrails => topStopEndHandrails + bottomStopEndHandrails;
+  int get totalStopEndHandrailDoubles =>
+      topStopEndHandrailDoubles + bottomStopEndHandrailDoubles;
 }
 
 /// Final assembled quantities
 class FinalQuantities {
-  // Standards (vertical)
-  final Map<double, int> standards; // size -> quantity
-
-  // Ledgers (horizontal)
-  final Map<double, int> ledgers;
-
-  // Transoms
-  final Map<double, int> transoms;
-
-  // Boards
-  final Map<double, int> boards;
-
-  // Handrails
-  final Map<double, int> handrails;
-
-  // Bracing
-  final Map<double, int> ledgerBraces;
-  final Map<double, int> swayBraces;
-
-  // Fittings
-  final int doubles;
-  final int swivels;
+  // Vertical components
+  final Map<String, int> standards;
   final int sleeves;
-  final int singles;
-  final int boardClips;
-
-  // Base support
   final int soleBoards;
   final int baseplates;
 
-  // Droppers
-  final Map<double, int> droppers;
+  // Horizontal components
+  final Map<String, int> ledgers;
+  final int ledgerSleeves;
+  final Map<String, int> handrails;
+  final int handrailSleeves;
+  final Map<String, int> transoms;
+  final Map<String, int> aberdeens;
 
-  // Metadata
-  final int totalLifts;
-  final int boardedLifts;
-  final double totalHeightM;
-  final double totalLengthM;
+  // Boards
+  final Map<String, int> boards; // Combined main deck + inside + toe
+
+  // Bracing
+  final Map<String, int> ledgerBraces;
+  final Map<String, int> swayBraces;
+  final int swivels;
+
+  // Fittings
+  final int doubles;
+  final int singles;
+  final int boardClips;
+
+  // Droppers
+  final Map<String, int> droppers;
+
+  // Validation
+  final bool isGoldenHeight;
+  final bool isGoldenLength;
+  final bool isGoldenWidth;
+  final bool liftLogicValid;
 
   FinalQuantities({
     required this.standards,
-    required this.ledgers,
-    required this.transoms,
-    required this.boards,
-    required this.handrails,
-    required this.ledgerBraces,
-    required this.swayBraces,
-    required this.doubles,
-    required this.swivels,
     required this.sleeves,
-    required this.singles,
-    required this.boardClips,
     required this.soleBoards,
     required this.baseplates,
+    required this.ledgers,
+    required this.ledgerSleeves,
+    required this.handrails,
+    required this.handrailSleeves,
+    required this.transoms,
+    required this.aberdeens,
+    required this.boards,
+    required this.ledgerBraces,
+    required this.swayBraces,
+    required this.swivels,
+    required this.doubles,
+    required this.singles,
+    required this.boardClips,
     required this.droppers,
-    required this.totalLifts,
-    required this.boardedLifts,
-    required this.totalHeightM,
-    required this.totalLengthM,
+    this.isGoldenHeight = false,
+    this.isGoldenLength = false,
+    this.isGoldenWidth = false,
+    this.liftLogicValid = true,
   });
 
-  /// Format a component map as a string (e.g., "21ft × 24, 16ft × 8")
-  String formatComponents(Map<double, int> components) {
+  /// Format components map to display string
+  String formatComponents(Map<String, int> components) {
     if (components.isEmpty) return '-';
-    return components.entries.map((e) => '${e.key}ft × ${e.value}').join(', ');
+
+    final sorted = components.entries.toList()
+      ..sort((a, b) {
+        // Sort by size (extract number from string like "21ft")
+        final aNum = int.tryParse(a.key.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+        final bNum = int.tryParse(b.key.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+        return bNum.compareTo(aNum); // Descending order
+      });
+
+    return sorted.map((e) => '${e.value} x ${e.key}').join(', ');
   }
 }

@@ -1,142 +1,169 @@
-import '../models/calculation_models.dart';
-import '../data/lift_calculation_data.dart';
+/// =====================================================
+/// LIFT STACK GENERATOR SERVICE
+/// Generates valid lift configurations based on target height
+/// =====================================================
 
-/// Generates lift stack to reach target height
-/// Uses 2m increments with remainders (1.5m, 1.0m, 0.5m)
+import '../models/calculation_models.dart';
+
 class LiftStackGenerator {
-  /// Generate lift stack to reach target height
-  /// Returns list of lift configurations in bottom-to-top order
-  static List<LiftConfiguration> generateLiftStack({
+  /// Generate a lift stack for the given target height
+  /// 
+  /// Rules:
+  /// - All lifts built in 2m increments where possible
+  /// - Remainder lifts (1.5m, 1.0m, 0.5m) used only if needed
+  /// - Base lift is always first
+  /// - Remainders exist solely to achieve exact target height
+  static LiftStack generateLiftStack({
     required double targetHeightM,
-    required bool allLiftsBoarded,
+    required List<double> selectedBoardedHeights,
   }) {
-    final lifts = <LiftConfiguration>[];
-    double currentHeight = 0.0;
+    final lifts = <Lift>[];
+    double currentHeight = 0;
     int liftNumber = 1;
 
-    // First lift is always base
-    final baseType = allLiftsBoarded
-        ? LiftType.base2mBoarded
-        : LiftType.baseWithBoardedAbove;
+    // Start with 2m base lift
+    final baseBoarded = selectedBoardedHeights.contains(2.0);
+    lifts.add(Lift(
+      number: liftNumber++,
+      startHeight: 0,
+      endHeight: 2,
+      type: LiftType.base2m,
+      isBoarded: baseBoarded,
+    ));
+    currentHeight = 2;
 
-    lifts.add(
-      LiftConfiguration(
-        liftNumber: liftNumber++,
-        liftType: baseType,
-        heightM: 2.0,
-        permissions: LiftCalculationData.getPermissions(baseType),
-      ),
-    );
-    currentHeight += 2.0;
+    // Build remaining lifts
+    while (currentHeight < targetHeightM) {
+      final remaining = targetHeightM - currentHeight;
+      final prevLift = lifts.last;
 
-    // Add 2m lifts until we're close to target
-    while (currentHeight + 2.0 <= targetHeightM) {
-      final liftType = allLiftsBoarded
-          ? LiftType.from2mBoarded
-          : LiftType.intermediateUnboarded;
+      if (remaining >= 2) {
+        // Full 2m lift
+        final endHeight = currentHeight + 2;
+        final isBoarded = selectedBoardedHeights.contains(endHeight);
+        
+        LiftType liftType;
+        if (prevLift.isBoarded) {
+          liftType = LiftType.fromBoarded2m;
+        } else {
+          liftType = LiftType.fromUnboarded2m;
+        }
 
-      lifts.add(
-        LiftConfiguration(
-          liftNumber: liftNumber++,
-          liftType: liftType,
-          heightM: 2.0,
-          permissions: LiftCalculationData.getPermissions(liftType),
-        ),
-      );
-      currentHeight += 2.0;
+        lifts.add(Lift(
+          number: liftNumber++,
+          startHeight: currentHeight,
+          endHeight: endHeight,
+          type: liftType,
+          isBoarded: isBoarded,
+        ));
+        currentHeight = endHeight;
+      } else if (remaining >= 1.5) {
+        // 1.5m remainder
+        final endHeight = currentHeight + 1.5;
+        final isBoarded = selectedBoardedHeights.contains(endHeight);
+
+        lifts.add(Lift(
+          number: liftNumber++,
+          startHeight: currentHeight,
+          endHeight: endHeight,
+          type: LiftType.remainder1_5m,
+          isBoarded: isBoarded,
+        ));
+        currentHeight = endHeight;
+      } else if (remaining >= 1) {
+        // 1m remainder
+        final endHeight = currentHeight + 1;
+        final isBoarded = selectedBoardedHeights.contains(endHeight);
+
+        lifts.add(Lift(
+          number: liftNumber++,
+          startHeight: currentHeight,
+          endHeight: endHeight,
+          type: LiftType.remainder1m,
+          isBoarded: isBoarded,
+        ));
+        currentHeight = endHeight;
+      } else if (remaining >= 0.5) {
+        // 0.5m remainder
+        final endHeight = currentHeight + 0.5;
+        final isBoarded = selectedBoardedHeights.contains(endHeight);
+
+        lifts.add(Lift(
+          number: liftNumber++,
+          startHeight: currentHeight,
+          endHeight: endHeight,
+          type: LiftType.remainder0_5m,
+          isBoarded: isBoarded,
+        ));
+        currentHeight = endHeight;
+      } else {
+        break;
+      }
     }
 
-    // Add remainder lift if needed
-    final remainingHeight = targetHeightM - currentHeight;
-    if (remainingHeight > 0.0) {
-      final remainderLiftType = _getRemainderLiftType(
-        remainingHeight,
-        allLiftsBoarded,
-      );
-      final remainderHeight = _getRemainderHeight(remainingHeight);
+    return LiftStack(lifts);
+  }
 
-      lifts.add(
-        LiftConfiguration(
-          liftNumber: liftNumber,
-          liftType: remainderLiftType,
-          heightM: remainderHeight,
-          permissions: LiftCalculationData.getPermissions(remainderLiftType),
-        ),
-      );
+  /// Generate available lift heights for user selection
+  /// Returns list of heights where lifts end (in meters)
+  static List<double> getAvailableLiftHeights(double topBoardedLift) {
+    final heights = <double>[];
+    double currentHeight = 0;
+
+    while (currentHeight < topBoardedLift) {
+      final remaining = topBoardedLift - currentHeight;
+
+      if (remaining >= 2) {
+        currentHeight += 2;
+        heights.add(currentHeight);
+      } else if (remaining >= 1.5) {
+        currentHeight += 1.5;
+        heights.add(currentHeight);
+      } else if (remaining >= 1) {
+        currentHeight += 1;
+        heights.add(currentHeight);
+      } else if (remaining >= 0.5) {
+        currentHeight += 0.5;
+        heights.add(currentHeight);
+      } else {
+        break;
+      }
     }
 
-    return lifts;
+    return heights;
   }
 
-  /// Determine remainder lift type based on remaining height
-  static LiftType _getRemainderLiftType(double remainingHeight, bool boarded) {
-    if (!boarded) {
-      return LiftType.unboardedWithRemainderAbove;
-    }
+  /// Validate a lift stack
+  static bool validateLiftStack(LiftStack stack) {
+    if (stack.lifts.isEmpty) return false;
 
-    if (remainingHeight >= 1.25) {
-      return LiftType.remainder15mBoarded;
-    } else if (remainingHeight >= 0.75) {
-      return LiftType.remainder10mBoarded;
-    } else {
-      return LiftType.remainder05mBoarded;
-    }
-  }
+    // First lift must be base lift
+    if (stack.lifts.first.type != LiftType.base2m) return false;
 
-  /// Get actual remainder height (1.5m, 1.0m, or 0.5m)
-  static double _getRemainderHeight(double remainingHeight) {
-    if (remainingHeight >= 1.25) {
-      return 1.5;
-    } else if (remainingHeight >= 0.75) {
-      return 1.0;
-    } else {
-      return 0.5;
-    }
-  }
-
-  /// Calculate total height of lift stack
-  static double calculateTotalHeight(List<LiftConfiguration> lifts) {
-    return lifts.fold(0.0, (sum, lift) => sum + lift.heightM);
-  }
-
-  /// Count boarded lifts in stack
-  static int countBoardedLifts(List<LiftConfiguration> lifts) {
-    return lifts.where((lift) => lift.isBoarded).length;
-  }
-
-  /// Count lifts with handrails
-  static int countHandrailLifts(List<LiftConfiguration> lifts) {
-    return lifts.where((lift) => lift.hasHandrails).length;
-  }
-
-  /// Validate lift stack configuration
-  static bool validateLiftStack(List<LiftConfiguration> lifts) {
-    if (lifts.isEmpty) return false;
-
-    // First lift must be a base
-    final firstLift = lifts.first;
-    if (firstLift.liftType != LiftType.base2mBoarded &&
-        firstLift.liftType != LiftType.baseWithBoardedAbove) {
-      return false;
-    }
-
-    // Lift numbers should be sequential
-    for (int i = 0; i < lifts.length; i++) {
-      if (lifts[i].liftNumber != i + 1) {
+    // Check continuity
+    for (int i = 1; i < stack.lifts.length; i++) {
+      final prev = stack.lifts[i - 1];
+      final curr = stack.lifts[i];
+      
+      // End of previous should equal start of current
+      if ((prev.endHeight - curr.startHeight).abs() > 0.001) {
         return false;
       }
     }
 
-    // Only last lift can be a remainder
-    for (int i = 0; i < lifts.length - 1; i++) {
-      final liftType = lifts[i].liftType;
-      if (liftType == LiftType.remainder15mBoarded ||
-          liftType == LiftType.remainder10mBoarded ||
-          liftType == LiftType.remainder05mBoarded) {
-        return false;
-      }
-    }
+    // Must have at least one boarded lift
+    if (stack.boardedLifts == 0) return false;
 
     return true;
+  }
+
+  /// Generate default boarded heights (top lift only)
+  static List<double> getDefaultBoardedHeights(double topBoardedLift) {
+    return [topBoardedLift];
+  }
+
+  /// Generate all lifts boarded heights
+  static List<double> getAllBoardedHeights(double topBoardedLift) {
+    return getAvailableLiftHeights(topBoardedLift);
   }
 }
